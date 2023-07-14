@@ -2,9 +2,10 @@
 #pragma warning disable CS0105
 using ConsoleApp.Tables;
 using ConsoleApp;
-using ReactiveMemory.Validation;
-using ReactiveMemory;
+using MasterMemory.Validation;
+using MasterMemory;
 using MessagePack;
+using ReactiveMemory;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,7 +20,7 @@ using ConsoleApp.Tables;
 
 namespace ConsoleApp
 {
-   public sealed class ImmutableBuilder : TransactionBase
+   public sealed class Transaction : TransactionBase
    {
         MemoryDatabase memory;
 
@@ -32,7 +33,7 @@ namespace ConsoleApp
         private IChangesQueue<Test2> _Test2ChangeTracker;
  
 
-        public ImmutableBuilder(MemoryDatabase memory)
+        public Transaction(MemoryDatabase memory)
         {
             this.memory = memory;
             _EnumKeyTableChangeTracker = this.memory.ChangesConveyor.GetQueue<EnumKeyTable>();
@@ -45,7 +46,7 @@ namespace ConsoleApp
  
         }
 
-        public MemoryDatabase Build()
+        public MemoryDatabase Commit()
         {
             memory.ChangesConveyor.Publish();
             return memory;

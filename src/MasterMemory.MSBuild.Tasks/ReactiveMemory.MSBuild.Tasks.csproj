@@ -34,7 +34,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\MasterMemory.GeneratorCore\MasterMemory.GeneratorCore.csproj" PrivateAssets="all" />
+        <ProjectReference Include="..\MasterMemory.GeneratorCore\ReactiveMemory.GeneratorCore.csproj" PrivateAssets="all" />
     </ItemGroup>
 
     <!--

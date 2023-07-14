@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace MasterMemory.GeneratorCore
+namespace ReactiveMemory.GeneratorCore
 {
     public class CodeGenerator
     {
@@ -50,7 +50,7 @@ namespace MasterMemory.GeneratorCore
 
                 var builderTemplate = new DatabaseBuilderTemplate();
                 var databaseTemplate = new MemoryDatabaseTemplate();
-                var immutableBuilderTemplate = new ImmutableBuilderTemplate();
+                var immutableBuilderTemplate = new TransactionTemplate();
                 var resolverTemplate = new MessagePackResolverTemplate();
                 builderTemplate.Namespace = databaseTemplate.Namespace = immutableBuilderTemplate.Namespace = resolverTemplate.Namespace = usingNamespace;
                 builderTemplate.PrefixClassName = databaseTemplate.PrefixClassName = immutableBuilderTemplate.PrefixClassName = resolverTemplate.PrefixClassName = prefixClassName;

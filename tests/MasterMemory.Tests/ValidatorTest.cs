@@ -1,4 +1,4 @@
-﻿using MasterMemory.Tests.TestStructures;
+﻿using ReactiveMemory.Tests.TestStructures;
 using FluentAssertions;
 using MessagePack;
 using System;
@@ -7,7 +7,7 @@ using System.Text;
 using Xunit;
 using System.Linq;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
     public class ValidatorTest
     {

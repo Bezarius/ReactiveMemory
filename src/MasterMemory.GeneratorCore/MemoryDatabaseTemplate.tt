@@ -19,15 +19,15 @@ namespace <#= Namespace #>
 <# for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; #>
             <#= item.ClassName #>Table <#= item.ClassName #>Table<#= (i == GenerationContexts.Length - 1) ? "" : "," #>
 <# } #>
-        )
+        , ChangesConveyor changesConveyor) : base(changesConveyor)
         {
 <# for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; #>
             this.<#= item.ClassName #>Table = <#= item.ClassName #>Table;
 <# } #>
         }
 
-        public <#= ClassName #>(byte[] databaseBinary, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
-            : base(databaseBinary, internString, formatterResolver, maxDegreeOfParallelism)
+        public <#= ClassName #>(byte[] databaseBinary, IChangesMediatorFactory changesMediatorFactory, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
+            : base(databaseBinary, changesMediatorFactory, internString, formatterResolver, maxDegreeOfParallelism)
         {
         }
 
@@ -65,9 +65,9 @@ namespace <#= Namespace #>
             }, extracts);
         }
 
-        public <#= PrefixClassName #>ImmutableBuilder ToImmutableBuilder()
+        public <#= PrefixClassName #>Transaction BeginTransaction()
         {
-            return new <#= PrefixClassName #>ImmutableBuilder(this);
+            return new <#= PrefixClassName #>Transaction(this);
         }
 
         public <#= PrefixClassName #>DatabaseBuilder ToDatabaseBuilder()

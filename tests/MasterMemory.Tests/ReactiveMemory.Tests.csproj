@@ -19,8 +19,4 @@
 		<ProjectReference Include="..\..\src\MasterMemory\MasterMemory.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="Generated" />
-	</ItemGroup>
-
 </Project>

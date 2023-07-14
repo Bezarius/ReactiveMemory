@@ -5,6 +5,7 @@ using ConsoleApp;
 using MasterMemory.Validation;
 using MasterMemory;
 using MessagePack;
+using ReactiveMemory;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

@@ -19,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MasterMemory.Annotations\MasterMemory.Annotations.csproj" />
-    <ProjectReference Include="..\..\src\MasterMemory\MasterMemory.csproj" />
+    <ProjectReference Include="..\..\src\MasterMemory.Annotations\ReactiveMemory.Annotations.csproj" />
+    <ProjectReference Include="..\..\src\MasterMemory\ReactiveMemory.csproj" />
   </ItemGroup>
 
 </Project>

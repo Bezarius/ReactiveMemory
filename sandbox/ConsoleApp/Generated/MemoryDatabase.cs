@@ -5,6 +5,7 @@ using ConsoleApp;
 using MasterMemory.Validation;
 using MasterMemory;
 using MessagePack;
+using ReactiveMemory;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -37,7 +38,7 @@ namespace ConsoleApp
             QuestTable QuestTable,
             Test1Table Test1Table,
             Test2Table Test2Table
-        )
+        , ChangesConveyor changesConveyor) : base(changesConveyor)
         {
             this.EnumKeyTableTable = EnumKeyTableTable;
             this.ItemTable = ItemTable;
@@ -48,8 +49,8 @@ namespace ConsoleApp
             this.Test2Table = Test2Table;
         }
 
-        public MemoryDatabase(byte[] databaseBinary, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
-            : base(databaseBinary, internString, formatterResolver, maxDegreeOfParallelism)
+        public MemoryDatabase(byte[] databaseBinary, IChangesMediatorFactory changesMediatorFactory, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
+            : base(databaseBinary, changesMediatorFactory, internString, formatterResolver, maxDegreeOfParallelism)
         {
         }
 
@@ -95,9 +96,9 @@ namespace ConsoleApp
             }, extracts);
         }
 
-        public ImmutableBuilder ToImmutableBuilder()
+        public Transaction BeginTransaction()
         {
-            return new ImmutableBuilder(this);
+            return new Transaction(this);
         }
 
         public DatabaseBuilder ToDatabaseBuilder()

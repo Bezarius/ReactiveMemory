@@ -1,10 +1,10 @@
-﻿using MasterMemory.Internal;
-using MasterMemory.Validation;
+﻿using ReactiveMemory.Internal;
+using ReactiveMemory.Validation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace MasterMemory
+namespace ReactiveMemory
 {
     public abstract class TableBase<TElement>
     {

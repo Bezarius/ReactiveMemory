@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
-namespace MasterMemory.Validation
+namespace ReactiveMemory.Validation
 {
     internal class Validator<T> : IValidator<T>
     {

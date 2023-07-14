@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MasterMemory.Validation
+namespace ReactiveMemory.Validation
 {
     public class ValidateResult
     {

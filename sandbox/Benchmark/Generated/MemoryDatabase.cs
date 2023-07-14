@@ -35,9 +35,9 @@ namespace TestPerfLiteDB
             this.TestDocTable = ExtractTableData<TestDoc, TestDocTable>(header, databaseBinary, options, xs => new TestDocTable(xs));
         }
 
-        public ImmutableBuilder ToImmutableBuilder()
+        public Transaction ToImmutableBuilder()
         {
-            return new ImmutableBuilder(this);
+            return new Transaction(this);
         }
 
         public DatabaseBuilder ToDatabaseBuilder()

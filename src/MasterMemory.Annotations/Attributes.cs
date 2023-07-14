@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MasterMemory
+namespace ReactiveMemory
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class MemoryTableAttribute : Attribute

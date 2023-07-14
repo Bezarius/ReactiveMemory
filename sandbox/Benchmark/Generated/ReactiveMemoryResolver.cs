@@ -13,11 +13,11 @@ using TestPerfLiteDB.Tables;
 
 namespace TestPerfLiteDB
 {
-    public class MasterMemoryResolver : global::MessagePack.IFormatterResolver
+    public class ReactiveMemoryResolver : global::MessagePack.IFormatterResolver
     {
-        public static readonly global::MessagePack.IFormatterResolver Instance = new MasterMemoryResolver();
+        public static readonly global::MessagePack.IFormatterResolver Instance = new ReactiveMemoryResolver();
 
-        MasterMemoryResolver()
+        ReactiveMemoryResolver()
         {
 
         }

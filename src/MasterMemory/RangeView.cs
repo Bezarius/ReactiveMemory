@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace MasterMemory
+namespace ReactiveMemory
 {
     public readonly struct RangeView<T> : IEnumerable<T>, IReadOnlyList<T>, IList<T>
     {

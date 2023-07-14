@@ -1,4 +1,4 @@
-﻿using MasterMemory;
+﻿using ReactiveMemory;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TestPerfLiteDB
 {
-    public class MasterMemory_Test : ITest
+    public class ReactiveMemory_Test : ITest
     {
         private string _filename;
         private int _count;
@@ -18,7 +18,7 @@ namespace TestPerfLiteDB
         public int Count { get { return _count; } }
         public int FileLength { get { return (int)new FileInfo(_filename).Length; } }
 
-        public MasterMemory_Test(int count)
+        public ReactiveMemory_Test(int count)
         {
             _count = count;
             _filename = "mastermemorydatabase-" + Guid.NewGuid().ToString("n") + ".db";

@@ -1,4 +1,4 @@
-﻿using MasterMemory.Internal;
+﻿using ReactiveMemory.Internal;
 using MessagePack;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace MasterMemory
+namespace ReactiveMemory
 {
     public abstract class DatabaseBuilderBase
     {

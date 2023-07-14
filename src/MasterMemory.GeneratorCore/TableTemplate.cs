@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace MasterMemory.GeneratorCore
+namespace ReactiveMemory.GeneratorCore
 {
     using System.Linq;
     using System.Text;
@@ -310,7 +310,7 @@ namespace MasterMemory.GeneratorCore
         /// <summary>
         /// The string builder that generation-time code is using to assemble generated output
         /// </summary>
-        protected System.Text.StringBuilder GenerationEnvironment
+        public System.Text.StringBuilder GenerationEnvironment
         {
             get
             {

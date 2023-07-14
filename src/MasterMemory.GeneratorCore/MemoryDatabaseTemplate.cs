@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace MasterMemory.GeneratorCore
+namespace ReactiveMemory.GeneratorCore
 {
     using System.Linq;
     using System.Text;
@@ -51,7 +51,7 @@ namespace MasterMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture((i == GenerationContexts.Length - 1) ? "" : ","));
             this.Write("\r\n");
  } 
-            this.Write("        )\r\n        {\r\n");
+            this.Write("        , ChangesConveyor changesConveyor) : base(changesConveyor)\r\n        {\r\n");
  for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; 
             this.Write("            this.");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
@@ -61,8 +61,8 @@ namespace MasterMemory.GeneratorCore
  } 
             this.Write("        }\r\n\r\n        public ");
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
-            this.Write(@"(byte[] databaseBinary, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
-            : base(databaseBinary, internString, formatterResolver, maxDegreeOfParallelism)
+            this.Write(@"(byte[] databaseBinary, IChangesMediatorFactory changesMediatorFactory, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
+            : base(databaseBinary, changesMediatorFactory, internString, formatterResolver, maxDegreeOfParallelism)
         {
         }
 
@@ -120,9 +120,9 @@ namespace MasterMemory.GeneratorCore
 
         public ");
             this.Write(this.ToStringHelper.ToStringWithCulture(PrefixClassName));
-            this.Write("ImmutableBuilder ToImmutableBuilder()\r\n        {\r\n            return new ");
+            this.Write("Transaction BeginTransaction()\r\n        {\r\n            return new ");
             this.Write(this.ToStringHelper.ToStringWithCulture(PrefixClassName));
-            this.Write("ImmutableBuilder(this);\r\n        }\r\n\r\n        public ");
+            this.Write("Transaction(this);\r\n        }\r\n\r\n        public ");
             this.Write(this.ToStringHelper.ToStringWithCulture(PrefixClassName));
             this.Write("DatabaseBuilder ToDatabaseBuilder()\r\n        {\r\n            var builder = new ");
             this.Write(this.ToStringHelper.ToStringWithCulture(PrefixClassName));
@@ -230,7 +230,7 @@ namespace MasterMemory.GeneratorCore
         /// <summary>
         /// The string builder that generation-time code is using to assemble generated output
         /// </summary>
-        protected System.Text.StringBuilder GenerationEnvironment
+        public System.Text.StringBuilder GenerationEnvironment
         {
             get
             {

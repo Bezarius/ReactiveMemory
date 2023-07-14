@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace MasterMemory.Validation
+namespace ReactiveMemory.Validation
 {
     public class ReferenceSet<TElement, TReference>
     {

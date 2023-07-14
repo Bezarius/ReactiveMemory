@@ -1,11 +1,11 @@
 ﻿using ConsoleAppFramework;
-using MasterMemory.GeneratorCore;
+using ReactiveMemory.GeneratorCore;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace MasterMemory.Generator
+namespace ReactiveMemory.Generator
 {
     public class Program : ConsoleAppBase
     {
@@ -21,7 +21,7 @@ namespace MasterMemory.Generator
             [Option("o", "Output file directory.")]string outputDirectory,
             [Option("n", "Namespace of generated files.")]string usingNamespace,
             [Option("p", "Prefix of class names.")]string prefixClassName = "",
-            [Option("c", "Add immutable constructor to MemoryTable class.")]bool addImmutableConstructor = false,
+            [Option("c", "Add immutable constructor to MemoryTable class.")]bool addImmutableConstructor = true,
             [Option("t", "Return null if key not found on unique find method.")]bool returnNullIfKeyNotFound = false,
             [Option("f", "Overwrite generated files if the content is unchanged.")]bool forceOverwrite = false)
         {

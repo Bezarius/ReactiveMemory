@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
 
-namespace MasterMemory.GeneratorCore
+namespace ReactiveMemory.GeneratorCore
 {
 
     public class GenerationContext

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Buffers;
 
-namespace MasterMemory
+namespace ReactiveMemory
 {
     internal class ByteBufferWriter : IBufferWriter<byte>
     {

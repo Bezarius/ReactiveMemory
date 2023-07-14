@@ -1,4 +1,4 @@
-﻿namespace MasterMemory.Validation
+﻿namespace ReactiveMemory.Validation
 {
     public interface ITableUniqueValidate
     {

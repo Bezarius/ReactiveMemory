@@ -1,8 +1,8 @@
-﻿using MasterMemory.Validation;
+﻿using ReactiveMemory.Validation;
 using System;
 using System.Linq.Expressions;
 
-namespace MasterMemory
+namespace ReactiveMemory
 {
     public interface IValidatable<TSelf>
     {

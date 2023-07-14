@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MasterMemory
+namespace ReactiveMemory
 {
     public static class DatabaseBuilderExtensions
     {

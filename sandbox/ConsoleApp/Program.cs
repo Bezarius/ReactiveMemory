@@ -1,4 +1,4 @@
-using MasterMemory;
+using ReactiveMemory;
 using System.Linq;
 using MessagePack;
 using System;
@@ -11,11 +11,11 @@ using System.Reflection;
 using System.Text;
 using System.Globalization;
 
-// IValidatable‚ğÀ‘•‚·‚é‚ÆŒŸØ‘ÎÛ‚É‚È‚é
+// IValidatableï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÆŒï¿½ï¿½Ø‘ÎÛ‚É‚È‚ï¿½
 [MemoryTable("quest_master"), MessagePackObject(true)]
 public class Quest : IValidatable<Quest>
 {
-    // UniqueKey‚Ìê‡‚ÍValidate‚ÉƒfƒtƒHƒ‹ƒg‚Åd•¡‚©‚ÌŒŸØ‚ª‚³‚ê‚é
+    // UniqueKeyï¿½Ìê‡ï¿½ï¿½Validateï¿½ï¿½ï¿½Éƒfï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½Ådï¿½ï¿½ï¿½ï¿½ï¿½ÌŒï¿½ï¿½Ø‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     [PrimaryKey]
     public int Id { get; set; }
     public string Name { get; set; }
@@ -25,25 +25,25 @@ public class Quest : IValidatable<Quest>
 
     void IValidatable<Quest>.Validate(IValidator<Quest> validator)
     {
-        // ŠO•”ƒL[“I‚ÉQÆ‚µ‚½‚¢ƒRƒŒƒNƒVƒ‡ƒ“‚ğæ‚èo‚¹‚é
+        // ï¿½Oï¿½ï¿½ï¿½Lï¿½[ï¿½Iï¿½ÉQï¿½Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Rï¿½ï¿½ï¿½Nï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½oï¿½ï¿½ï¿½ï¿½
         var items = validator.GetReferenceSet<Item>();
 
-        // RewardId‚ª0ˆÈã‚Ì‚Æ‚«(0‚Í•ñVƒiƒV‚Ì‚½‚ß‚Ì“Á•Ê‚Èƒtƒ‰ƒO‚Æ‚·‚é‚½‚ß“ü—Í‚ğ‹–—e‚·‚é)
+        // RewardIdï¿½ï¿½0ï¿½Èï¿½Ì‚Æ‚ï¿½(0ï¿½Í•ï¿½Vï¿½iï¿½Vï¿½Ì‚ï¿½ï¿½ß‚Ì“ï¿½ï¿½Ê‚Èƒtï¿½ï¿½ï¿½Oï¿½Æ‚ï¿½ï¿½é‚½ï¿½ß“ï¿½ï¿½Í‚ï¿½ï¿½ï¿½ï¿½eï¿½ï¿½ï¿½ï¿½)
         if (this.RewardId > 0)
         {
-            // Items‚Ìƒ}ƒXƒ^‚É•K‚¸ŠÜ‚Ü‚ê‚Ä‚È‚¯‚ê‚ÎŒŸØƒGƒ‰[iƒGƒ‰[‚ªo‚Ä‚à‘±s‚Í‚µ‚Ä‚·‚×‚Ä‚ÌŒŸØŒ‹‰Ê‚ğo‚·)
+            // Itemsï¿½Ìƒ}ï¿½Xï¿½^ï¿½É•Kï¿½ï¿½ï¿½Ü‚Ü‚ï¿½Ä‚È‚ï¿½ï¿½ï¿½ÎŒï¿½ï¿½ØƒGï¿½ï¿½ï¿½[ï¿½iï¿½Gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½oï¿½Ä‚ï¿½ï¿½ï¿½ï¿½sï¿½Í‚ï¿½ï¿½Ä‚ï¿½ï¿½×‚Ä‚ÌŒï¿½ï¿½ØŒï¿½ï¿½Ê‚ï¿½ï¿½oï¿½ï¿½)
             items.Exists(x => x.RewardId, x => x.ItemId);
         }
 
-        // ƒRƒXƒg‚Í10..20‚Å‚È‚¯‚ê‚ÎŒŸØƒGƒ‰[
+        // ï¿½Rï¿½Xï¿½gï¿½ï¿½10..20ï¿½Å‚È‚ï¿½ï¿½ï¿½ÎŒï¿½ï¿½ØƒGï¿½ï¿½ï¿½[
         validator.Validate(x => x.Cost >= 10);
         validator.Validate(x => x.Cost <= 20);
 
-        // ˆÈ‰º‚ÅˆÍ‚Á‚½•”•ª‚Íˆê“x‚µ‚©ŒÄ‚Î‚ê‚È‚¢‚½‚ßAƒf[ƒ^ƒZƒbƒg‘S‘Ì‚ÌŒŸØ‚ğ‚µ‚½‚¢‚Ég‚¦‚é
+        // ï¿½È‰ï¿½ï¿½ÅˆÍ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Íˆï¿½xï¿½ï¿½ï¿½ï¿½ï¿½Ä‚Î‚ï¿½È‚ï¿½ï¿½ï¿½ï¿½ßAï¿½fï¿½[ï¿½^ï¿½Zï¿½bï¿½gï¿½Sï¿½Ì‚ÌŒï¿½ï¿½Ø‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Égï¿½ï¿½ï¿½ï¿½
         if (validator.CallOnce())
         {
             var quests = validator.GetTableSet();
-            // ƒCƒ“ƒfƒbƒNƒX¶¬‚µ‚½‚à‚ÌˆÈŠO‚Ìƒ†ƒj[ƒN‚Ç‚¤‚©‚ÌŒŸØ(0‚Íd•¡‚·‚é‚½‚ßœ‚¢‚Ä‚¨‚­)
+            // ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÌˆÈŠOï¿½Ìƒï¿½ï¿½jï¿½[ï¿½Nï¿½Ç‚ï¿½ï¿½ï¿½ï¿½ÌŒï¿½ï¿½ï¿½(0ï¿½Ídï¿½ï¿½ï¿½ï¿½ï¿½é‚½ï¿½ßï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½)
             quests.Where(x => x.RewardId != 0).Unique(x => x.RewardId);
         }
     }
@@ -52,6 +52,15 @@ public class Quest : IValidatable<Quest>
     {
         A, B, C
     }
+
+    public Quest(int Id, string Name, int RewardId, int Cost, MyEnum MyProperty)
+    {
+        this.Id = Id;
+        this.Name = Name;
+        this.RewardId = RewardId;
+        this.Cost = Cost;
+        this.MyProperty = MyProperty;
+    }
 }
 
 [MemoryTable("item"), MessagePackObject(true)]
@@ -59,6 +68,11 @@ public class Item
 {
     [PrimaryKey]
     public int ItemId { get; set; }
+
+    public Item(int ItemId)
+    {
+        this.ItemId = ItemId;
+    }
 }
 
 namespace ConsoleApp.Tables
@@ -98,6 +112,11 @@ namespace ConsoleApp
     {
         [PrimaryKey]
         public Gender Gender { get; set; }
+
+        public EnumKeyTable(Gender Gender)
+        {
+            this.Gender = Gender;
+        }
     }
 
     public enum Gender
@@ -196,6 +215,11 @@ namespace ConsoleApp
     {
         [PrimaryKey]
         public int Id { get; set; }
+
+        public Test1(int Id)
+        {
+            this.Id = Id;
+        }
     }
 
     [MessagePackObject(false)]
@@ -204,6 +228,19 @@ namespace ConsoleApp
     {
         [PrimaryKey]
         public int Id { get; set; }
+
+        public Test2(int Id)
+        {
+            this.Id = Id;
+        }
+    }
+
+    public class ChangesMediatorFactory : IChangesMediatorFactory
+    {
+        public IChangesMediator<TElement> Create<TElement>()
+        {
+            throw new NotImplementedException();
+        }
     }
 
 
@@ -258,7 +295,15 @@ namespace ConsoleApp
             builder.AppendDynamic(table.DataType, tableData);
 
             var bin = builder.Build();
-            var database = new MemoryDatabase(bin, maxDegreeOfParallelism: Environment.ProcessorCount);
+            var cgm = new ChangesMediatorFactory();
+            var database = new MemoryDatabase(bin, cgm, maxDegreeOfParallelism: Environment.ProcessorCount);
+            database.EnumKeyTableTable.TryFindByGender(Gender.Male, out var result);
+            result.Gender = Gender.Male;
+            var transaction = database.BeginTransaction();
+            transaction.Diff(new EnumKeyTable());
+            transaction.Commit();
+
+
         }
 
         static object ParseValue(Type type, string rawValue)

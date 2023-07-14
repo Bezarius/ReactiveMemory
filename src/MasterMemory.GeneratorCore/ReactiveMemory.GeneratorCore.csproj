@@ -19,11 +19,6 @@
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
         </Compile>
-        <Compile Update="ImmutableBuilderTemplate.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>ImmutableBuilderTemplate.tt</DependentUpon>
-        </Compile>
         <Compile Update="MemoryDatabaseTemplate.cs">
             <DependentUpon>MemoryDatabaseTemplate.tt</DependentUpon>
             <DesignTime>True</DesignTime>
@@ -39,6 +34,11 @@
             <AutoGen>True</AutoGen>
             <DependentUpon>MessagePackResolverTemplate.tt</DependentUpon>
         </Compile>
+        <Compile Update="TransactionTemplate.cs">
+          <AutoGen>True</AutoGen>
+          <DesignTime>True</DesignTime>
+          <DependentUpon>TransactionTemplate.tt</DependentUpon>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>
@@ -46,8 +46,8 @@
             <LastGenOutput>DatabaseBuilderTemplate.cs</LastGenOutput>
             <Generator>TextTemplatingFilePreprocessor</Generator>
         </None>
-        <None Update="ImmutableBuilderTemplate.tt">
-            <LastGenOutput>ImmutableBuilderTemplate.cs</LastGenOutput>
+        <None Update="TransactionTemplate.tt">
+            <LastGenOutput>TransactionTemplate.cs</LastGenOutput>
             <Generator>TextTemplatingFilePreprocessor</Generator>
         </None>
         <None Update="MemoryDatabaseTemplate.tt">

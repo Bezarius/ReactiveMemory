@@ -1,11 +1,11 @@
 ﻿using FluentAssertions;
-using MasterMemory.Tests.Tables;
+using ReactiveMemory.Tests.Tables;
 using MessagePack;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
     public class MemoryTest
     {

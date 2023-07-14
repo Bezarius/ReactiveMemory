@@ -1,6 +1,6 @@
 using MessagePack;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
     [MemoryTable("s_a_m_p_l_e"), MessagePackObject(true)]
     public class Sample

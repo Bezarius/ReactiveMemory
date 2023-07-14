@@ -1,11 +1,11 @@
-﻿using MasterMemory.Internal;
+﻿using ReactiveMemory.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MasterMemory
+namespace ReactiveMemory
 {
-    public abstract class ImmutableBuilderBase
+    public abstract class TransactionBase
     {
         protected static TElement[] CloneAndSortBy<TElement, TKey>(IList<TElement> elementData,
             Func<TElement, TKey> indexSelector, IComparer<TKey> comparer)

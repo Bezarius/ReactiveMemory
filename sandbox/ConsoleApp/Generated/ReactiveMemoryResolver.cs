@@ -5,6 +5,7 @@ using ConsoleApp;
 using MasterMemory.Validation;
 using MasterMemory;
 using MessagePack;
+using ReactiveMemory;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,11 +20,11 @@ using ConsoleApp.Tables;
 
 namespace ConsoleApp
 {
-    public class MasterMemoryResolver : global::MessagePack.IFormatterResolver
+    public class ReactiveMemoryResolver : global::MessagePack.IFormatterResolver
     {
-        public static readonly global::MessagePack.IFormatterResolver Instance = new MasterMemoryResolver();
+        public static readonly global::MessagePack.IFormatterResolver Instance = new ReactiveMemoryResolver();
 
-        MasterMemoryResolver()
+        ReactiveMemoryResolver()
         {
 
         }
@@ -39,7 +40,7 @@ namespace ConsoleApp
 
             static FormatterCache()
             {
-                var f = MasterMemoryResolverGetFormatterHelper.GetFormatter(typeof(T));
+                var f = ReactiveMemoryResolverGetFormatterHelper.GetFormatter(typeof(T));
                 if (f != null)
                 {
                     formatter = (global::MessagePack.Formatters.IMessagePackFormatter<T>)f;
@@ -48,11 +49,11 @@ namespace ConsoleApp
         }
     }
 
-    internal static class MasterMemoryResolverGetFormatterHelper
+    internal static class ReactiveMemoryResolverGetFormatterHelper
     {
         static readonly global::System.Collections.Generic.Dictionary<Type, int> lookup;
 
-        static MasterMemoryResolverGetFormatterHelper()
+        static ReactiveMemoryResolverGetFormatterHelper()
         {
             lookup = new global::System.Collections.Generic.Dictionary<Type, int>(7)
             {

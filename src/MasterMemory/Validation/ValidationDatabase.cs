@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MasterMemory.Validation
+namespace ReactiveMemory.Validation
 {
     public class ValidationDatabase
     {

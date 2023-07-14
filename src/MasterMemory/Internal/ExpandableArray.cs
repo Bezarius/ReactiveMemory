@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MasterMemory.Internal
+namespace ReactiveMemory.Internal
 {
     internal struct ExpandableArray<TElement>
     {

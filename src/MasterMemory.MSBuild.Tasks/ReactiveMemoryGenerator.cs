@@ -1,11 +1,11 @@
-﻿using MasterMemory.GeneratorCore;
+﻿using ReactiveMemory.GeneratorCore;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using System;
 
-namespace MasterMemory.MSBuild.Tasks
+namespace ReactiveMemory.MSBuild.Tasks
 {
-    public class MasterMemoryGenerator : Task
+    public class ReactiveMemoryGenerator : Task
     {
         [Required]
         public string UsingNamespace { get; set; }

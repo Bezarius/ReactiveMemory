@@ -5,20 +5,20 @@
         <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <PackAsTool>true</PackAsTool>
-        <ToolCommandName>dotnet-mmgen</ToolCommandName>
+        <ToolCommandName>dotnet-rmgen</ToolCommandName>
     </PropertyGroup>
 
     <!-- NuGet informations -->
     <PropertyGroup>
-        <PackageId>MasterMemory.Generator</PackageId>
+        <PackageId>ReactiveMemory.Generator</PackageId>
         <PackageVersion>$(Version)</PackageVersion>
-        <Authors>Cysharp</Authors>
-        <Copyright>Cysharp</Copyright>
-        <Description>Code Generator of MasterMemory.</Description>
-        <PackageProjectUrl>https://github.com/Cysharp/MasterMemory</PackageProjectUrl>
+        <Authors>MstislavPavlov</Authors>
+        <Copyright>MstislavPavlov</Copyright>
+        <Description>Code Generator of ReactiveMemory.</Description>
+        <PackageProjectUrl>https://github.com/Bezarius/ReactiveMemory</PackageProjectUrl>
         <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>database, embedded, inmemory, unity</PackageTags>
+        <PackageTags>database, embedded, inmemory, unity, reactive</PackageTags>
         <IsPackable>true</IsPackable>
     </PropertyGroup>
 
@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\MasterMemory.GeneratorCore\MasterMemory.GeneratorCore.csproj" />
+        <ProjectReference Include="..\MasterMemory.GeneratorCore\ReactiveMemory.GeneratorCore.csproj" />
     </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MasterMemory.GeneratorCore
+namespace ReactiveMemory.GeneratorCore
 {
     public partial class DatabaseBuilderTemplate
     {
@@ -32,13 +32,13 @@ namespace MasterMemory.GeneratorCore
         public string ClassName => PrefixClassName + "MetaMemoryDatabase";
     }
 
-    public partial class ImmutableBuilderTemplate
+    public partial class TransactionTemplate
     {
         public string Namespace { get; set; }
         public string Using { get; set; }
         public string PrefixClassName { get; set; }
         public GenerationContext[] GenerationContexts { get; set; }
-        public string ClassName => PrefixClassName + "ImmutableBuilder";
+        public string ClassName => PrefixClassName + "Transaction";
     }
 
     public partial class MessagePackResolverTemplate
@@ -47,7 +47,7 @@ namespace MasterMemory.GeneratorCore
         public string Using { get; set; }
         public string PrefixClassName { get; set; }
         public GenerationContext[] GenerationContexts { get; set; }
-        public string ClassName => PrefixClassName + "MasterMemoryResolver";
+        public string ClassName => PrefixClassName + "ReactiveMemoryResolver";
     }
 
     public partial class TableTemplate
