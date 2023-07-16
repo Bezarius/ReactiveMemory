@@ -300,7 +300,8 @@ namespace ConsoleApp
             database.EnumKeyTableTable.TryFindByGender(Gender.Male, out var result);
             result.Gender = Gender.Male;
             var transaction = database.BeginTransaction();
-            transaction.Diff(new EnumKeyTable());
+            transaction.Diff(new EnumKeyTable(Gender: Gender.Male));
+            transaction.Diff(new Person(1, 26, Gender.Male, "Alexandr"));
             transaction.Commit();
 
 

@@ -59,4 +59,13 @@ namespace ReactiveMemory.GeneratorCore
 
         public bool ThrowKeyIfNotFound { get; set; }
     }
+
+    public partial class DataBaseContextTemplate
+    {
+        public string Namespace { get; set; }
+        public string Using { get; set; }
+        public string PrefixClassName { get; set; }
+        public GenerationContext[] GenerationContexts { get; set; }
+        public string ClassName => PrefixClassName + "DbContext";
+    }
 }

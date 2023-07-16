@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System;
 using TestPerfLiteDB;
 using TestPerfLiteDB.Tables;
+using ReactiveMemory;
 
 namespace TestPerfLiteDB
 {

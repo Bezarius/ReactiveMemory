@@ -5,21 +5,21 @@
 
         <OutputType>Library</OutputType>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-        <Company>Cysharp</Company>
+        <Company>MstislavPavlov</Company>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1701;1702;1705;1591</NoWarn>
 
         <!-- NuGet -->
-        <PackageId>MasterMemory.Annotations</PackageId>
+        <PackageId>ReactiveMemory.Annotations</PackageId>
         <PackageVersion>$(Version)</PackageVersion>
-        <Authors>Cysharp</Authors>
-        <Copyright>Cysharp</Copyright>
-        <Description>Attributes of MasterMemory.</Description>
-        <PackageProjectUrl>https://github.com/Cysharp/MasterMemory</PackageProjectUrl>
+        <Authors>MstisavPavlov</Authors>
+        <Copyright>MstislavPavlov</Copyright>
+        <Description>Attributes of ReactiveMemory.</Description>
+        <PackageProjectUrl>https://github.com/Bezarius/ReactiveMemory</PackageProjectUrl>
         <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>database, embedded, inmemory, unity</PackageTags>
-        <RootNamespace>MasterMemory</RootNamespace>
+        <PackageTags>database, embedded, inmemory, unity, reactive</PackageTags>
+        <RootNamespace>ReactiveMemory</RootNamespace>
         <IsPackable>true</IsPackable>
     </PropertyGroup>
 

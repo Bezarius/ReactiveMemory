@@ -1,0 +1,8 @@
+﻿<Project TreatAsLocalProperty="_ReactiveMemoryGeneratorTaskFolder;_ReactiveMemoryGeneratorTaskAssembly">
+    <PropertyGroup>
+        <_ReactiveMemoryGeneratorTaskFolder>netstandard2.0</_ReactiveMemoryGeneratorTaskFolder>
+        <_ReactiveMemoryGeneratorTaskAssembly>$(MSBuildThisFileDirectory)..\tasks\$(_ReactiveMemoryGeneratorTaskFolder)\ReactiveMemory.MSBuild.Tasks.dll</_ReactiveMemoryGeneratorTaskAssembly>
+    </PropertyGroup>
+
+    <UsingTask TaskName="ReactiveMemory.MSBuild.Tasks.ReactiveMemoryGenerator" AssemblyFile="$(_ReactiveMemoryGeneratorTaskAssembly)" />
+</Project>

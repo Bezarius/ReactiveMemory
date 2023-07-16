@@ -17,6 +17,7 @@ using System.Reflection;
 using System.Text;
 using System;
 using ConsoleApp.Tables;
+using ReactiveMemory.Validation;
 
 namespace ConsoleApp
 {
@@ -163,7 +164,7 @@ namespace ConsoleApp
 
 #endif
 
-        static MasterMemory.Meta.MetaDatabase metaTable;
+        static ReactiveMemory.Meta.MetaDatabase metaTable;
 
         public static object GetTable(MemoryDatabase db, string tableName)
         {
@@ -191,11 +192,11 @@ namespace ConsoleApp
 
 #if !DISABLE_MASTERMEMORY_METADATABASE
 
-        public static MasterMemory.Meta.MetaDatabase GetMetaDatabase()
+        public static ReactiveMemory.Meta.MetaDatabase GetMetaDatabase()
         {
             if (metaTable != null) return metaTable;
 
-            var dict = new Dictionary<string, MasterMemory.Meta.MetaTable>();
+            var dict = new Dictionary<string, ReactiveMemory.Meta.MetaTable>();
             dict.Add("enumkeytable", ConsoleApp.Tables.EnumKeyTableTable.CreateMetaTable());
             dict.Add("item", ConsoleApp.Tables.ItemTable.CreateMetaTable());
             dict.Add("monster", ConsoleApp.Tables.MonsterTable.CreateMetaTable());
@@ -204,7 +205,7 @@ namespace ConsoleApp
             dict.Add("Test1", ConsoleApp.Tables.Test1Table.CreateMetaTable());
             dict.Add("Test2", ConsoleApp.Tables.Test2Table.CreateMetaTable());
 
-            metaTable = new MasterMemory.Meta.MetaDatabase(dict);
+            metaTable = new ReactiveMemory.Meta.MetaDatabase(dict);
             return metaTable;
         }
 

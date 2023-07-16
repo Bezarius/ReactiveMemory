@@ -52,15 +52,17 @@ namespace ReactiveMemory.GeneratorCore
                 var databaseTemplate = new MemoryDatabaseTemplate();
                 var immutableBuilderTemplate = new TransactionTemplate();
                 var resolverTemplate = new MessagePackResolverTemplate();
+                var contextTemplate = new DataBaseContextTemplate();
                 builderTemplate.Namespace = databaseTemplate.Namespace = immutableBuilderTemplate.Namespace = resolverTemplate.Namespace = usingNamespace;
                 builderTemplate.PrefixClassName = databaseTemplate.PrefixClassName = immutableBuilderTemplate.PrefixClassName = resolverTemplate.PrefixClassName = prefixClassName;
                 builderTemplate.Using = databaseTemplate.Using = immutableBuilderTemplate.Using = resolverTemplate.Using = (usingStrings + Environment.NewLine + ("using " + usingNamespace + ".Tables;"));
-                builderTemplate.GenerationContexts = databaseTemplate.GenerationContexts = immutableBuilderTemplate.GenerationContexts = resolverTemplate.GenerationContexts = list.ToArray();
+                builderTemplate.GenerationContexts = databaseTemplate.GenerationContexts = immutableBuilderTemplate.GenerationContexts = resolverTemplate.GenerationContexts = contextTemplate.GenerationContexts = list.ToArray();
 
                 logger(WriteToFile(outputDirectory, builderTemplate.ClassName, builderTemplate.TransformText(), forceOverwrite));
                 logger(WriteToFile(outputDirectory, immutableBuilderTemplate.ClassName, immutableBuilderTemplate.TransformText(), forceOverwrite));
                 logger(WriteToFile(outputDirectory, databaseTemplate.ClassName, databaseTemplate.TransformText(), forceOverwrite));
                 logger(WriteToFile(outputDirectory, resolverTemplate.ClassName, resolverTemplate.TransformText(), forceOverwrite));
+                logger(WriteToFile(outputDirectory, contextTemplate.ClassName, contextTemplate.TransformText(), forceOverwrite));
             }
             {
                 var tableDir = Path.Combine(outputDirectory, "Tables");
@@ -142,7 +144,7 @@ namespace ReactiveMemory.GeneratorCore
             var usingStrings = root.DescendantNodes()
                 .OfType<UsingDirectiveSyntax>()
                 .Select(x => x.ToFullString().Trim())
-                .Concat(new[] { "using MasterMemory", "using MasterMemory.Validation", "using System", "using System.Collections.Generic" })
+                .Concat(new[] { "using ReactiveMemory", "using ReactiveMemory.Validation", "using System", "using System.Collections.Generic" })
                 .Concat(ns)
                 .Select(x => x.Trim(';') + ";")
                 .Distinct()
@@ -156,7 +158,7 @@ namespace ReactiveMemory.GeneratorCore
                 foreach (var attr in classDecl.AttributeLists.SelectMany(x => x.Attributes))
                 {
                     var attrName = attr.Name.ToFullString().Trim();
-                    if (attrName == "MemoryTable" || attrName == "MasterMemory.Annotations.MemoryTable")
+                    if (attrName == "MemoryTable" || attrName == "ReactiveMemory.Annotations.MemoryTable")
                     {
                         context.ClassName = classDecl.Identifier.ToFullString().Trim();
                         context.MemoryTableName = AttributeExpressionToString(attr.ArgumentList.Arguments[0].Expression) ?? context.ClassName;
@@ -215,7 +217,7 @@ namespace ReactiveMemory.GeneratorCore
                 foreach (var attr in attrList.Attributes)
                 {
                     var attrName = attr.Name.ToFullString().Trim();
-                    if (attrName == "PrimaryKey" || attrName == "MasterMemory.Annotations.PrimaryKey")
+                    if (attrName == "PrimaryKey" || attrName == "ReactiveMemory.Annotations.PrimaryKey")
                     {
                         if (resultPrimaryKey != null)
                         {
@@ -236,7 +238,7 @@ namespace ReactiveMemory.GeneratorCore
 
                         primaryKey.Properties = new[] { keyProperty };
                     }
-                    else if (attrName == "SecondaryKey" || attrName == "MasterMemory.Annotations.SecondaryKey")
+                    else if (attrName == "SecondaryKey" || attrName == "ReactiveMemory.Annotations.SecondaryKey")
                     {
                         if (secondaryKey != null)
                         {
@@ -258,11 +260,11 @@ namespace ReactiveMemory.GeneratorCore
                         }
                         secondaryKey.Properties = new[] { keyProperty };
                     }
-                    else if (attrName == "NonUnique" || attrName == "MasterMemory.Annotations.NonUnique")
+                    else if (attrName == "NonUnique" || attrName == "ReactiveMemory.Annotations.NonUnique")
                     {
                         hasNonUnique = true;
                     }
-                    else if (attrName == "StringComparisonOption" || attrName == "MasterMemory.Annotations.StringComparisonOption")
+                    else if (attrName == "StringComparisonOption" || attrName == "ReactiveMemory.Annotations.StringComparisonOption")
                     {
                         var option = (attr.ArgumentList.Arguments[0].Expression as MemberAccessExpressionSyntax).ToFullStringTrim();
                         if (primaryKey != null)

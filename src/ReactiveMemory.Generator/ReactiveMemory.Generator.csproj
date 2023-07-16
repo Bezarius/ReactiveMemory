@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\MasterMemory.GeneratorCore\ReactiveMemory.GeneratorCore.csproj" />
+      <ProjectReference Include="..\ReactiveMemory.GeneratorCore\ReactiveMemory.GeneratorCore.csproj" />
     </ItemGroup>
 
 </Project>

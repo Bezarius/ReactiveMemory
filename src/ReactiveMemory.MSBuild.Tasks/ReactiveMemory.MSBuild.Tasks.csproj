@@ -10,16 +10,16 @@
         <!-- SKD depenencies local copy. -->
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <!-- NuGet Info -->
-        <PackageId>MasterMemory.MSBuild.Tasks</PackageId>
+        <PackageId>ReactiveMemory.MSBuild.Tasks</PackageId>
         <PackageVersion>$(Version)</PackageVersion>
-        <Authors>Cysharp</Authors>
-        <Copyright>Cysharp</Copyright>
-        <Description>MSBuild Tasks of MasterMemory Code Generator.</Description>
-        <PackageProjectUrl>https://github.com/Cysharp/MasterMemory</PackageProjectUrl>
+        <Authors>MstislavPavlov</Authors>
+        <Copyright>MstislavPavlov</Copyright>
+        <Description>MSBuild Tasks of ReactiveMemory Code Generator.</Description>
         <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>database, embedded, inmemory, unity</PackageTags>
+        <PackageTags>database, embedded, inmemory, unity, reactive</PackageTags>
         <IsPackable>true</IsPackable>
+        <PackageProjectUrl>https://github.com/Bezarius/ReactiveMemory</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>

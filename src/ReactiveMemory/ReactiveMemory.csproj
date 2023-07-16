@@ -2,25 +2,25 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <RootNamespace>MasterMemory</RootNamespace>
-        <AssemblyName>MasterMemory</AssemblyName>
+        <RootNamespace>ReactiveMemory</RootNamespace>
+        <AssemblyName>ReactiveMemory</AssemblyName>
 
         <OutputType>Library</OutputType>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-        <Company>Cysharp</Company>
+        <Company>MstisavPavlov</Company>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1701;1702;1705;1591</NoWarn>
 
         <!-- NuGet -->
-        <PackageId>MasterMemory</PackageId>
+        <PackageId>ReactiveMemory</PackageId>
         <PackageVersion>$(Version)</PackageVersion>
-        <Authors>Cysharp</Authors>
-        <Copyright>Cysharp</Copyright>
+        <Authors>MstisavPavlov</Authors>
+        <Copyright>MstisavPavlov</Copyright>
         <Description>Embedded Typed Readonly In-Memory Document Database for .NET Core and Unity.</Description>
-        <PackageProjectUrl>https://github.com/Cysharp/MasterMemory</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Bezarius/ReactiveMemory</PackageProjectUrl>
         <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>database, embedded, inmemory, unity</PackageTags>
+        <PackageTags>database, embedded, inmemory, unity, reactive</PackageTags>
         <IsPackable>true</IsPackable>
     </PropertyGroup>
 
@@ -29,7 +29,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\MasterMemory.Annotations\ReactiveMemory.Annotations.csproj" />
+        <ProjectReference Include="..\ReactiveMemory.Annotations\ReactiveMemory.Annotations.csproj" />
     </ItemGroup>
 
     <ItemGroup>

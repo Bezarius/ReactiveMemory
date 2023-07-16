@@ -26,11 +26,11 @@ namespace ReactiveMemory.Generator
             [Option("f", "Overwrite generated files if the content is unchanged.")]bool forceOverwrite = false)
         {
             var sw = Stopwatch.StartNew();
-            Console.WriteLine("Start MasterMemory CodeGeneration");
+            Console.WriteLine("Start ReactiveMemory CodeGeneration");
 
             new CodeGenerator().GenerateFile(usingNamespace, inputDirectory, outputDirectory, prefixClassName, addImmutableConstructor, !returnNullIfKeyNotFound, forceOverwrite, x => Console.WriteLine(x));
 
-            Console.WriteLine("Complete MasterMemory CodeGeneration, elapsed:" + sw.Elapsed);
+            Console.WriteLine("Complete ReactiveMemory CodeGeneration, elapsed:" + sw.Elapsed);
         }
     }
 }
