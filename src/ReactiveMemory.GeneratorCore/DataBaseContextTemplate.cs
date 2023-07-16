@@ -29,7 +29,30 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(Namespace));
             this.Write("\r\n{\r\n   public sealed class ");
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
-            this.Write(" \r\n   {\r\n\r\n   }\r\n}");
+            this.Write(" \r\n   {\r\n\t\tpublic MemoryDatabase Database { get; private set; }\r\n        public T" +
+                    "ransaction Transaction { get; private set; }\r\n        public bool IsTransactionS" +
+                    "tarted { get; private set; }\r\n\r\n        public DbContext(byte[] dbBytes, IChange" +
+                    "sMediatorFactory changesMediatorFactory)\r\n        {\r\n            Database = new " +
+                    "MemoryDatabase(dbBytes, changesMediatorFactory);\r\n        }\r\n\r\n        public vo" +
+                    "id BeginTransaction()\r\n        {\r\n            if (IsTransactionStarted)\r\n       " +
+                    "     {\r\n                throw new InvalidOperationException(\"Transaction is alre" +
+                    "ady started\");\r\n            }\r\n\r\n            IsTransactionStarted = true;\r\n\r\n   " +
+                    "         // it just cast, but when we make changes it make copy of data, so Data" +
+                    "base will not be changed\r\n            Transaction = Database.BeginTransaction();" +
+                    "\r\n        }\r\n\r\n\r\n        public void Commit()\r\n        {\r\n            if (!IsTra" +
+                    "nsactionStarted)\r\n            {\r\n                throw new InvalidOperationExcep" +
+                    "tion(\"Transaction is not started\");\r\n            }\r\n\r\n            // cast to Mem" +
+                    "oryDatabase\r\n            Database = Transaction.Commit();\r\n\r\n            /* when" +
+                    " we want write changes to disk or cast to bytes to for data protection\r\n        " +
+                    "    // for example, we can compare data from disk and data from memory and if th" +
+                    "ey are not equal ban player\r\n            // serialize changed data to binary\r\n  " +
+                    "          var bytes = memoryDatabase.ToDatabaseBuilder().Build();\r\n            /" +
+                    "/ create new MemoryDatabase from bytes\r\n            Database = new MemoryDatabas" +
+                    "e(bytes, maxDegreeOfParallelism: Environment.ProcessorCount);*/\r\n\r\n            I" +
+                    "sTransactionStarted = false;\r\n        }\r\n\r\n        public void Rollback()\r\n     " +
+                    "   {\r\n            // all changes in Transaction, so we just set it to null to di" +
+                    "scard changes\r\n            Database.ChangesConveyor.Clear();\r\n            Transa" +
+                    "ction = null;\r\n            IsTransactionStarted = false;\r\n        }\t\t\r\n   }\r\n}");
             return this.GenerationEnvironment.ToString();
         }
     }

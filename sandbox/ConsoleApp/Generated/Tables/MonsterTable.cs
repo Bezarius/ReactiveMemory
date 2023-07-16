@@ -91,17 +91,17 @@ namespace ConsoleApp.Tables
 
 #if !DISABLE_MASTERMEMORY_METADATABASE
 
-        public static MasterMemory.Meta.MetaTable CreateMetaTable()
+        public static ReactiveMemory.Meta.MetaTable CreateMetaTable()
         {
-            return new MasterMemory.Meta.MetaTable(typeof(Monster), typeof(MonsterTable), "monster",
-                new MasterMemory.Meta.MetaProperty[]
+            return new ReactiveMemory.Meta.MetaTable(typeof(Monster), typeof(MonsterTable), "monster",
+                new ReactiveMemory.Meta.MetaProperty[]
                 {
-                    new MasterMemory.Meta.MetaProperty(typeof(Monster).GetProperty("MonsterId")),
-                    new MasterMemory.Meta.MetaProperty(typeof(Monster).GetProperty("Name")),
-                    new MasterMemory.Meta.MetaProperty(typeof(Monster).GetProperty("MaxHp")),
+                    new ReactiveMemory.Meta.MetaProperty(typeof(Monster).GetProperty("MonsterId")),
+                    new ReactiveMemory.Meta.MetaProperty(typeof(Monster).GetProperty("Name")),
+                    new ReactiveMemory.Meta.MetaProperty(typeof(Monster).GetProperty("MaxHp")),
                 },
-                new MasterMemory.Meta.MetaIndex[]{
-                    new MasterMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
+                new ReactiveMemory.Meta.MetaIndex[]{
+                    new ReactiveMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
                         typeof(Monster).GetProperty("MonsterId"),
                     }, true, true, System.Collections.Generic.Comparer<int>.Default),
                 });

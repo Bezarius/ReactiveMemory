@@ -91,15 +91,15 @@ namespace ConsoleApp.Tables
 
 #if !DISABLE_MASTERMEMORY_METADATABASE
 
-        public static MasterMemory.Meta.MetaTable CreateMetaTable()
+        public static ReactiveMemory.Meta.MetaTable CreateMetaTable()
         {
-            return new MasterMemory.Meta.MetaTable(typeof(Test2), typeof(Test2Table), "Test2",
-                new MasterMemory.Meta.MetaProperty[]
+            return new ReactiveMemory.Meta.MetaTable(typeof(Test2), typeof(Test2Table), "Test2",
+                new ReactiveMemory.Meta.MetaProperty[]
                 {
-                    new MasterMemory.Meta.MetaProperty(typeof(Test2).GetProperty("Id")),
+                    new ReactiveMemory.Meta.MetaProperty(typeof(Test2).GetProperty("Id")),
                 },
-                new MasterMemory.Meta.MetaIndex[]{
-                    new MasterMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
+                new ReactiveMemory.Meta.MetaIndex[]{
+                    new ReactiveMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
                         typeof(Test2).GetProperty("Id"),
                     }, true, true, System.Collections.Generic.Comparer<int>.Default),
                 });

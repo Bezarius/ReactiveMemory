@@ -151,28 +151,28 @@ namespace ConsoleApp.Tables
 
 #if !DISABLE_MASTERMEMORY_METADATABASE
 
-        public static MasterMemory.Meta.MetaTable CreateMetaTable()
+        public static ReactiveMemory.Meta.MetaTable CreateMetaTable()
         {
-            return new MasterMemory.Meta.MetaTable(typeof(Person), typeof(PersonTable), "person",
-                new MasterMemory.Meta.MetaProperty[]
+            return new ReactiveMemory.Meta.MetaTable(typeof(Person), typeof(PersonTable), "person",
+                new ReactiveMemory.Meta.MetaProperty[]
                 {
-                    new MasterMemory.Meta.MetaProperty(typeof(Person).GetProperty("PersonId")),
-                    new MasterMemory.Meta.MetaProperty(typeof(Person).GetProperty("Age")),
-                    new MasterMemory.Meta.MetaProperty(typeof(Person).GetProperty("Gender")),
-                    new MasterMemory.Meta.MetaProperty(typeof(Person).GetProperty("Name")),
+                    new ReactiveMemory.Meta.MetaProperty(typeof(Person).GetProperty("PersonId")),
+                    new ReactiveMemory.Meta.MetaProperty(typeof(Person).GetProperty("Age")),
+                    new ReactiveMemory.Meta.MetaProperty(typeof(Person).GetProperty("Gender")),
+                    new ReactiveMemory.Meta.MetaProperty(typeof(Person).GetProperty("Name")),
                 },
-                new MasterMemory.Meta.MetaIndex[]{
-                    new MasterMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
+                new ReactiveMemory.Meta.MetaIndex[]{
+                    new ReactiveMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
                         typeof(Person).GetProperty("PersonId"),
                     }, true, true, System.Collections.Generic.Comparer<int>.Default),
-                    new MasterMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
+                    new ReactiveMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
                         typeof(Person).GetProperty("Age"),
                     }, false, false, System.Collections.Generic.Comparer<int>.Default),
-                    new MasterMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
+                    new ReactiveMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
                         typeof(Person).GetProperty("Gender"),
                         typeof(Person).GetProperty("Age"),
                     }, false, false, System.Collections.Generic.Comparer<(Gender Gender, int Age)>.Default),
-                    new MasterMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
+                    new ReactiveMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
                         typeof(Person).GetProperty("Gender"),
                     }, false, false, System.Collections.Generic.Comparer<Gender>.Default),
                 });

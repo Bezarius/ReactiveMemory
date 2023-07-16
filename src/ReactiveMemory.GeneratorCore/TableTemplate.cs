@@ -253,25 +253,25 @@ namespace ReactiveMemory.GeneratorCore
       } 
  } 
             this.Write("\r\n#endif\r\n        }\r\n\r\n#if !DISABLE_MASTERMEMORY_METADATABASE\r\n\r\n        public s" +
-                    "tatic MasterMemory.Meta.MetaTable CreateMetaTable()\r\n        {\r\n            retu" +
-                    "rn new MasterMemory.Meta.MetaTable(typeof(");
+                    "tatic ReactiveMemory.Meta.MetaTable CreateMetaTable()\r\n        {\r\n            re" +
+                    "turn new ReactiveMemory.Meta.MetaTable(typeof(");
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationContext.ClassName));
             this.Write("), typeof(");
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationContext.ClassName));
             this.Write("Table), \"");
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationContext.MemoryTableName));
-            this.Write("\",\r\n                new MasterMemory.Meta.MetaProperty[]\r\n                {\r\n");
+            this.Write("\",\r\n                new ReactiveMemory.Meta.MetaProperty[]\r\n                {\r\n");
  foreach(var prop in GenerationContext.Properties) { 
-            this.Write("                    new MasterMemory.Meta.MetaProperty(typeof(");
+            this.Write("                    new ReactiveMemory.Meta.MetaProperty(typeof(");
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationContext.ClassName));
             this.Write(").GetProperty(\"");
             this.Write(this.ToStringHelper.ToStringWithCulture(prop.Name));
             this.Write("\")),\r\n");
  } 
-            this.Write("                },\r\n                new MasterMemory.Meta.MetaIndex[]{\r\n");
+            this.Write("                },\r\n                new ReactiveMemory.Meta.MetaIndex[]{\r\n");
  foreach(var key in GenerationContext.Keys) { 
-            this.Write("                    new MasterMemory.Meta.MetaIndex(new System.Reflection.Propert" +
-                    "yInfo[] {\r\n");
+            this.Write("                    new ReactiveMemory.Meta.MetaIndex(new System.Reflection.Prope" +
+                    "rtyInfo[] {\r\n");
  foreach(var keyProp in key.Properties) { 
             this.Write("                        typeof(");
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationContext.ClassName));

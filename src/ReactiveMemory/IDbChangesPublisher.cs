@@ -3,5 +3,6 @@
     public interface IDbChangesPublisher
     {
         void PublishNext();
+        void Clear();
     }
 }

@@ -125,18 +125,18 @@ namespace <#= Namespace #>.Tables
 
 #if !DISABLE_MASTERMEMORY_METADATABASE
 
-        public static MasterMemory.Meta.MetaTable CreateMetaTable()
+        public static ReactiveMemory.Meta.MetaTable CreateMetaTable()
         {
-            return new MasterMemory.Meta.MetaTable(typeof(<#= GenerationContext.ClassName #>), typeof(<#= GenerationContext.ClassName #>Table), "<#= GenerationContext.MemoryTableName #>",
-                new MasterMemory.Meta.MetaProperty[]
+            return new ReactiveMemory.Meta.MetaTable(typeof(<#= GenerationContext.ClassName #>), typeof(<#= GenerationContext.ClassName #>Table), "<#= GenerationContext.MemoryTableName #>",
+                new ReactiveMemory.Meta.MetaProperty[]
                 {
 <# foreach(var prop in GenerationContext.Properties) { #>
-                    new MasterMemory.Meta.MetaProperty(typeof(<#= GenerationContext.ClassName #>).GetProperty("<#= prop.Name #>")),
+                    new ReactiveMemory.Meta.MetaProperty(typeof(<#= GenerationContext.ClassName #>).GetProperty("<#= prop.Name #>")),
 <# } #>
                 },
-                new MasterMemory.Meta.MetaIndex[]{
+                new ReactiveMemory.Meta.MetaIndex[]{
 <# foreach(var key in GenerationContext.Keys) { #>
-                    new MasterMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
+                    new ReactiveMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
 <# foreach(var keyProp in key.Properties) { #>
                         typeof(<#= GenerationContext.ClassName #>).GetProperty("<#= keyProp.Name #>"),
 <# } #>

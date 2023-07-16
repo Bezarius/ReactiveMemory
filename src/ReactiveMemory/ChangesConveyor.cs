@@ -37,5 +37,13 @@ namespace ReactiveMemory
                 publisher.PublishNext();
             }
         }
+
+        public void Clear()
+        {
+            foreach (var publisher in _dbChangesPublishers)
+            {
+                publisher.Clear();
+            }
+        }
     }
 }

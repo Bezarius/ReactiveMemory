@@ -40,5 +40,10 @@ namespace ReactiveMemory
             _entityChanges.Enqueue(new EntityChange<TEntity>(EEntityChangeType.Update, updated, old));
             _changesConveyor.Enqueue(this);
         }
+
+        public void Clear()
+        {
+            _entityChanges.Clear();
+        }
     }
 }
