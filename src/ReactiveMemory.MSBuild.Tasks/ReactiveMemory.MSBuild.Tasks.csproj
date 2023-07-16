@@ -24,7 +24,7 @@
 
     <ItemGroup>
         <!-- NuGet Tasks path. -->
-        <Content Include="build\MasterMemory.MSBuild.Tasks.props" PackagePath="build\" />
+        <Content Include="build\ReactiveMemory.MSBuild.Tasks.props" PackagePath="build\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -34,7 +34,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\MasterMemory.GeneratorCore\ReactiveMemory.GeneratorCore.csproj" PrivateAssets="all" />
+        <ProjectReference Include="..\ReactiveMemory.GeneratorCore\ReactiveMemory.GeneratorCore.csproj" />
     </ItemGroup>
 
     <!--

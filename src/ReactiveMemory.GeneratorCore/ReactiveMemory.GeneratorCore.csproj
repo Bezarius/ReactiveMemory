@@ -19,6 +19,11 @@
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
         </Compile>
+        <Compile Update="DataBaseContextTemplate.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>DataBaseContextTemplate.tt</DependentUpon>
+        </Compile>
         <Compile Update="MemoryDatabaseTemplate.cs">
             <DependentUpon>MemoryDatabaseTemplate.tt</DependentUpon>
             <DesignTime>True</DesignTime>
@@ -45,6 +50,10 @@
         <None Update="DatabaseBuilderTemplate.tt">
             <LastGenOutput>DatabaseBuilderTemplate.cs</LastGenOutput>
             <Generator>TextTemplatingFilePreprocessor</Generator>
+        </None>
+        <None Update="DataBaseContextTemplate.tt">
+          <Generator>TextTemplatingFilePreprocessor</Generator>
+          <LastGenOutput>DataBaseContextTemplate.cs</LastGenOutput>
         </None>
         <None Update="TransactionTemplate.tt">
             <LastGenOutput>TransactionTemplate.cs</LastGenOutput>
