@@ -53,9 +53,9 @@ namespace ReactiveMemory.GeneratorCore
                 var immutableBuilderTemplate = new TransactionTemplate();
                 var resolverTemplate = new MessagePackResolverTemplate();
                 var contextTemplate = new DataBaseContextTemplate();
-                builderTemplate.Namespace = databaseTemplate.Namespace = immutableBuilderTemplate.Namespace = resolverTemplate.Namespace = usingNamespace;
-                builderTemplate.PrefixClassName = databaseTemplate.PrefixClassName = immutableBuilderTemplate.PrefixClassName = resolverTemplate.PrefixClassName = prefixClassName;
-                builderTemplate.Using = databaseTemplate.Using = immutableBuilderTemplate.Using = resolverTemplate.Using = (usingStrings + Environment.NewLine + ("using " + usingNamespace + ".Tables;"));
+                builderTemplate.Namespace = databaseTemplate.Namespace = immutableBuilderTemplate.Namespace = resolverTemplate.Namespace = contextTemplate.Namespace = usingNamespace;
+                builderTemplate.PrefixClassName = databaseTemplate.PrefixClassName = immutableBuilderTemplate.PrefixClassName = resolverTemplate.PrefixClassName =  contextTemplate.PrefixClassName = prefixClassName ;
+                builderTemplate.Using = databaseTemplate.Using = immutableBuilderTemplate.Using = resolverTemplate.Using = contextTemplate.Using = (usingStrings + Environment.NewLine + ("using " + usingNamespace + ".Tables;"));
                 builderTemplate.GenerationContexts = databaseTemplate.GenerationContexts = immutableBuilderTemplate.GenerationContexts = resolverTemplate.GenerationContexts = contextTemplate.GenerationContexts = list.ToArray();
 
                 logger(WriteToFile(outputDirectory, builderTemplate.ClassName, builderTemplate.TransformText(), forceOverwrite));

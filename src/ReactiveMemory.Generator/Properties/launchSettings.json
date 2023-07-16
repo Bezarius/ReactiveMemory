@@ -2,7 +2,7 @@
   "profiles": {
     "MasterMemory.Generator": {
       "commandName": "Project",
-      "commandLineArgs": "-i \"E:\\Repositories\\MasterMemoryRx\\sandbox\\ConsoleApp\" -o \"E:\\Repositories\\MasterMemoryRx\\sandbox\\ConsoleApp\\Generated\" -n ConsoleApp"
+      "commandLineArgs": "-i \"E:\\Repositories\\ReactiveMemory\\sandbox\\ConsoleApp\" -o \"E:\\Repositories\\ReactiveMemory\\sandbox\\ConsoleApp\\Generated\" -n ConsoleApp"
     }
   }
 }
