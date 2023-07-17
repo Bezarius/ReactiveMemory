@@ -9,7 +9,14 @@
 
 namespace <#= Namespace #>
 {
-   public sealed class <#= ClassName #> : MemoryDatabaseBase
+   public interface I<#= ClassName #>
+   {
+<# foreach(var item in GenerationContexts) { #>
+        public <#= item.ClassName #>Table <#= item.ClassName #>Table { get; }
+<# } #>
+   }
+
+   public sealed class <#= ClassName #> : MemoryDatabaseBase, I<#= ClassName #>
    {
 <# foreach(var item in GenerationContexts) { #>
         public <#= item.ClassName #>Table <#= item.ClassName #>Table { get; private set; }

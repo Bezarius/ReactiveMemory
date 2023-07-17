@@ -29,9 +29,21 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(Using));
             this.Write("\r\n\r\nnamespace ");
             this.Write(this.ToStringHelper.ToStringWithCulture(Namespace));
-            this.Write("\r\n{\r\n   public sealed class ");
+            this.Write("\r\n{\r\n   public interface I");
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
-            this.Write(" : MemoryDatabaseBase\r\n   {\r\n");
+            this.Write("\r\n   {\r\n");
+ foreach(var item in GenerationContexts) { 
+            this.Write("        public ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write("Table ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write("Table { get; }\r\n");
+ } 
+            this.Write("   }\r\n\r\n   public sealed class ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
+            this.Write(" : MemoryDatabaseBase, I");
+            this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
+            this.Write("\r\n   {\r\n");
  foreach(var item in GenerationContexts) { 
             this.Write("        public ");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));

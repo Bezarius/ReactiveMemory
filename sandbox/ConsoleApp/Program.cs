@@ -293,18 +293,6 @@ namespace ConsoleApp
 
             // add dynamic collection.
             builder.AppendDynamic(table.DataType, tableData);
-
-            var bin = builder.Build();
-            var cgm = new ChangesMediatorFactory();
-            var database = new MemoryDatabase(bin, cgm, maxDegreeOfParallelism: Environment.ProcessorCount);
-            database.EnumKeyTableTable.TryFindByGender(Gender.Male, out var result);
-            result.Gender = Gender.Male;
-            var transaction = database.BeginTransaction();
-            transaction.Diff(new EnumKeyTable(Gender: Gender.Male));
-            transaction.Diff(new Person(1, 26, Gender.Male, "Alexandr"));
-            transaction.Commit();
-
-
         }
 
         static object ParseValue(Type type, string rawValue)

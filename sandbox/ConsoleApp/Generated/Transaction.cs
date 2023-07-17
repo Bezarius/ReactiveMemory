@@ -19,7 +19,46 @@ using ConsoleApp.Tables;
 
 namespace ConsoleApp
 {
-   public sealed class Transaction : TransactionBase
+   public interface ITransaction
+   {
+        public void ReplaceAll(System.Collections.Generic.IList<EnumKeyTable> data);
+        public void RemoveEnumKeyTable(Gender key);
+        public void RemoveEnumKeyTable(Gender[] keys);
+        public void Diff(EnumKeyTable addOrReplaceData);
+        public void Diff(EnumKeyTable[] addOrReplaceData);
+        public void ReplaceAll(System.Collections.Generic.IList<Item> data);
+        public void RemoveItem(int key);
+        public void RemoveItem(int[] keys);
+        public void Diff(Item addOrReplaceData);
+        public void Diff(Item[] addOrReplaceData);
+        public void ReplaceAll(System.Collections.Generic.IList<Monster> data);
+        public void RemoveMonster(int key);
+        public void RemoveMonster(int[] keys);
+        public void Diff(Monster addOrReplaceData);
+        public void Diff(Monster[] addOrReplaceData);
+        public void ReplaceAll(System.Collections.Generic.IList<Person> data);
+        public void RemovePerson(int key);
+        public void RemovePerson(int[] keys);
+        public void Diff(Person addOrReplaceData);
+        public void Diff(Person[] addOrReplaceData);
+        public void ReplaceAll(System.Collections.Generic.IList<Quest> data);
+        public void RemoveQuest(int key);
+        public void RemoveQuest(int[] keys);
+        public void Diff(Quest addOrReplaceData);
+        public void Diff(Quest[] addOrReplaceData);
+        public void ReplaceAll(System.Collections.Generic.IList<Test1> data);
+        public void RemoveTest1(int key);
+        public void RemoveTest1(int[] keys);
+        public void Diff(Test1 addOrReplaceData);
+        public void Diff(Test1[] addOrReplaceData);
+        public void ReplaceAll(System.Collections.Generic.IList<Test2> data);
+        public void RemoveTest2(int key);
+        public void RemoveTest2(int[] keys);
+        public void Diff(Test2 addOrReplaceData);
+        public void Diff(Test2[] addOrReplaceData);
+   }
+
+   public sealed class Transaction : TransactionBase, ITransaction
    {
         MemoryDatabase memory;
 

@@ -29,9 +29,34 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(Using));
             this.Write("\r\n\r\nnamespace ");
             this.Write(this.ToStringHelper.ToStringWithCulture(Namespace));
-            this.Write("\r\n{\r\n   public sealed class ");
+            this.Write("\r\n{\r\n   public interface I");
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
-            this.Write(" : TransactionBase\r\n   {\r\n        ");
+            this.Write("\r\n   {\r\n");
+ for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; 
+            this.Write("        public void ReplaceAll(System.Collections.Generic.IList<");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write("> data);\r\n");
+ if(!item.PrimaryKey.IsNonUnique) { 
+            this.Write("        public void Remove");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write("(");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildTypeName()));
+            this.Write(" key);\r\n        public void Remove");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write("(");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildTypeName()));
+            this.Write("[] keys);\r\n        public void Diff(");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write(" addOrReplaceData);\r\n        public void Diff(");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write("[] addOrReplaceData);\r\n");
+ } 
+ } 
+            this.Write("   }\r\n\r\n   public sealed class ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
+            this.Write(" : TransactionBase, I");
+            this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
+            this.Write("\r\n   {\r\n        ");
             this.Write(this.ToStringHelper.ToStringWithCulture(PrefixClassName));
             this.Write("MemoryDatabase memory;\r\n\r\n");
  for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; 

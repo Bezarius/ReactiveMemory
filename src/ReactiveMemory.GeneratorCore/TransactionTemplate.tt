@@ -9,7 +9,20 @@
 
 namespace <#= Namespace #>
 {
-   public sealed class <#= ClassName #> : TransactionBase
+   public interface I<#= ClassName #>
+   {
+<# for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; #>
+        public void ReplaceAll(System.Collections.Generic.IList<<#= item.ClassName #>> data);
+<# if(!item.PrimaryKey.IsNonUnique) { #>
+        public void Remove<#= item.ClassName #>(<#= item.PrimaryKey.BuildTypeName() #> key);
+        public void Remove<#= item.ClassName #>(<#= item.PrimaryKey.BuildTypeName() #>[] keys);
+        public void Diff(<#= item.ClassName #> addOrReplaceData);
+        public void Diff(<#= item.ClassName #>[] addOrReplaceData);
+<# } #>
+<# } #>
+   }
+
+   public sealed class <#= ClassName #> : TransactionBase, I<#= ClassName #>
    {
         <#= PrefixClassName #>MemoryDatabase memory;
 

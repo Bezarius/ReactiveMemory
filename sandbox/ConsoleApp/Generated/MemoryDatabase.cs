@@ -19,7 +19,18 @@ using ConsoleApp.Tables;
 
 namespace ConsoleApp
 {
-   public sealed class MemoryDatabase : MemoryDatabaseBase
+   public interface IMemoryDatabase
+   {
+        public EnumKeyTableTable EnumKeyTableTable { get; }
+        public ItemTable ItemTable { get; }
+        public MonsterTable MonsterTable { get; }
+        public PersonTable PersonTable { get; }
+        public QuestTable QuestTable { get; }
+        public Test1Table Test1Table { get; }
+        public Test2Table Test2Table { get; }
+   }
+
+   public sealed class MemoryDatabase : MemoryDatabaseBase, IMemoryDatabase
    {
         public EnumKeyTableTable EnumKeyTableTable { get; private set; }
         public ItemTable ItemTable { get; private set; }

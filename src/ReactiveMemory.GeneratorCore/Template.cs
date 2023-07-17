@@ -67,8 +67,8 @@ namespace ReactiveMemory.GeneratorCore
         public string PrefixClassName { get; set; }
         public GenerationContext[] GenerationContexts { get; set; }
         public string ClassName => PrefixClassName + "DbContext";
-        public string DatabaseBuilderName { get; set; }
-        public string MemoryDatabaseName { get; set; }
-        public string TransactionName { get; set; }
+        public string DatabaseBuilderClassName { get; set; }
+        public string MemoryDatabaseClassName { get; set; }
+        public string TransactionClassName { get; set; }
     }
 }
