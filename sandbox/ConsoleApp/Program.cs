@@ -293,6 +293,34 @@ namespace ConsoleApp
 
             // add dynamic collection.
             builder.AppendDynamic(table.DataType, tableData);
+
+
+            var bytes = builder.Build();
+
+            // build db from bytes
+            var ctx = new DbContext(bytes, new ChangesMediatorFactory());
+            // subscribe on any person change
+            ctx.Database.OnChange<Person>().Subscribe( x=>
+            {
+                // do some logic on person change 
+                ...
+            });
+            // search person by id
+            var person = ctx.Database.PersonTable.FindByPersonId(1);
+            var malePersonsOfAge25 = ctx.Database.PersonTable.FindByGenderAndAge((Gender.Male, 25));
+            // start edit
+            ctx.BeginTransaction();
+            // remove person
+            ctx.Transaction.RemovePerson(person.PersonId);
+            // or update
+            person.Age *= 2;
+            ctx.Transaction.Diff(person);
+            // save changes
+            ctx.Commit();
+
+            // or discard changes
+            ctx.Rollback();
+            
         }
 
         static object ParseValue(Type type, string rawValue)

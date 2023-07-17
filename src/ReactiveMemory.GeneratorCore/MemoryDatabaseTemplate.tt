@@ -11,6 +11,7 @@ namespace <#= Namespace #>
 {
    public interface I<#= ClassName #>
    {
+        public IObservable<EntityChange<TEntity>> OnChange<TEntity>();
 <# foreach(var item in GenerationContexts) { #>
         public <#= item.ClassName #>Table <#= item.ClassName #>Table { get; }
 <# } #>

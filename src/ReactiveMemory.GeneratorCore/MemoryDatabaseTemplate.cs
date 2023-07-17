@@ -31,7 +31,7 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(Namespace));
             this.Write("\r\n{\r\n   public interface I");
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
-            this.Write("\r\n   {\r\n");
+            this.Write("\r\n   {\r\n        public IObservable<EntityChange<TEntity>> OnChange<TEntity>();\r\n");
  foreach(var item in GenerationContexts) { 
             this.Write("        public ");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));

@@ -21,6 +21,7 @@ namespace ConsoleApp
 {
    public interface IMemoryDatabase
    {
+        public IObservable<EntityChange<TEntity>> OnChange<TEntity>();
         public EnumKeyTableTable EnumKeyTableTable { get; }
         public ItemTable ItemTable { get; }
         public MonsterTable MonsterTable { get; }
