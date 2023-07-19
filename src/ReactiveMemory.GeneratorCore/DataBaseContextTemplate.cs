@@ -72,16 +72,6 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(@" 
             _database = _transaction.Commit();
 
-            /* when we want write changes to disk or cast to bytes to for data protection
-            // for example, we can compare data from disk and data from memory and if they are not equal ban player
-            // serialize changed data to binary
-            var bytes = memoryDatabase.ToDatabaseBuilder().Build();
-            // create new  ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(MemoryDatabaseClassName));
-            this.Write("  from bytes\r\n            _database = new  ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(MemoryDatabaseClassName));
-            this.Write(@" (bytes, maxDegreeOfParallelism: Environment.ProcessorCount);*/
-
             IsTransactionStarted = false;
         }
 
@@ -91,7 +81,12 @@ namespace ReactiveMemory.GeneratorCore
             _database.ChangesConveyor.Clear();
             _transaction = null;
             IsTransactionStarted = false;
-        }		
+        }
+        
+        public byte[] ToBytes()
+        {
+            return _database.ToDatabaseBuilder().Build();
+        }
    }
 }");
             return this.GenerationEnvironment.ToString();

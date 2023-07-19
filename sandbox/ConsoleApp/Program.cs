@@ -316,8 +316,7 @@ namespace ConsoleApp
             person.Age *= 2;
             ctx.Transaction.Diff(person);
             // save changes
-            ctx.Commit();
-
+            ctx.Commit(); // subscriptions will fire only on commit
             // or discard changes
             ctx.Rollback();
             
