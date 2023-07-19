@@ -20,6 +20,8 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>database, embedded, inmemory, unity, reactive</PackageTags>
         <IsPackable>true</IsPackable>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <Title>ReactiveMemory.Generator</Title>
     </PropertyGroup>
 
     <ItemGroup>
