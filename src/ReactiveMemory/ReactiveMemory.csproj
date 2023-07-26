@@ -51,13 +51,13 @@
 
     <!-- Copy files for Unity -->
     <PropertyGroup>
-        <DestinationRoot>$(ProjectDir)..\MasterMemory.Unity\Assets\Scripts\MasterMemory\</DestinationRoot>
-        <TestDestination>$(ProjectDir)..\MasterMemory.Unity\Assets\Tests\</TestDestination>
+        <DestinationRoot>$(ProjectDir)..\ReactiveMemory.Unity\Assets\Scripts\ReactiveMemory\</DestinationRoot>
+        <TestDestination>$(ProjectDir)..\ReactiveMemory.Unity\Assets\Tests\</TestDestination>
     </PropertyGroup>
     <ItemGroup>
         <TargetFiles1 Include="$(ProjectDir)\**\*.cs" Exclude="**\bin\**\*.*;**\obj\**\*.*;_InternalVisibleTo.cs" />
-        <TargetFiles2 Include="$(ProjectDir)\..\MasterMemory.Annotations\**\*.cs" Exclude="**\bin\**\*.*;**\obj\**\*.*;" />
-        <TargetFiles3 Include="$(ProjectDir)\..\..\tests\MasterMemory.Tests\**\*.cs" Exclude="**\bin\**\*.*;**\obj\**\*.*;" />
+        <TargetFiles2 Include="$(ProjectDir)\..\ReactiveMemory.Annotations\**\*.cs" Exclude="**\bin\**\*.*;**\obj\**\*.*;" />
+        <TargetFiles3 Include="$(ProjectDir)\..\..\tests\ReactiveMemory.Tests\**\*.cs" Exclude="**\bin\**\*.*;**\obj\**\*.*;" />
     </ItemGroup>
     <ItemGroup>
       <TargetFiles1 Remove="IRepositoryChangesPublisher.cs" />

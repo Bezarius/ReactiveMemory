@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
     public class MessagePackResolver : IFormatterResolver
     {

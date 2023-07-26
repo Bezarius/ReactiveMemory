@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
     public class DatabaseTest
     {

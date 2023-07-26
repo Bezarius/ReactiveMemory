@@ -1,4 +1,4 @@
-﻿using MasterMemory.Internal;
+﻿using ReactiveMemory.Internal;
 using MessagePack.Resolvers;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using FluentAssertions;
 using Xunit;
 using MessagePack;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
     public class BinarySearchTest
     {
