@@ -36,7 +36,7 @@ namespace ReactiveMemory.Tests
 
         SampleTable CreateTable(Sample[] data)
         {
-            return new MemoryDatabase(new DatabaseBuilder().Append(data).Build()).SampleTable;
+            return new MemoryDatabase(new DatabaseBuilder().Append(data).Build(), changesMediatorFactory: UniRxSubjectFactory.Default).SampleTable;
         }
 
         [Fact]

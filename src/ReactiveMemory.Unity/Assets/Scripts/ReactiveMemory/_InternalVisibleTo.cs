@@ -1,3 +1,3 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("MasterMemory.Tests")]
+[assembly: InternalsVisibleTo("ReactiveMemory.Tests")]

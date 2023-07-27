@@ -8,9 +8,9 @@ using ReactiveMemory;
 using System.Collections.Generic;
 using System.Text;
 using System;
-using ReactiveMemory.Test.Tables;
+using ReactiveMemory.Tests.Tables;
 
-namespace ReactiveMemory.Test
+namespace ReactiveMemory.Tests
 {
    public sealed class DbContext 
    {

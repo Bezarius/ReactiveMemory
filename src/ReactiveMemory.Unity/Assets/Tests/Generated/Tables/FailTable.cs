@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using System;
 
-namespace ReactiveMemory.Test.Tables
+namespace ReactiveMemory.Tests.Tables
 {
    public sealed partial class FailTable : TableBase<Fail>, ITableUniqueValidate
    {

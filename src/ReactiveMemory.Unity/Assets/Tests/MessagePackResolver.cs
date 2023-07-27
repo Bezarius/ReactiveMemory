@@ -1,6 +1,7 @@
 ﻿using MessagePack;
 using MessagePack.Formatters;
 using MessagePack.Resolvers;
+using ReactiveMemory.Tests.Resolvers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,7 +19,7 @@ namespace ReactiveMemory.Tests
 
         public IMessagePackFormatter<T> GetFormatter<T>()
         {
-            return MasterMemoryResolver.Instance.GetFormatter<T>()
+            return ReactiveMemoryResolver.Instance.GetFormatter<T>()
                 ?? GeneratedResolver.Instance.GetFormatter<T>()
                 ?? StandardResolver.Instance.GetFormatter<T>();
         }

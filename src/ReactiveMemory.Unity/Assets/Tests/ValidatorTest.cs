@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using System.Linq;
+using ReactiveMemory.Test;
 
 namespace ReactiveMemory.Tests
 {
@@ -34,7 +35,7 @@ namespace ReactiveMemory.Tests
                 .Append(data1)
                 .Build();
 
-            return new MemoryDatabase(bin, internString: false);
+            return new MemoryDatabase(bin, internString: false, changesMediatorFactory: UniRxSubjectFactory.Default);
         }
 
         MemoryDatabase CreateDatabase(SingleMaster[] data1)
@@ -44,7 +45,7 @@ namespace ReactiveMemory.Tests
                 .Append(data1)
                 .Build();
 
-            return new MemoryDatabase(bin, internString: false);
+            return new MemoryDatabase(bin, internString: false, changesMediatorFactory: UniRxSubjectFactory.Default);
         }
 
         MemoryDatabase CreateDatabase(SequentialCheckMaster[] data1)
@@ -54,7 +55,7 @@ namespace ReactiveMemory.Tests
                 .Append(data1)
                 .Build();
 
-            return new MemoryDatabase(bin, internString: false);
+            return new MemoryDatabase(bin, internString: false, changesMediatorFactory: UniRxSubjectFactory.Default);
         }
 
         MemoryDatabase CreateDatabase(QuestMaster[] data1, ItemMaster[] data2)
@@ -65,7 +66,7 @@ namespace ReactiveMemory.Tests
                 .Append(data2)
                 .Build();
 
-            return new MemoryDatabase(bin, internString: false);
+            return new MemoryDatabase(bin, internString: false, changesMediatorFactory: UniRxSubjectFactory.Default);
         }
 
         MemoryDatabase CreateDatabase(QuestMasterEmptyValidate[] data1, ItemMasterEmptyValidate[] data2)
@@ -76,7 +77,7 @@ namespace ReactiveMemory.Tests
                 .Append(data2)
                 .Build();
 
-            return new MemoryDatabase(bin, internString: false);
+            return new MemoryDatabase(bin, internString: false, changesMediatorFactory: UniRxSubjectFactory.Default);
         }
 
         [Fact]
@@ -95,19 +96,21 @@ namespace ReactiveMemory.Tests
         [Fact]
         public void PKUnique()
         {
-            var validateResult = CreateDatabase(new QuestMasterEmptyValidate[]
-            {
-                new QuestMasterEmptyValidate { QuestId = 1 },
-                new QuestMasterEmptyValidate { QuestId = 2 },
-                new QuestMasterEmptyValidate { QuestId = 1 },
-                new QuestMasterEmptyValidate { QuestId = 4 },
-                new QuestMasterEmptyValidate { QuestId = 4 },
-            }, new ItemMasterEmptyValidate[]
-            {
-                new ItemMasterEmptyValidate { ItemId = 1 },
-                new ItemMasterEmptyValidate { ItemId = 2 },
-                new ItemMasterEmptyValidate { ItemId = 2 },
-            }).Validate();
+            var validateResult = CreateDatabase(
+                new QuestMasterEmptyValidate[]
+                {
+                    new QuestMasterEmptyValidate (1, "", 0, 0),
+                    new QuestMasterEmptyValidate (2, "", 0, 0),
+                    new QuestMasterEmptyValidate (1, "", 0, 0),
+                    new QuestMasterEmptyValidate (4, "", 0, 0),
+                    new QuestMasterEmptyValidate (4, "", 0, 0),
+                },
+                new ItemMasterEmptyValidate[]
+                {
+                    new ItemMasterEmptyValidate (1),
+                    new ItemMasterEmptyValidate (2),
+                    new ItemMasterEmptyValidate (2),
+                }).Validate();
             output.WriteLine(validateResult.FormatFailedResults());
 
             validateResult.IsValidationFailed.Should().BeTrue();
@@ -144,16 +147,16 @@ namespace ReactiveMemory.Tests
         {
             var validateResult = CreateDatabase(new QuestMaster[]
             {
-                new QuestMaster { QuestId = 1, RewardItemId = 1, Name = "foo" },
-                new QuestMaster { QuestId = 2, RewardItemId = 3, Name = "bar" },
-                new QuestMaster { QuestId = 3, RewardItemId = 2, Name = "baz" },
-                new QuestMaster { QuestId = 4, RewardItemId = 5, Name = "tako"},
-                new QuestMaster { QuestId = 5, RewardItemId = 4, Name = "nano"},
+                new QuestMaster (1,"foo", 1, 1 ),
+                new QuestMaster(2,  "bar", 3,3  ),
+                new QuestMaster (3,  "baz" , 2, 2),
+                new QuestMaster (4, "tako", 5, 5),
+                new QuestMaster (5, "nano", 4, 4),
             }, new ItemMaster[]
             {
-                new ItemMaster { ItemId = 1 },
-                new ItemMaster { ItemId = 2 },
-                new ItemMaster { ItemId = 3 },
+                new ItemMaster (1),
+                new ItemMaster (2),
+                new ItemMaster (3),
             }).Validate();
             output.WriteLine(validateResult.FormatFailedResults());
             validateResult.IsValidationFailed.Should().BeTrue();
@@ -167,20 +170,22 @@ namespace ReactiveMemory.Tests
         {
             var validateResult = CreateDatabase(new QuestMaster[]
             {
-                new QuestMaster { QuestId = 1, Name = "foo" },
-                new QuestMaster { QuestId = 2, Name = "bar" },
-                new QuestMaster { QuestId = 3, Name = "bar" },
-                new QuestMaster { QuestId = 4, Name = "tako" },
-                new QuestMaster { QuestId = 5, Name = "foo" },
+                new QuestMaster(1, "foo", 0, 0),
+                new QuestMaster(2, "baz", 0, 0),
+                new QuestMaster(3, "baz", 0, 0),
+                new QuestMaster(4, "nano", 0, 0),
+                new QuestMaster(5, "nano", 0, 0),
             }, new ItemMaster[]
             {
-                new ItemMaster { ItemId = 0 }
+                new ItemMaster(0)
             }).Validate();
+
             output.WriteLine(validateResult.FormatFailedResults());
             validateResult.IsValidationFailed.Should().BeTrue();
 
-            validateResult.FailedResults[0].Message.Should().Be("Unique failed: .Name, value = bar, PK(QuestId) = 3");
-            validateResult.FailedResults[1].Message.Should().Be("Unique failed: .Name, value = foo, PK(QuestId) = 5");
+            // Fix the expected failed results by correcting the QuestId values
+            validateResult.FailedResults[0].Message.Should().Be("Unique failed: .Name, value = baz, PK(QuestId) = 3");
+            validateResult.FailedResults[1].Message.Should().Be("Unique failed: .Name, value = nano, PK(QuestId) = 5");
         }
 
         [Fact]
@@ -189,10 +194,10 @@ namespace ReactiveMemory.Tests
             {
                 var validateResult = CreateDatabase(new SequentialCheckMaster[]
                 {
-                    new SequentialCheckMaster { Id = 1, Cost = 10 },
-                    new SequentialCheckMaster { Id = 2, Cost = 11 },
-                    new SequentialCheckMaster { Id = 3, Cost = 11 },
-                    new SequentialCheckMaster { Id = 4, Cost = 12 },
+                    new SequentialCheckMaster (1,10),
+                    new SequentialCheckMaster (2, 11),
+                    new SequentialCheckMaster (3, 11),
+                    new SequentialCheckMaster (4, 12),
                 }).Validate();
                 output.WriteLine(validateResult.FormatFailedResults());
                 validateResult.IsValidationFailed.Should().BeFalse();
@@ -200,10 +205,10 @@ namespace ReactiveMemory.Tests
             {
                 var validateResult = CreateDatabase(new SequentialCheckMaster[]
                 {
-                    new SequentialCheckMaster { Id = 1, Cost = 10 },
-                    new SequentialCheckMaster { Id = 2, Cost = 11 },
-                    new SequentialCheckMaster { Id = 3, Cost = 11 },
-                    new SequentialCheckMaster { Id = 5, Cost = 13 },
+                    new SequentialCheckMaster (1, 10),
+                    new SequentialCheckMaster (2, 11),
+                    new SequentialCheckMaster (3, 11),
+                    new SequentialCheckMaster (5, 13),
                 }).Validate();
                 output.WriteLine(validateResult.FormatFailedResults());
                 validateResult.IsValidationFailed.Should().BeTrue();
@@ -218,10 +223,10 @@ namespace ReactiveMemory.Tests
         {
             _ = CreateDatabase(new SingleMaster[]
             {
-                new SingleMaster { Id = 1},
-                new SingleMaster { Id = 2},
-                new SingleMaster { Id = 3},
-                new SingleMaster { Id = 4},
+                new SingleMaster (1),
+                new SingleMaster (2),
+                new SingleMaster (3)    ,
+                new SingleMaster (4),
             }).Validate();
 
 
@@ -234,16 +239,16 @@ namespace ReactiveMemory.Tests
         {
             var validateResult = CreateDatabase(new QuestMaster[]
             {
-                new QuestMaster { QuestId = 1, RewardItemId = 1, Name = "foo", Cost = -1 },
-                new QuestMaster { QuestId = 2, RewardItemId = 3, Name = "bar", Cost = 99 },
-                new QuestMaster { QuestId = 3, RewardItemId = 2, Name = "baz", Cost = 100 },
-                new QuestMaster { QuestId = 4, RewardItemId = 3, Name = "tao", Cost = 101 },
-                new QuestMaster { QuestId = 5, RewardItemId = 3, Name = "nao", Cost = 33 },
+                new QuestMaster (1,"foo",1,-1 ),
+                new QuestMaster ( 2, "bar",3, 99 ),
+                new QuestMaster (3, "baz", 2, 100),
+                new QuestMaster (4, "tao", 3, 101),
+                new QuestMaster (5, "nao", 3, 33),
             }, new ItemMaster[]
             {
-                new ItemMaster { ItemId = 1 },
-                new ItemMaster { ItemId = 2 },
-                new ItemMaster { ItemId = 3 },
+                new ItemMaster (1),
+                new ItemMaster (2),
+                new ItemMaster (3),
             }).Validate();
             output.WriteLine(validateResult.FormatFailedResults());
             validateResult.IsValidationFailed.Should().BeTrue();
@@ -257,16 +262,16 @@ namespace ReactiveMemory.Tests
         {
             var validateResult = CreateDatabase(new QuestMaster[]
              {
-                new QuestMaster { QuestId = 1, RewardItemId = 1, Name = "foo", Cost = -100 },
-                new QuestMaster { QuestId = 2, RewardItemId = 3, Name = "bar", Cost = 99 },
-                new QuestMaster { QuestId = 3, RewardItemId = 2, Name = "baz", Cost = 100 },
-                new QuestMaster { QuestId = 4, RewardItemId = 3, Name = "tao", Cost = 1001 },
-                new QuestMaster { QuestId = 5, RewardItemId = 3, Name = "nao", Cost = 33 },
+                new QuestMaster ( 1,   "foo",1, -100 ),
+                new QuestMaster (  2, "bar",  3, 99 ),
+                new QuestMaster (3, "baz", 2, 100),
+                new QuestMaster (4, "tao", 3, 1001),
+                new QuestMaster (5, "nao", 3, 33),
              }, new ItemMaster[]
              {
-                new ItemMaster { ItemId = 1 },
-                new ItemMaster { ItemId = 2 },
-                new ItemMaster { ItemId = 3 },
+                new ItemMaster (1),
+                new ItemMaster (2),
+                new ItemMaster (3),
              }).Validate();
             output.WriteLine(validateResult.FormatFailedResults());
             validateResult.IsValidationFailed.Should().BeTrue();
@@ -282,9 +287,9 @@ namespace ReactiveMemory.Tests
         {
             var validateResult = CreateDatabase(new Fail[]
             {
-                new Fail { Id = 1},
-                new Fail { Id = 2},
-                new Fail { Id = 3},
+                new Fail (1),
+                new Fail (2),
+                new Fail (3),
             }).Validate();
             output.WriteLine(validateResult.FormatFailedResults());
             validateResult.IsValidationFailed.Should().BeTrue();

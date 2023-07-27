@@ -16,7 +16,5 @@ MonoBehaviour:
   inputDirectory: {fileID: 102900000, guid: 045b54ace96b9764bae81f0adca442d0, type: 3}
   outputDirectory: {fileID: 102900000, guid: 045b54ace96b9764bae81f0adca442d0, type: 3}
   reactiveMemoryDirs:
-  - Folder: {fileID: 102900000, guid: cf1478b00e9cd6a46af1e76d42efdf39, type: 3}
-    Namespace: ReactiveMemory.Test2
   - Folder: {fileID: 102900000, guid: 045b54ace96b9764bae81f0adca442d0, type: 3}
-    Namespace: ReactiveMemory.Test
+    Namespace: ReactiveMemory.Tests

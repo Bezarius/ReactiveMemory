@@ -8,9 +8,9 @@ using ReactiveMemory;
 using System.Collections.Generic;
 using System.Text;
 using System;
-using ReactiveMemory.Test.Tables;
+using ReactiveMemory.Tests.Tables;
 
-namespace ReactiveMemory.Test
+namespace ReactiveMemory.Tests
 {
    public interface IMemoryDatabase
    {
@@ -265,18 +265,18 @@ namespace ReactiveMemory.Test
             if (metaTable != null) return metaTable;
 
             var dict = new Dictionary<string, ReactiveMemory.Meta.MetaTable>();
-            dict.Add("fail", ReactiveMemory.Test.Tables.FailTable.CreateMetaTable());
-            dict.Add("item_master", ReactiveMemory.Test.Tables.ItemMasterTable.CreateMetaTable());
-            dict.Add("item_master_empty", ReactiveMemory.Test.Tables.ItemMasterEmptyValidateTable.CreateMetaTable());
-            dict.Add("people", ReactiveMemory.Test.Tables.PersonModelTable.CreateMetaTable());
-            dict.Add("quest_master", ReactiveMemory.Test.Tables.QuestMasterTable.CreateMetaTable());
-            dict.Add("quest_master_empty", ReactiveMemory.Test.Tables.QuestMasterEmptyValidateTable.CreateMetaTable());
-            dict.Add("s_a_m_p_l_e", ReactiveMemory.Test.Tables.SampleTable.CreateMetaTable());
-            dict.Add("sequantial_master", ReactiveMemory.Test.Tables.SequentialCheckMasterTable.CreateMetaTable());
-            dict.Add("single_master", ReactiveMemory.Test.Tables.SingleMasterTable.CreateMetaTable());
-            dict.Add("skillmaster", ReactiveMemory.Test.Tables.SkillMasterTable.CreateMetaTable());
-            dict.Add("TestMaster", ReactiveMemory.Test.Tables.TestMasterTable.CreateMetaTable());
-            dict.Add("UserLevel", ReactiveMemory.Test.Tables.UserLevelTable.CreateMetaTable());
+            dict.Add("fail", ReactiveMemory.Tests.Tables.FailTable.CreateMetaTable());
+            dict.Add("item_master", ReactiveMemory.Tests.Tables.ItemMasterTable.CreateMetaTable());
+            dict.Add("item_master_empty", ReactiveMemory.Tests.Tables.ItemMasterEmptyValidateTable.CreateMetaTable());
+            dict.Add("people", ReactiveMemory.Tests.Tables.PersonModelTable.CreateMetaTable());
+            dict.Add("quest_master", ReactiveMemory.Tests.Tables.QuestMasterTable.CreateMetaTable());
+            dict.Add("quest_master_empty", ReactiveMemory.Tests.Tables.QuestMasterEmptyValidateTable.CreateMetaTable());
+            dict.Add("s_a_m_p_l_e", ReactiveMemory.Tests.Tables.SampleTable.CreateMetaTable());
+            dict.Add("sequantial_master", ReactiveMemory.Tests.Tables.SequentialCheckMasterTable.CreateMetaTable());
+            dict.Add("single_master", ReactiveMemory.Tests.Tables.SingleMasterTable.CreateMetaTable());
+            dict.Add("skillmaster", ReactiveMemory.Tests.Tables.SkillMasterTable.CreateMetaTable());
+            dict.Add("TestMaster", ReactiveMemory.Tests.Tables.TestMasterTable.CreateMetaTable());
+            dict.Add("UserLevel", ReactiveMemory.Tests.Tables.UserLevelTable.CreateMetaTable());
 
             metaTable = new ReactiveMemory.Meta.MetaDatabase(dict);
             return metaTable;

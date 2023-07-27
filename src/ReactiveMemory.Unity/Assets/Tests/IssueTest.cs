@@ -56,7 +56,7 @@ namespace ReactiveMemory.Tests
             builder.Append(CreateData());
 
             var bin = builder.Build();
-            var db = new MemoryDatabase(bin);
+            var db = new MemoryDatabase(bin, changesMediatorFactory: UniRxSubjectFactory.Default); 
 
             db.SampleTable.FindRangeByAge(2, 2).Select(x => x.Id).ToArray().Should().BeEquivalentTo(new int[] { });
             db.SampleTable.FindRangeByAge(30, 50).Select(x => x.Id).ToArray().Should().BeEquivalentTo(new int[] { 7, 8 });

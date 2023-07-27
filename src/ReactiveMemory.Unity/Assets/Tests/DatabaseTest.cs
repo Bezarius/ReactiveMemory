@@ -44,7 +44,7 @@ namespace ReactiveMemory.Tests
             builder.Append(CreateData());
 
             var bin = builder.Build();
-            var db = new MemoryDatabase(bin);
+            var db = new MemoryDatabase(bin, changesMediatorFactory: UniRxSubjectFactory.Default);
             db.SampleTable.FindById(8).Age.Should().Be(49);
 
             var tableInfo = MemoryDatabase.GetTableInfo(bin);
@@ -58,7 +58,7 @@ namespace ReactiveMemory.Tests
             builder.Append(CreateData());
 
             var bin = builder.Build();
-            var db = new MemoryDatabase(bin);
+            var db = new MemoryDatabase(bin, changesMediatorFactory: UniRxSubjectFactory.Default);
 
             db.SampleTable.All.Select(x => x.Id).ToArray().Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
             db.SampleTable.AllReverse.Select(x => x.Id).ToArray().Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.Reverse());
@@ -72,7 +72,7 @@ namespace ReactiveMemory.Tests
             builder.Append(CreateData());
 
             var bin = builder.Build();
-            var db = new MemoryDatabase(bin);
+            var db = new MemoryDatabase(bin, changesMediatorFactory: UniRxSubjectFactory.Default);
 
             db.SampleTable.FindRangeByAge(2,2).Select(x=>x.Id).ToArray().Should().BeEquivalentTo( new int[] {} );     
             db.SampleTable.FindRangeByAge(30,50).Select(x=>x.Id).ToArray().Should().BeEquivalentTo( new int[] { 7, 8 } );     
@@ -88,7 +88,7 @@ namespace ReactiveMemory.Tests
                 builder.Append(new Sample[] { });
 
                 var bin = builder.Build();
-                var db = new MemoryDatabase(bin);
+                var db = new MemoryDatabase(bin, changesMediatorFactory: UniRxSubjectFactory.Default);
 
                 db.SampleTable.All.Any().Should().BeFalse();
             }
@@ -97,7 +97,7 @@ namespace ReactiveMemory.Tests
                 builder.Append(new Sample[] { }.Select(x => x));
 
                 var bin = builder.Build();
-                var db = new MemoryDatabase(bin);
+                var db = new MemoryDatabase(bin, changesMediatorFactory: UniRxSubjectFactory.Default);
 
                 db.SampleTable.All.Any().Should().BeFalse();
             }
@@ -116,7 +116,7 @@ namespace ReactiveMemory.Tests
             } });
 
             var bin = builder.Build();
-            var db = new MemoryDatabase(bin);
+            var db = new MemoryDatabase(bin, changesMediatorFactory: UniRxSubjectFactory.Default);
 
             var sample = db.SampleTable.FindById(999);
             sample.Age.Should().Be(10);
