@@ -1,4 +1,4 @@
-﻿using MessagePack;
+using MessagePack;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,5 +18,12 @@ namespace ReactiveMemory.Tests.TestStructures
         public string FirstName { get; set; }
 
         [PrimaryKey] public string RandomId { get; set; }
+
+        public PersonModel(string LastName, string FirstName, string RandomId)
+        {
+            this.LastName = LastName;
+            this.FirstName = FirstName;
+            this.RandomId = RandomId;
+        }
     }
 }

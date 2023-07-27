@@ -1,4 +1,4 @@
-﻿using MessagePack;
+using MessagePack;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -32,6 +32,14 @@ namespace ReactiveMemory.Tests.TestStructures
                 quests.Unique(x => x.Name);
             }
         }
+
+        public QuestMaster(int QuestId, string Name, int RewardItemId, int Cost)
+        {
+            this.QuestId = QuestId;
+            this.Name = Name;
+            this.RewardItemId = RewardItemId;
+            this.Cost = Cost;
+        }
     }
 
     [MemoryTable("item_master"), MessagePackObject(true)]
@@ -43,6 +51,11 @@ namespace ReactiveMemory.Tests.TestStructures
         public void Validate(IValidator<ItemMaster> validator)
         {
         }
+
+        public ItemMaster(int ItemId)
+        {
+            this.ItemId = ItemId;
+        }
     }
 
     [MemoryTable("quest_master_empty"), MessagePackObject(true)]
@@ -53,6 +66,14 @@ namespace ReactiveMemory.Tests.TestStructures
         public string Name { get; set; }
         public int RewardItemId { get; set; }
         public int Cost { get; set; }
+
+        public QuestMasterEmptyValidate(int QuestId, string Name, int RewardItemId, int Cost)
+        {
+            this.QuestId = QuestId;
+            this.Name = Name;
+            this.RewardItemId = RewardItemId;
+            this.Cost = Cost;
+        }
     }
 
     [MemoryTable("item_master_empty"), MessagePackObject(true)]
@@ -60,6 +81,11 @@ namespace ReactiveMemory.Tests.TestStructures
     {
         [PrimaryKey]
         public int ItemId { get; set; }
+
+        public ItemMasterEmptyValidate(int ItemId)
+        {
+            this.ItemId = ItemId;
+        }
     }
 
     [MemoryTable("sequantial_master"), MessagePackObject(true)]
@@ -78,6 +104,12 @@ namespace ReactiveMemory.Tests.TestStructures
                 set.Sequential(x => x.Id);
                 set.Sequential(x => x.Cost, true);
             }
+        }
+
+        public SequentialCheckMaster(int Id, int Cost)
+        {
+            this.Id = Id;
+            this.Cost = Cost;
         }
     }
 
@@ -98,6 +130,11 @@ namespace ReactiveMemory.Tests.TestStructures
                 CalledOnceCount++;
             }
         }
+
+        public SingleMaster(int Id)
+        {
+            this.Id = Id;
+        }
     }
 
     [MemoryTable("fail"), MessagePackObject(true)]
@@ -109,6 +146,11 @@ namespace ReactiveMemory.Tests.TestStructures
         public void Validate(IValidator<Fail> validator)
         {
             validator.Fail("Failed Id:" + Id);
+        }
+
+        public Fail(int Id)
+        {
+            this.Id = Id;
         }
     }
 }
