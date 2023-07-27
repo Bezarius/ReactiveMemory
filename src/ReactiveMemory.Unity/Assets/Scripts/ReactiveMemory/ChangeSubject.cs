@@ -18,7 +18,7 @@ namespace ReactiveMemory
 
     public class UniRxSubject<TElement> : IChangesMediator<TElement>
     {
-        private readonly Subject<EntityChange<TElement>> _subject = new ();
+        private readonly Subject<EntityChange<TElement>> _subject = new();
 
         public void OnCompleted()
         {
