@@ -14,7 +14,7 @@ using Xunit;
 using UniRx;
 using FluentAssertions;
 
-namespace Assets.Tests
+namespace ReactiveMemory.Tests
 {
     /*
      *  var bytes = builder.Build();
