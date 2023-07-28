@@ -13,7 +13,7 @@ namespace ReactiveMemory.GeneratorCore
         public SecondaryKey[] SecondaryKeys { get; set; }
 
         public string InputFilePath { get; set; }
-        public ClassDeclarationSyntax OriginalClassDeclaration { get; set; }
+        public TypeDeclarationSyntax OriginalClassDeclaration { get; set; }
 
         public Property[] Properties { get; set; }
         public KeyBase[] Keys => new KeyBase[] { PrimaryKey }.Concat(SecondaryKeys).ToArray();

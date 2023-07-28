@@ -27,13 +27,11 @@ namespace ReactiveMemory
             if (objectId + 1 >= _sparse.Length)
                 Array.Resize(ref _sparse, objectId + 1);
 
-            if (_dense.Length <= _count)
+            if (_dense.Length <= _count + 1)
                 Array.Resize(ref _dense, _dense.Length * 2);
 
             _dense[_count] = item;
-            _sparse[objectId] = _count;
-
-            _count++;
+            _sparse[objectId] = ++_count;
         }
 
         public T this[int objectId]
@@ -41,7 +39,7 @@ namespace ReactiveMemory
             get
             {
                 if (Contains(objectId))
-                    return _dense[_sparse[objectId]];
+                    return _dense[_sparse[objectId] - 1];
                 throw new ArgumentException($"Object with index {objectId} does not exist in the SparseSet.");
             }
         }
@@ -52,13 +50,13 @@ namespace ReactiveMemory
             if (!Contains(objectId))
                 return;
 
-            var itemIndex = _sparse[objectId];
+            var itemIndex = _sparse[objectId] - 1;
             var lastItem = _dense[_count - 1];
 
             _dense[itemIndex] = lastItem;
             _sparse[objectId] = itemIndex;
 
-            _dense[_count - 1] = default(T);
+            _dense[_count - 1] = default;
             _sparse[objectId] = 0;
 
             _count--;
@@ -66,7 +64,12 @@ namespace ReactiveMemory
 
         public bool Contains(int objectId)
         {
-            return objectId < _sparse.Length && _sparse[objectId] != 0;
+            return
+                objectId < _sparse.Length &&
+                _sparse[objectId] > -1 &&
+                _sparse[objectId] < _dense.Length &&
+                _sparse[objectId] - 1 > -1 &&
+                _dense[_sparse[objectId] - 1] != null;
         }
 
         public IEnumerator<T> GetEnumerator()

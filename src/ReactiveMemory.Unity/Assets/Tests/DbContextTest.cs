@@ -75,45 +75,62 @@ namespace ReactiveMemory.Tests
             return new DbContext(new DatabaseBuilder().Append(data).Build(), changesMediatorFactory: UniRxSubjectFactory.Default);
         }
 
+        [Fact]
+        public void ChangeTest()
+        {
+            var ctx = CreateDbContext(CreateData());
+            var targetId = 5;
+            ctx.BeginTransaction();
+            var startSampleFromDb = ctx.Database.SampleTable.FindById(targetId);
+            var updatedSample = startSampleFromDb with { Age = 24 };
+            ctx.Transaction.Diff(updatedSample);
+            var sampleBeforeUpdate = ctx.Database.SampleTable.FindById(targetId);
+            (sampleBeforeUpdate == updatedSample).Should().BeFalse();
+            ctx.Commit();
+            var sampleAfterUpdate = ctx.Database.SampleTable.FindById(targetId);
+            (sampleAfterUpdate == updatedSample).Should().BeTrue();
+            (startSampleFromDb == sampleAfterUpdate).Should().BeFalse();
+        }
 
         [Fact]
         public void CommitTest()
         {
             var ctx = CreateDbContext(CreateData());
             var targetId = 5;
-            bool flag = false;
+            bool dbChangeWasTriggered = false;
             ctx.Database.OnChange<Sample>().Subscribe(x =>
             {
-                if (x.Change == EEntityChangeType.Update && x.Entity.Id == 5) flag = true;
+                if (x.Change == EEntityChangeType.Update && x.Entity.Id == 5) 
+                    dbChangeWasTriggered = true;
             });
-
             ctx.BeginTransaction();
             var p = ctx.Database.SampleTable.FindById(targetId);
-            var p2 = new Sample { Id = targetId, Age = 24, FirstName = "aaa", LastName = "foo" };
+            var p2 = p with {  Age = 24};
             ctx.Transaction.Diff(p2);
-            flag.Should().BeFalse();
+            dbChangeWasTriggered.Should().BeFalse();
             ctx.Commit();
-            flag.Should().BeTrue();
+            dbChangeWasTriggered.Should().BeTrue();
         }
+
 
         [Fact]
         public void RollbackTest()
         {
             var ctx = CreateDbContext(CreateData());
             var targetId = 5;
-            bool flag = false;
+            bool dbChangeWasTriggered = false;
             ctx.Database.OnChange<Sample>().Subscribe(x =>
             {
-                if (x.Change == EEntityChangeType.Update && x.Entity.Id == 5) flag = true;
+                if (x.Change == EEntityChangeType.Update && x.Entity.Id == 5) 
+                    dbChangeWasTriggered = true;
             });
-
             ctx.BeginTransaction();
             var p = ctx.Database.SampleTable.FindById(targetId);
-            var p2 = new Sample { Id = targetId, Age = 24, FirstName = "aaa", LastName = "foo" };
+            var p2 = p with { Age = 24 };
             ctx.Transaction.Diff(p2);
-            flag.Should().BeFalse();
+            dbChangeWasTriggered.Should().BeFalse();
             ctx.Rollback();
-            flag.Should().BeFalse();
+            dbChangeWasTriggered.Should().BeFalse();
             var p3 = ctx.Database.SampleTable.FindById(targetId);
             p3.Age.Should().Be(19);
         }

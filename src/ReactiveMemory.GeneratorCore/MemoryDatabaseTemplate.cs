@@ -78,6 +78,13 @@ namespace ReactiveMemory.GeneratorCore
         {
         }
 
+        public ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
+            this.Write(@"(byte[] databaseBinary, ChangesConveyor changesConveyor, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
+            : base(databaseBinary, changesConveyor, internString, formatterResolver, maxDegreeOfParallelism)
+        {
+        }
+
         protected override void Init(Dictionary<string, (int offset, int count)> header, System.ReadOnlyMemory<byte> databaseBinary, MessagePack.MessagePackSerializerOptions options, int maxDegreeOfParallelism)
         {
             if(maxDegreeOfParallelism == 1)

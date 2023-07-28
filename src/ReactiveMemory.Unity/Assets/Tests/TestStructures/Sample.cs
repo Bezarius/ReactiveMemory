@@ -3,7 +3,7 @@ using MessagePack;
 namespace ReactiveMemory.Tests
 {
     [MemoryTable("s_a_m_p_l_e"), MessagePackObject(true)]
-    public class Sample
+    public record Sample
     {
         [PrimaryKey]
         [SecondaryKey(1)]
@@ -38,10 +38,7 @@ namespace ReactiveMemory.Tests
             return $"{Id} {Age} {FirstName} {LastName}";
         }
 
-        public Sample()
-        {
-
-        }
+        public Sample() { }
 
         public Sample(int Id, int Age, string FirstName, string LastName)
         {
@@ -50,7 +47,5 @@ namespace ReactiveMemory.Tests
             this.FirstName = FirstName;
             this.LastName = LastName;
         }
-
-
     }
 }

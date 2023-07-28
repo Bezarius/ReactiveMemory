@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using System.Linq;
-using ReactiveMemory.Test;
+using ReactiveMemory.Tests;
 
 namespace ReactiveMemory.Tests
 {

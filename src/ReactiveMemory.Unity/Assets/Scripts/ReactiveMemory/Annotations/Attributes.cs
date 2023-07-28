@@ -2,7 +2,7 @@
 
 namespace ReactiveMemory
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
     public class MemoryTableAttribute : Attribute
     {
         public string TableName { get; }

@@ -137,7 +137,12 @@ namespace ReactiveMemory.GeneratorCore
             var syntax = Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText(File.ReadAllText(filePath));
             var root = syntax.GetRoot();
 
-            var classDeclarations = root.DescendantNodes().OfType<ClassDeclarationSyntax>().ToArray();
+            var classDeclarations = root
+                .DescendantNodes()
+                .OfType<TypeDeclarationSyntax>()
+                .Where(cd => cd.Kind() == SyntaxKind.ClassDeclaration || cd.Kind() == SyntaxKind.StructDeclaration || cd.Kind() == SyntaxKind.RecordDeclaration)
+                .ToArray();
+
             if (classDeclarations.Length == 0) yield break;
 
             var ns = root.DescendantNodes().OfType<NamespaceDeclarationSyntax>()
@@ -350,7 +355,7 @@ namespace ReactiveMemory.GeneratorCore
             return secondaryKey;
         }
 
-        string BuildRecordConstructorFile(AdhocWorkspace workspace, IEnumerable<ClassDeclarationSyntax> classDeclarations)
+        string BuildRecordConstructorFile(AdhocWorkspace workspace, IEnumerable<TypeDeclarationSyntax> classDeclarations)
         {
             // using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 

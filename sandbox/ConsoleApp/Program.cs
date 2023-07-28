@@ -92,12 +92,12 @@ namespace ConsoleApp.Tables
 namespace ConsoleApp
 {
     [MemoryTable("monster"), MessagePackObject(true)]
-    public class Monster
+    public record Monster
     {
         [PrimaryKey]
-        public int MonsterId { get; private set; }
-        public string Name { get; private set; }
-        public int MaxHp { get; private set; }
+        public int MonsterId { get; set; }
+        public string Name { get; set; }
+        public int MaxHp { get; set; }
 
         public Monster(int MonsterId, string Name, int MaxHp)
         {
@@ -137,8 +137,10 @@ namespace ConsoleApp
         public Gender Gender { get; set; }
         public string Name { get; set; }
 
-        public Person()
+
+        public override string ToString()
         {
+            return $"{PersonId} {Age} {Gender} {Name}";
         }
 
         public Person(int PersonId, int Age, Gender Gender, string Name)
@@ -147,11 +149,6 @@ namespace ConsoleApp
             this.Age = Age;
             this.Gender = Gender;
             this.Name = Name;
-        }
-
-        public override string ToString()
-        {
-            return $"{PersonId} {Age} {Gender} {Name}";
         }
     }
 
@@ -293,7 +290,15 @@ namespace ConsoleApp
 
             // add dynamic collection.
             builder.AppendDynamic(table.DataType, tableData);
-            
+
+
+            var ctx = new DbContext(builder.Build(), new ChangesMediatorFactory());
+
+            var monster = ctx.Database.MonsterTable.FindByMonsterId(1);
+            var monster2 = monster with { Name = "123" };
+            var monster3 = ctx.Database.MonsterTable.FindByMonsterId(1);
+            Console.WriteLine(monster);
+            // monster2 namme isn't '123'
         }
 
         static object ParseValue(Type type, string rawValue)

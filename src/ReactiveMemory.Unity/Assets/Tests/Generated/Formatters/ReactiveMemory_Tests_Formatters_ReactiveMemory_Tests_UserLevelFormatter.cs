@@ -25,12 +25,6 @@ namespace ReactiveMemory.Tests.Formatters.ReactiveMemory.Tests
 
         public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::ReactiveMemory.Tests.UserLevel value, global::MessagePack.MessagePackSerializerOptions options)
         {
-            if (value is null)
-            {
-                writer.WriteNil();
-                return;
-            }
-
             writer.WriteMapHeader(2);
             writer.WriteRaw(GetSpan_Level());
             writer.Write(value.Level);
@@ -42,7 +36,7 @@ namespace ReactiveMemory.Tests.Formatters.ReactiveMemory.Tests
         {
             if (reader.TryReadNil())
             {
-                return null;
+                throw new global::System.InvalidOperationException("typecode is null, struct not supported");
             }
 
             options.Security.DepthStep(ref reader);
