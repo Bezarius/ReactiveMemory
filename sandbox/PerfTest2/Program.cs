@@ -32,7 +32,7 @@ namespace TestPerfLiteDB
             RunTest("ConcurrentDictionary", new ConcurrentDictionary_Test(5000));
             RunTest("ImmutableDictionary", new ImmutableDictionary_Test(5000));
 
-            RunTest("MasterMemory", new MasterMemory_Test(5000));
+            RunTest("ReactiveMemory", new ReactiveMemory_Test(5000));
 
             Console.ReadKey();
 

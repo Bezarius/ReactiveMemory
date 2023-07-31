@@ -1,23 +1,28 @@
-﻿using MasterMemory.Internal;
+﻿using ReactiveMemory.Internal;
 using MessagePack;
 using MessagePack.Formatters;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
-using System.Buffers;
-using MasterMemory.Validation;
+using ReactiveMemory.Validation;
 
-namespace MasterMemory
+namespace ReactiveMemory
 {
     public abstract class MemoryDatabaseBase
     {
-        protected MemoryDatabaseBase()
-        {
+        public IObservable<EntityChange<TEntity>> OnChange<TEntity>() => ChangesConveyor?.GetQueue<TEntity>().OnChange;
+        
 
+        public readonly ChangesConveyor ChangesConveyor;
+
+        protected MemoryDatabaseBase(ChangesConveyor changesConveyor)
+        {
+            ChangesConveyor = changesConveyor;
         }
 
-        public MemoryDatabaseBase(byte[] databaseBinary, bool internString = true, IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
+        public MemoryDatabaseBase(byte[] databaseBinary, IChangesMediatorFactory changesMediatorFactory, bool internString = true,
+            IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1) : this(new ChangesConveyor(changesMediatorFactory))
         {
             var reader = new MessagePackReader(databaseBinary);
             var formatter = new DictionaryFormatter<string, (int, int)>();
@@ -28,22 +33,29 @@ namespace MasterMemory
             {
                 resolver = new InternStringResolver(resolver);
             }
+
             if (maxDegreeOfParallelism < 1)
             {
                 maxDegreeOfParallelism = 1;
             }
 
-            Init(header, databaseBinary.AsMemory((int)reader.Consumed), MessagePackSerializer.DefaultOptions.WithResolver(resolver).WithCompression(MessagePackCompression.Lz4Block), maxDegreeOfParallelism);
+            Init(header, databaseBinary.AsMemory((int)reader.Consumed),
+                MessagePackSerializer.DefaultOptions.WithResolver(resolver)
+                    .WithCompression(MessagePackCompression.Lz4Block), maxDegreeOfParallelism);
         }
 
-        protected static TView ExtractTableData<T, TView>(Dictionary<string, (int offset, int count)> header, ReadOnlyMemory<byte> databaseBinary, MessagePackSerializerOptions options, Func<T[], TView> createView)
+        protected static TView ExtractTableData<T, TView>(Dictionary<string, (int offset, int count)> header,
+            ReadOnlyMemory<byte> databaseBinary, MessagePackSerializerOptions options, Func<T[], TView> createView)
         {
             var tableName = typeof(T).GetCustomAttribute<MemoryTableAttribute>();
-            if (tableName == null) throw new InvalidOperationException("Type is not annotated MemoryTableAttribute. Type:" + typeof(T).FullName);
+            if (tableName == null)
+                throw new InvalidOperationException("Type is not annotated MemoryTableAttribute. Type:" +
+                                                    typeof(T).FullName);
 
             if (header.TryGetValue(tableName.TableName, out var segment))
             {
-                var data = MessagePackSerializer.Deserialize<T[]>(databaseBinary.Slice(segment.offset, segment.count), options);
+                var data = MessagePackSerializer.Deserialize<T[]>(databaseBinary.Slice(segment.offset, segment.count),
+                    options);
                 return createView(data);
             }
             else
@@ -54,7 +66,8 @@ namespace MasterMemory
             }
         }
 
-        protected abstract void Init(Dictionary<string, (int offset, int count)> header, ReadOnlyMemory<byte> databaseBinary, MessagePackSerializerOptions options, int maxDegreeOfParallelism);
+        protected abstract void Init(Dictionary<string, (int offset, int count)> header,
+            ReadOnlyMemory<byte> databaseBinary, MessagePackSerializerOptions options, int maxDegreeOfParallelism);
 
         public static TableInfo[] GetTableInfo(byte[] databaseBinary, bool storeTableData = true)
         {
@@ -62,10 +75,12 @@ namespace MasterMemory
             var reader = new MessagePackReader(databaseBinary);
             var header = formatter.Deserialize(ref reader, HeaderFormatterResolver.StandardOptions);
 
-            return header.Select(x => new TableInfo(x.Key, x.Value.Item2, storeTableData ? databaseBinary : null, x.Value.Item1)).ToArray();
+            return header.Select(x =>
+                new TableInfo(x.Key, x.Value.Item2, storeTableData ? databaseBinary : null, x.Value.Item1)).ToArray();
         }
 
-        protected void ValidateTable<TElement>(IReadOnlyList<TElement> table, ValidationDatabase database, string pkName, Delegate pkSelector, ValidateResult result)
+        protected void ValidateTable<TElement>(IReadOnlyList<TElement> table, ValidationDatabase database,
+            string pkName, Delegate pkSelector, ValidateResult result)
         {
             var onceCalled = new System.Runtime.CompilerServices.StrongBox<bool>(false);
             foreach (var item in table)
@@ -80,7 +95,7 @@ namespace MasterMemory
     }
 
     /// <summary>
-    /// Diagnostic info of MasterMemory's table.
+    /// Diagnostic info of ReactiveMemory's table.
     /// </summary>
     public class TableInfo
     {
@@ -108,10 +123,12 @@ namespace MasterMemory
         {
             if (binaryData == null)
             {
-                throw new InvalidOperationException("DumpAsJson can only call from GetTableInfo(storeTableData = true).");
+                throw new InvalidOperationException(
+                    "DumpAsJson can only call from GetTableInfo(storeTableData = true).");
             }
 
-            return MessagePackSerializer.ConvertToJson(binaryData, options.WithCompression(MessagePackCompression.Lz4Block));
+            return MessagePackSerializer.ConvertToJson(binaryData,
+                options.WithCompression(MessagePackCompression.Lz4Block));
         }
     }
 }

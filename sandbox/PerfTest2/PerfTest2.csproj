@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MasterMemory\MasterMemory.csproj" />
+    <ProjectReference Include="..\..\src\ReactiveMemory\ReactiveMemory.csproj" />
   </ItemGroup>
 
 </Project>

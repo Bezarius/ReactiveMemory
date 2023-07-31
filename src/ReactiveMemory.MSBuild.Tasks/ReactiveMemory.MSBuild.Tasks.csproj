@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <LangVersion>latest</LangVersion>
+
+        <!-- NuGet Packages for build task. -->
+        <NoPackageAnalysis>true</NoPackageAnalysis>
+        <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+        <!-- SKD depenencies local copy. -->
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <!-- NuGet Info -->
+        <PackageId>ReactiveMemory.MSBuild.Tasks</PackageId>
+        <PackageVersion>$(Version)</PackageVersion>
+        <Authors>MstislavPavlov</Authors>
+        <Copyright>MstislavPavlov</Copyright>
+        <Description>MSBuild Tasks of ReactiveMemory Code Generator.</Description>
+        <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>database, embedded, inmemory, unity, reactive</PackageTags>
+        <IsPackable>true</IsPackable>
+        <PackageProjectUrl>https://github.com/Bezarius/ReactiveMemory</PackageProjectUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- NuGet Tasks path. -->
+        <Content Include="build\ReactiveMemory.MSBuild.Tasks.props" PackagePath="build\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Build.Framework" Version="16.0.461" />
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.0.461" />
+        <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ReactiveMemory.GeneratorCore\ReactiveMemory.GeneratorCore.csproj" />
+    </ItemGroup>
+
+    <!--
+        The include needs to happen after output has been copied to build output folder
+        but before NuGet generates a nuspec. See https://github.com/NuGet/Home/issues/4704.
+    -->
+    <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
+        <ItemGroup>
+            <_PackageFiles Include="$(OutDir)\**\*.dll" Exclude="$(OutDir)$(TargetFileName)">
+                <PackagePath>tasks\netstandard2.0\%(RecursiveDir)</PackagePath>
+                <Visible>false</Visible>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
+        </ItemGroup>
+    </Target>
+
+</Project>

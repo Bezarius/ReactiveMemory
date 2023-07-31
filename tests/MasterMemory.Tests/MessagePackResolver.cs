@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
     public class MessagePackResolver : IFormatterResolver
     {
@@ -18,7 +18,7 @@ namespace MasterMemory.Tests
 
         public IMessagePackFormatter<T> GetFormatter<T>()
         {
-            return MasterMemoryResolver.Instance.GetFormatter<T>()
+            return ReactiveMemoryResolver.Instance.GetFormatter<T>()
                 ?? GeneratedResolver.Instance.GetFormatter<T>()
                 ?? StandardResolver.Instance.GetFormatter<T>();
         }

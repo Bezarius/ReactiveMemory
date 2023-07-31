@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <RootNamespace>ReactiveMemory</RootNamespace>
+        <AssemblyName>ReactiveMemory</AssemblyName>
+
+        <OutputType>Library</OutputType>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <Company>MstisavPavlov</Company>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>1701;1702;1705;1591</NoWarn>
+
+        <!-- NuGet -->
+        <PackageId>ReactiveMemory</PackageId>
+        <PackageVersion>$(Version)</PackageVersion>
+        <Authors>MstisavPavlov</Authors>
+        <Copyright>MstisavPavlov</Copyright>
+        <Description>Embedded Typed Readonly In-Memory Document Database for .NET Core and Unity.</Description>
+        <PackageProjectUrl>https://github.com/Bezarius/ReactiveMemory</PackageProjectUrl>
+        <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>database, embedded, inmemory, unity, reactive</PackageTags>
+        <IsPackable>true</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MessagePack" Version="2.1.90" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ReactiveMemory.Annotations\ReactiveMemory.Annotations.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="Validation\ValidatableSet.Sequential.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>ValidatableSet.Sequential.cs</LastGenOutput>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Update="Validation\ValidatableSet.Sequential.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ValidatableSet.Sequential.tt</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <!-- Copy files for Unity -->
+    <PropertyGroup>
+        <DestinationRoot>$(ProjectDir)..\ReactiveMemory.Unity\Assets\Scripts\ReactiveMemory\</DestinationRoot>
+        <TestDestination>$(ProjectDir)..\ReactiveMemory.Unity\Assets\Tests\</TestDestination>
+    </PropertyGroup>
+    <ItemGroup>
+        <TargetFiles1 Include="$(ProjectDir)\**\*.cs" Exclude="**\bin\**\*.*;**\obj\**\*.*;_InternalVisibleTo.cs" />
+        <TargetFiles2 Include="$(ProjectDir)\..\ReactiveMemory.Annotations\**\*.cs" Exclude="**\bin\**\*.*;**\obj\**\*.*;" />
+        <TargetFiles3 Include="$(ProjectDir)\..\..\tests\ReactiveMemory.Tests\**\*.cs" Exclude="**\bin\**\*.*;**\obj\**\*.*;" />
+    </ItemGroup>
+    <ItemGroup>
+      <TargetFiles1 Remove="IRepositoryChangesPublisher.cs" />
+    </ItemGroup>
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Copy SourceFiles="@(TargetFiles1)" DestinationFiles="$(DestinationRoot)\%(RecursiveDir)%(Filename)%(Extension)" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(TargetFiles2)" DestinationFiles="$(DestinationRoot)\Annotations\%(RecursiveDir)%(Filename)%(Extension)" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(TargetFiles3)" DestinationFiles="$(TestDestination)\%(RecursiveDir)%(Filename)%(Extension)" SkipUnchangedFiles="true" />
+    </Target>
+
+</Project>

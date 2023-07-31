@@ -134,3 +134,4 @@ src/MasterMemory.Unity/MasterMemory.Unity.sln
 src/MasterMemory.Unity/MessagePack.Annotations.csproj
 
 src/MasterMemory.Unity/MessagePack.csproj
+.idea

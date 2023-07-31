@@ -2,9 +2,9 @@
 #pragma warning disable CS0105
 using ConsoleApp.Tables;
 using ConsoleApp;
-using MasterMemory.Validation;
-using MasterMemory;
 using MessagePack;
+using ReactiveMemory.Validation;
+using ReactiveMemory;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,7 +19,19 @@ using ConsoleApp.Tables;
 
 namespace ConsoleApp
 {
-   public sealed class MemoryDatabase : MemoryDatabaseBase
+   public interface IMemoryDatabase
+   {
+        public IObservable<EntityChange<TEntity>> OnChange<TEntity>();
+        public EnumKeyTableTable EnumKeyTableTable { get; }
+        public ItemTable ItemTable { get; }
+        public MonsterTable MonsterTable { get; }
+        public PersonTable PersonTable { get; }
+        public QuestTable QuestTable { get; }
+        public Test1Table Test1Table { get; }
+        public Test2Table Test2Table { get; }
+   }
+
+   public sealed class MemoryDatabase : MemoryDatabaseBase, IMemoryDatabase
    {
         public EnumKeyTableTable EnumKeyTableTable { get; private set; }
         public ItemTable ItemTable { get; private set; }
@@ -37,7 +49,7 @@ namespace ConsoleApp
             QuestTable QuestTable,
             Test1Table Test1Table,
             Test2Table Test2Table
-        )
+        , ChangesConveyor changesConveyor) : base(changesConveyor)
         {
             this.EnumKeyTableTable = EnumKeyTableTable;
             this.ItemTable = ItemTable;
@@ -48,8 +60,13 @@ namespace ConsoleApp
             this.Test2Table = Test2Table;
         }
 
-        public MemoryDatabase(byte[] databaseBinary, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
-            : base(databaseBinary, internString, formatterResolver, maxDegreeOfParallelism)
+        public MemoryDatabase(byte[] databaseBinary, IChangesMediatorFactory changesMediatorFactory, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
+            : base(databaseBinary, changesMediatorFactory, internString, formatterResolver, maxDegreeOfParallelism)
+        {
+        }
+
+        public MemoryDatabase(byte[] databaseBinary, ChangesConveyor changesConveyor, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
+            : base(databaseBinary, changesConveyor, internString, formatterResolver, maxDegreeOfParallelism)
         {
         }
 
@@ -95,9 +112,9 @@ namespace ConsoleApp
             }, extracts);
         }
 
-        public ImmutableBuilder ToImmutableBuilder()
+        public Transaction BeginTransaction()
         {
-            return new ImmutableBuilder(this);
+            return new Transaction(this);
         }
 
         public DatabaseBuilder ToDatabaseBuilder()
@@ -162,7 +179,7 @@ namespace ConsoleApp
 
 #endif
 
-        static MasterMemory.Meta.MetaDatabase metaTable;
+        static ReactiveMemory.Meta.MetaDatabase metaTable;
 
         public static object GetTable(MemoryDatabase db, string tableName)
         {
@@ -190,11 +207,11 @@ namespace ConsoleApp
 
 #if !DISABLE_MASTERMEMORY_METADATABASE
 
-        public static MasterMemory.Meta.MetaDatabase GetMetaDatabase()
+        public static ReactiveMemory.Meta.MetaDatabase GetMetaDatabase()
         {
             if (metaTable != null) return metaTable;
 
-            var dict = new Dictionary<string, MasterMemory.Meta.MetaTable>();
+            var dict = new Dictionary<string, ReactiveMemory.Meta.MetaTable>();
             dict.Add("enumkeytable", ConsoleApp.Tables.EnumKeyTableTable.CreateMetaTable());
             dict.Add("item", ConsoleApp.Tables.ItemTable.CreateMetaTable());
             dict.Add("monster", ConsoleApp.Tables.MonsterTable.CreateMetaTable());
@@ -203,7 +220,7 @@ namespace ConsoleApp
             dict.Add("Test1", ConsoleApp.Tables.Test1Table.CreateMetaTable());
             dict.Add("Test2", ConsoleApp.Tables.Test2Table.CreateMetaTable());
 
-            metaTable = new MasterMemory.Meta.MetaDatabase(dict);
+            metaTable = new ReactiveMemory.Meta.MetaDatabase(dict);
             return metaTable;
         }
 

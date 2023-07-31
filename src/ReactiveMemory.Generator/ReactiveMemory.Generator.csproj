@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>dotnet-rmgen</ToolCommandName>
+    </PropertyGroup>
+
+    <!-- NuGet informations -->
+    <PropertyGroup>
+        <PackageId>ReactiveMemory.Generator</PackageId>
+        <PackageVersion>$(Version)</PackageVersion>
+        <Authors>MstislavPavlov</Authors>
+        <Copyright>MstislavPavlov</Copyright>
+        <Description>Code Generator of ReactiveMemory.</Description>
+        <PackageProjectUrl>https://github.com/Bezarius/ReactiveMemory</PackageProjectUrl>
+        <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>database, embedded, inmemory, unity, reactive</PackageTags>
+        <IsPackable>true</IsPackable>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <Title>ReactiveMemory.Generator</Title>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="ConsoleAppFramework" Version="3.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ReactiveMemory.GeneratorCore\ReactiveMemory.GeneratorCore.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -2,8 +2,8 @@
 #pragma warning disable CS0105
 using ConsoleApp.Tables;
 using ConsoleApp;
-using MasterMemory.Validation;
-using MasterMemory;
+using ReactiveMemory.Validation;
+using ReactiveMemory;
 using MessagePack;
 using System.Buffers;
 using System.Collections.Generic;
@@ -19,17 +19,35 @@ using ConsoleApp.Tables;
 
 namespace ConsoleApp
 {
-   public sealed class ImmutableBuilder : ImmutableBuilderBase
+   public sealed class ImmutableBuilder : TransactionBase
    {
         MemoryDatabase memory;
+
+        private IChangesQueue<EnumKeyTable> _EnumKeyTableChangeTracker;
+        private IChangesQueue<Item> _ItemChangeTracker;
+        private IChangesQueue<Monster> _MonsterChangeTracker;
+        private IChangesQueue<Person> _PersonChangeTracker;
+        private IChangesQueue<Quest> _QuestChangeTracker;
+        private IChangesQueue<Test1> _Test1ChangeTracker;
+        private IChangesQueue<Test2> _Test2ChangeTracker;
+ 
 
         public ImmutableBuilder(MemoryDatabase memory)
         {
             this.memory = memory;
+            _EnumKeyTableChangeTracker = this.memory.ChangesConveyor.GetQueue<EnumKeyTable>();
+            _ItemChangeTracker = this.memory.ChangesConveyor.GetQueue<Item>();
+            _MonsterChangeTracker = this.memory.ChangesConveyor.GetQueue<Monster>();
+            _PersonChangeTracker = this.memory.ChangesConveyor.GetQueue<Person>();
+            _QuestChangeTracker = this.memory.ChangesConveyor.GetQueue<Quest>();
+            _Test1ChangeTracker = this.memory.ChangesConveyor.GetQueue<Test1>();
+            _Test2ChangeTracker = this.memory.ChangesConveyor.GetQueue<Test2>();
+ 
         }
 
         public MemoryDatabase Build()
         {
+            memory.ChangesConveyor.Publish();
             return memory;
         }
 
@@ -44,14 +62,16 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor            
             );
         }
 
-        public void RemoveEnumKeyTable(Gender[] keys)
+        
+        public void RemoveEnumKeyTable(Gender key)
         {
-            var data = RemoveCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), keys, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
+            var data = RemoveCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), key, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker);
             var newData = CloneAndSortBy(data, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
             var table = new EnumKeyTableTable(newData);
             memory = new MemoryDatabase(
@@ -61,14 +81,51 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+                memory.ChangesConveyor             
+            );
+        }
+
+
+        public void RemoveEnumKeyTable(Gender[] keys)
+        {
+            var data = RemoveCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), keys, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
+            var table = new EnumKeyTableTable(newData);
+            memory = new MemoryDatabase(
+                table,
+                memory.ItemTable,
+                memory.MonsterTable,
+                memory.PersonTable,
+                memory.QuestTable,
+                memory.Test1Table,
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
+            );
+        }
+
+        public void Diff(EnumKeyTable addOrReplaceData)
+        {
+            var data = DiffCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
+            var table = new EnumKeyTableTable(newData);
+            memory = new MemoryDatabase(
+                table,
+                memory.ItemTable,
+                memory.MonsterTable,
+                memory.PersonTable,
+                memory.QuestTable,
+                memory.Test1Table,
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
         public void Diff(EnumKeyTable[] addOrReplaceData)
         {
-            var data = DiffCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
+            var data = DiffCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker);
             var newData = CloneAndSortBy(data, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
             var table = new EnumKeyTableTable(newData);
             memory = new MemoryDatabase(
@@ -78,8 +135,9 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
@@ -94,14 +152,16 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor            
             );
         }
 
-        public void RemoveItem(int[] keys)
+        
+        public void RemoveItem(int key)
         {
-            var data = RemoveCore(memory.ItemTable.GetRawDataUnsafe(), keys, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
+            var data = RemoveCore(memory.ItemTable.GetRawDataUnsafe(), key, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker);
             var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
             var table = new ItemTable(newData);
             memory = new MemoryDatabase(
@@ -111,14 +171,51 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+                memory.ChangesConveyor             
+            );
+        }
+
+
+        public void RemoveItem(int[] keys)
+        {
+            var data = RemoveCore(memory.ItemTable.GetRawDataUnsafe(), keys, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
+            var table = new ItemTable(newData);
+            memory = new MemoryDatabase(
+                memory.EnumKeyTableTable,
+                table,
+                memory.MonsterTable,
+                memory.PersonTable,
+                memory.QuestTable,
+                memory.Test1Table,
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
+            );
+        }
+
+        public void Diff(Item addOrReplaceData)
+        {
+            var data = DiffCore(memory.ItemTable.GetRawDataUnsafe(), addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
+            var table = new ItemTable(newData);
+            memory = new MemoryDatabase(
+                memory.EnumKeyTableTable,
+                table,
+                memory.MonsterTable,
+                memory.PersonTable,
+                memory.QuestTable,
+                memory.Test1Table,
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
         public void Diff(Item[] addOrReplaceData)
         {
-            var data = DiffCore(memory.ItemTable.GetRawDataUnsafe(), addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
+            var data = DiffCore(memory.ItemTable.GetRawDataUnsafe(), addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker);
             var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
             var table = new ItemTable(newData);
             memory = new MemoryDatabase(
@@ -128,8 +225,9 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
@@ -144,14 +242,16 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor            
             );
         }
 
-        public void RemoveMonster(int[] keys)
+        
+        public void RemoveMonster(int key)
         {
-            var data = RemoveCore(memory.MonsterTable.GetRawDataUnsafe(), keys, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
+            var data = RemoveCore(memory.MonsterTable.GetRawDataUnsafe(), key, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
             var newData = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
             var table = new MonsterTable(newData);
             memory = new MemoryDatabase(
@@ -161,14 +261,51 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+                memory.ChangesConveyor             
+            );
+        }
+
+
+        public void RemoveMonster(int[] keys)
+        {
+            var data = RemoveCore(memory.MonsterTable.GetRawDataUnsafe(), keys, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
+            var table = new MonsterTable(newData);
+            memory = new MemoryDatabase(
+                memory.EnumKeyTableTable,
+                memory.ItemTable,
+                table,
+                memory.PersonTable,
+                memory.QuestTable,
+                memory.Test1Table,
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
+            );
+        }
+
+        public void Diff(Monster addOrReplaceData)
+        {
+            var data = DiffCore(memory.MonsterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
+            var table = new MonsterTable(newData);
+            memory = new MemoryDatabase(
+                memory.EnumKeyTableTable,
+                memory.ItemTable,
+                table,
+                memory.PersonTable,
+                memory.QuestTable,
+                memory.Test1Table,
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
         public void Diff(Monster[] addOrReplaceData)
         {
-            var data = DiffCore(memory.MonsterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
+            var data = DiffCore(memory.MonsterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
             var newData = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
             var table = new MonsterTable(newData);
             memory = new MemoryDatabase(
@@ -178,8 +315,9 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
@@ -194,14 +332,16 @@ namespace ConsoleApp
                 table,
                 memory.QuestTable,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor            
             );
         }
 
-        public void RemovePerson(int[] keys)
+        
+        public void RemovePerson(int key)
         {
-            var data = RemoveCore(memory.PersonTable.GetRawDataUnsafe(), keys, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
+            var data = RemoveCore(memory.PersonTable.GetRawDataUnsafe(), key, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
             var newData = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
             var table = new PersonTable(newData);
             memory = new MemoryDatabase(
@@ -211,14 +351,51 @@ namespace ConsoleApp
                 table,
                 memory.QuestTable,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+                memory.ChangesConveyor             
+            );
+        }
+
+
+        public void RemovePerson(int[] keys)
+        {
+            var data = RemoveCore(memory.PersonTable.GetRawDataUnsafe(), keys, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
+            var table = new PersonTable(newData);
+            memory = new MemoryDatabase(
+                memory.EnumKeyTableTable,
+                memory.ItemTable,
+                memory.MonsterTable,
+                table,
+                memory.QuestTable,
+                memory.Test1Table,
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
+            );
+        }
+
+        public void Diff(Person addOrReplaceData)
+        {
+            var data = DiffCore(memory.PersonTable.GetRawDataUnsafe(), addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
+            var table = new PersonTable(newData);
+            memory = new MemoryDatabase(
+                memory.EnumKeyTableTable,
+                memory.ItemTable,
+                memory.MonsterTable,
+                table,
+                memory.QuestTable,
+                memory.Test1Table,
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
         public void Diff(Person[] addOrReplaceData)
         {
-            var data = DiffCore(memory.PersonTable.GetRawDataUnsafe(), addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
+            var data = DiffCore(memory.PersonTable.GetRawDataUnsafe(), addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
             var newData = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
             var table = new PersonTable(newData);
             memory = new MemoryDatabase(
@@ -228,8 +405,9 @@ namespace ConsoleApp
                 table,
                 memory.QuestTable,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
@@ -244,14 +422,16 @@ namespace ConsoleApp
                 memory.PersonTable,
                 table,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor            
             );
         }
 
-        public void RemoveQuest(int[] keys)
+        
+        public void RemoveQuest(int key)
         {
-            var data = RemoveCore(memory.QuestTable.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            var data = RemoveCore(memory.QuestTable.GetRawDataUnsafe(), key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker);
             var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
             var table = new QuestTable(newData);
             memory = new MemoryDatabase(
@@ -261,14 +441,51 @@ namespace ConsoleApp
                 memory.PersonTable,
                 table,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+                memory.ChangesConveyor             
+            );
+        }
+
+
+        public void RemoveQuest(int[] keys)
+        {
+            var data = RemoveCore(memory.QuestTable.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            var table = new QuestTable(newData);
+            memory = new MemoryDatabase(
+                memory.EnumKeyTableTable,
+                memory.ItemTable,
+                memory.MonsterTable,
+                memory.PersonTable,
+                table,
+                memory.Test1Table,
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
+            );
+        }
+
+        public void Diff(Quest addOrReplaceData)
+        {
+            var data = DiffCore(memory.QuestTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            var table = new QuestTable(newData);
+            memory = new MemoryDatabase(
+                memory.EnumKeyTableTable,
+                memory.ItemTable,
+                memory.MonsterTable,
+                memory.PersonTable,
+                table,
+                memory.Test1Table,
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
         public void Diff(Quest[] addOrReplaceData)
         {
-            var data = DiffCore(memory.QuestTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            var data = DiffCore(memory.QuestTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker);
             var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
             var table = new QuestTable(newData);
             memory = new MemoryDatabase(
@@ -278,8 +495,9 @@ namespace ConsoleApp
                 memory.PersonTable,
                 table,
                 memory.Test1Table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
@@ -294,14 +512,16 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor            
             );
         }
 
-        public void RemoveTest1(int[] keys)
+        
+        public void RemoveTest1(int key)
         {
-            var data = RemoveCore(memory.Test1Table.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            var data = RemoveCore(memory.Test1Table.GetRawDataUnsafe(), key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker);
             var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
             var table = new Test1Table(newData);
             memory = new MemoryDatabase(
@@ -311,14 +531,51 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+                memory.ChangesConveyor             
+            );
+        }
+
+
+        public void RemoveTest1(int[] keys)
+        {
+            var data = RemoveCore(memory.Test1Table.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            var table = new Test1Table(newData);
+            memory = new MemoryDatabase(
+                memory.EnumKeyTableTable,
+                memory.ItemTable,
+                memory.MonsterTable,
+                memory.PersonTable,
+                memory.QuestTable,
+                table,
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
+            );
+        }
+
+        public void Diff(Test1 addOrReplaceData)
+        {
+            var data = DiffCore(memory.Test1Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            var table = new Test1Table(newData);
+            memory = new MemoryDatabase(
+                memory.EnumKeyTableTable,
+                memory.ItemTable,
+                memory.MonsterTable,
+                memory.PersonTable,
+                memory.QuestTable,
+                table,
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
         public void Diff(Test1[] addOrReplaceData)
         {
-            var data = DiffCore(memory.Test1Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            var data = DiffCore(memory.Test1Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker);
             var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
             var table = new Test1Table(newData);
             memory = new MemoryDatabase(
@@ -328,8 +585,9 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 table,
-                memory.Test2Table
-            
+                memory.Test2Table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
@@ -344,14 +602,16 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 memory.Test1Table,
-                table
-            
+                table,
+ 
+                memory.ChangesConveyor            
             );
         }
 
-        public void RemoveTest2(int[] keys)
+        
+        public void RemoveTest2(int key)
         {
-            var data = RemoveCore(memory.Test2Table.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            var data = RemoveCore(memory.Test2Table.GetRawDataUnsafe(), key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker);
             var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
             var table = new Test2Table(newData);
             memory = new MemoryDatabase(
@@ -361,14 +621,51 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 memory.Test1Table,
-                table
-            
+                table,
+                memory.ChangesConveyor             
+            );
+        }
+
+
+        public void RemoveTest2(int[] keys)
+        {
+            var data = RemoveCore(memory.Test2Table.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            var table = new Test2Table(newData);
+            memory = new MemoryDatabase(
+                memory.EnumKeyTableTable,
+                memory.ItemTable,
+                memory.MonsterTable,
+                memory.PersonTable,
+                memory.QuestTable,
+                memory.Test1Table,
+                table,
+ 
+                memory.ChangesConveyor             
+            );
+        }
+
+        public void Diff(Test2 addOrReplaceData)
+        {
+            var data = DiffCore(memory.Test2Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker);
+            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            var table = new Test2Table(newData);
+            memory = new MemoryDatabase(
+                memory.EnumKeyTableTable,
+                memory.ItemTable,
+                memory.MonsterTable,
+                memory.PersonTable,
+                memory.QuestTable,
+                memory.Test1Table,
+                table,
+ 
+                memory.ChangesConveyor             
             );
         }
 
         public void Diff(Test2[] addOrReplaceData)
         {
-            var data = DiffCore(memory.Test2Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            var data = DiffCore(memory.Test2Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker);
             var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
             var table = new Test2Table(newData);
             memory = new MemoryDatabase(
@@ -378,8 +675,9 @@ namespace ConsoleApp
                 memory.PersonTable,
                 memory.QuestTable,
                 memory.Test1Table,
-                table
-            
+                table,
+ 
+                memory.ChangesConveyor             
             );
         }
 

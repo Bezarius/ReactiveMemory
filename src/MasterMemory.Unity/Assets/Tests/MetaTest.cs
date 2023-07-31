@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
     public class MetaTest
     {

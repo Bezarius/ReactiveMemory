@@ -2,9 +2,9 @@
 #pragma warning disable CS0105
 using ConsoleApp.Tables;
 using ConsoleApp;
-using MasterMemory.Validation;
-using MasterMemory;
 using MessagePack;
+using ReactiveMemory.Validation;
+using ReactiveMemory;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -91,15 +91,15 @@ namespace ConsoleApp.Tables
 
 #if !DISABLE_MASTERMEMORY_METADATABASE
 
-        public static MasterMemory.Meta.MetaTable CreateMetaTable()
+        public static ReactiveMemory.Meta.MetaTable CreateMetaTable()
         {
-            return new MasterMemory.Meta.MetaTable(typeof(Test1), typeof(Test1Table), "Test1",
-                new MasterMemory.Meta.MetaProperty[]
+            return new ReactiveMemory.Meta.MetaTable(typeof(Test1), typeof(Test1Table), "Test1",
+                new ReactiveMemory.Meta.MetaProperty[]
                 {
-                    new MasterMemory.Meta.MetaProperty(typeof(Test1).GetProperty("Id")),
+                    new ReactiveMemory.Meta.MetaProperty(typeof(Test1).GetProperty("Id")),
                 },
-                new MasterMemory.Meta.MetaIndex[]{
-                    new MasterMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
+                new ReactiveMemory.Meta.MetaIndex[]{
+                    new ReactiveMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
                         typeof(Test1).GetProperty("Id"),
                     }, true, true, System.Collections.Generic.Comparer<int>.Default),
                 });

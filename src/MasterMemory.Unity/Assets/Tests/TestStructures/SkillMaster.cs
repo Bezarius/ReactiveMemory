@@ -1,6 +1,6 @@
 using MessagePack;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
     [MemoryTable("skillmaster"), MessagePackObject(true)]
     public class SkillMaster
