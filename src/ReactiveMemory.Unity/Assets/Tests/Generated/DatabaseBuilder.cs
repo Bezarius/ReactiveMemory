@@ -6,6 +6,7 @@ using ReactiveMemory.Tests;
 using ReactiveMemory.Validation;
 using ReactiveMemory;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System;
 using ReactiveMemory.Tests.Tables;

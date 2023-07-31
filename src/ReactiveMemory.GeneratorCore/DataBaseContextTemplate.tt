@@ -11,17 +11,27 @@ namespace <#= Namespace #>
 {
    public sealed class <#= ClassName #> 
    {
-		public I<#= MemoryDatabaseClassName #>  Database => _database;
-        private <#= MemoryDatabaseClassName #> _database;
-
-        public I<#= TransactionClassName #>  Transaction => _transaction;
-        private <#= TransactionClassName #> _transaction;
-
         public bool IsTransactionStarted { get; private set; }
+        public event Action OnUnauthorizedMemoryModification;
+		public I<#= MemoryDatabaseClassName #>  Database => _database ??= new <#=MemoryDatabaseClassName#>(_data, _changesConveyor);
+        public I<#= TransactionClassName #>  Transaction => _transaction;
 
-        public DbContext(byte[] dbBytes, IChangesMediatorFactory changesMediatorFactory)
+        private <#= MemoryDatabaseClassName #> _database;
+        private <#= TransactionClassName #> _transaction;
+        private ChangesConveyor _changesConveyor;
+        private byte[] _data;
+        private byte[] _hash;
+        private MD5 _md5;
+
+        public DbContext(byte[] dbBytes, IChangesMediatorFactory changesMediatorFactory, string md5 = "")
         {
-            _database = new  <#= MemoryDatabaseClassName #> (dbBytes, changesMediatorFactory);
+            _changesConveyor = new ChangesConveyor(changesMediatorFactory);
+            _data = dbBytes;
+            if(!string.IsNullOrWhiteSpace(md5))
+			{
+				_md5 = MD5.Create(md5);
+				_hash = _md5.ComputeHash(_data);
+			}
         }
 
         public void BeginTransaction()
@@ -32,7 +42,21 @@ namespace <#= Namespace #>
             }
 
             IsTransactionStarted = true;
-
+            if (_database == null)
+            {
+                // serialization of db from bytes, it's slow
+                _database = new <#=MemoryDatabaseClassName#>(_data, _changesConveyor);
+            }
+            else if(_md5 != null)
+            {
+                // calc hash of current db data
+                var prevDataHash = _md5.ComputeHash(_data); 
+                if (!prevDataHash.SequenceEqual(_hash) || !prevDataHash.SequenceEqual(_md5.ComputeHash(ToBytes())))
+                {
+                    // detected memory modifications
+                    OnUnauthorizedMemoryModification?.Invoke();
+                }
+            }
             // it just cast, but when we make changes it make copy of data, so Database will not be changed
             _transaction = _database.BeginTransaction();
         }
@@ -47,7 +71,11 @@ namespace <#= Namespace #>
 
             // cast to  <#= MemoryDatabaseClassName #> 
             _database = _transaction.Commit();
-
+            if(_md5 != null)
+			{
+				_data = ToBytes();
+				_hash = _md5.ComputeHash(_data);
+			}
             IsTransactionStarted = false;
         }
 

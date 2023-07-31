@@ -31,19 +31,32 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(Namespace));
             this.Write("\r\n{\r\n   public sealed class ");
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
-            this.Write(" \r\n   {\r\n\t\tpublic I");
+            this.Write(" \r\n   {\r\n        public bool IsTransactionStarted { get; private set; }\r\n        " +
+                    "public event Action OnUnauthorizedMemoryModification;\r\n\t\tpublic I");
             this.Write(this.ToStringHelper.ToStringWithCulture(MemoryDatabaseClassName));
-            this.Write("  Database => _database;\r\n        private ");
+            this.Write("  Database => _database ??= new ");
             this.Write(this.ToStringHelper.ToStringWithCulture(MemoryDatabaseClassName));
-            this.Write(" _database;\r\n\r\n        public I");
+            this.Write("(_data, _changesConveyor);\r\n        public I");
             this.Write(this.ToStringHelper.ToStringWithCulture(TransactionClassName));
-            this.Write("  Transaction => _transaction;\r\n        private ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(TransactionClassName));
-            this.Write(" _transaction;\r\n\r\n        public bool IsTransactionStarted { get; private set; }\r" +
-                    "\n\r\n        public DbContext(byte[] dbBytes, IChangesMediatorFactory changesMedia" +
-                    "torFactory)\r\n        {\r\n            _database = new  ");
+            this.Write("  Transaction => _transaction;\r\n\r\n        private ");
             this.Write(this.ToStringHelper.ToStringWithCulture(MemoryDatabaseClassName));
-            this.Write(@" (dbBytes, changesMediatorFactory);
+            this.Write(" _database;\r\n        private ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(TransactionClassName));
+            this.Write(@" _transaction;
+        private ChangesConveyor _changesConveyor;
+        private byte[] _data;
+        private byte[] _hash;
+        private MD5 _md5;
+
+        public DbContext(byte[] dbBytes, IChangesMediatorFactory changesMediatorFactory, string md5 = """")
+        {
+            _changesConveyor = new ChangesConveyor(changesMediatorFactory);
+            _data = dbBytes;
+            if(!string.IsNullOrWhiteSpace(md5))
+			{
+				_md5 = MD5.Create(md5);
+				_hash = _md5.ComputeHash(_data);
+			}
         }
 
         public void BeginTransaction()
@@ -54,7 +67,23 @@ namespace ReactiveMemory.GeneratorCore
             }
 
             IsTransactionStarted = true;
-
+            if (_database == null)
+            {
+                // serialization of db from bytes, it's slow
+                _database = new ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(MemoryDatabaseClassName));
+            this.Write(@"(_data, _changesConveyor);
+            }
+            else if(_md5 != null)
+            {
+                // calc hash of current db data
+                var prevDataHash = _md5.ComputeHash(_data); 
+                if (!prevDataHash.SequenceEqual(_hash) || !prevDataHash.SequenceEqual(_md5.ComputeHash(ToBytes())))
+                {
+                    // detected memory modifications
+                    OnUnauthorizedMemoryModification?.Invoke();
+                }
+            }
             // it just cast, but when we make changes it make copy of data, so Database will not be changed
             _transaction = _database.BeginTransaction();
         }
@@ -71,7 +100,11 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(MemoryDatabaseClassName));
             this.Write(@" 
             _database = _transaction.Commit();
-
+            if(_md5 != null)
+			{
+				_data = ToBytes();
+				_hash = _md5.ComputeHash(_data);
+			}
             IsTransactionStarted = false;
         }
 

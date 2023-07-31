@@ -6,27 +6,41 @@ using ReactiveMemory.Tests;
 using ReactiveMemory.Validation;
 using ReactiveMemory;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System;
 using ReactiveMemory.Tests.Tables;
+using System.Security.Cryptography;
+using UniRx;
 
 namespace ReactiveMemory.Tests
 {
-   public sealed class DbContext 
-   {
-		public IMemoryDatabase  Database => _database;
-        private MemoryDatabase _database;
-
-        public ITransaction  Transaction => _transaction;
-        private Transaction _transaction;
-
+    public sealed class DbContext
+    {
         public bool IsTransactionStarted { get; private set; }
+        public event Action OnUnauthorizedMemoryModification;
+        public IMemoryDatabase Database => _database ??= new MemoryDatabase(_data, _changesConveyor);
+        public ITransaction Transaction => _transaction;
 
-        public DbContext(byte[] dbBytes, IChangesMediatorFactory changesMediatorFactory)
+        private MemoryDatabase _database;
+        private Transaction _transaction;
+        private ChangesConveyor _changesConveyor;
+        private byte[] _data;
+        private byte[] _hash;
+        private MD5 _md5;
+
+        public DbContext(byte[] dbBytes, IChangesMediatorFactory changesMediatorFactory, string md5 = "")
         {
-            _database = new  MemoryDatabase (dbBytes, changesMediatorFactory);
+            _changesConveyor = new ChangesConveyor(changesMediatorFactory);
+            _data = dbBytes;
+            if (!string.IsNullOrWhiteSpace(md5))
+            {
+                _md5 = MD5.Create(md5);
+                _hash = _md5.ComputeHash(_data);
+            }
         }
 
+        
         public void BeginTransaction()
         {
             if (IsTransactionStarted)
@@ -35,7 +49,21 @@ namespace ReactiveMemory.Tests
             }
 
             IsTransactionStarted = true;
-
+            if (_database == null)
+            {
+                // serialization of db from bytes, it's slow
+                _database = new MemoryDatabase(_data, _changesConveyor);
+            }
+            else if (_md5 != null)
+            {
+                // calc hash of current db data
+                var prevDataHash = _md5.ComputeHash(_data);
+                if (!prevDataHash.SequenceEqual(_hash) || !prevDataHash.SequenceEqual(_md5.ComputeHash(ToBytes())))
+                {
+                    // detected memory modifications
+                    OnUnauthorizedMemoryModification?.Invoke();
+                }
+            }
             // it just cast, but when we make changes it make copy of data, so Database will not be changed
             _transaction = _database.BeginTransaction();
         }
@@ -50,7 +78,11 @@ namespace ReactiveMemory.Tests
 
             // cast to  MemoryDatabase 
             _database = _transaction.Commit();
-
+            if (_md5 != null)
+            {
+                _data = ToBytes();
+                _hash = _md5.ComputeHash(_data);
+            }
             IsTransactionStarted = false;
         }
 
@@ -61,10 +93,10 @@ namespace ReactiveMemory.Tests
             _transaction = null;
             IsTransactionStarted = false;
         }
-        
+
         public byte[] ToBytes()
         {
             return _database.ToDatabaseBuilder().Build();
         }
-   }
+    }
 }

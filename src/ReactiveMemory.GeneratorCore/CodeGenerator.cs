@@ -57,6 +57,7 @@ namespace ReactiveMemory.GeneratorCore
                 builderTemplate.PrefixClassName = databaseTemplate.PrefixClassName = immutableBuilderTemplate.PrefixClassName = resolverTemplate.PrefixClassName =  contextTemplate.PrefixClassName = prefixClassName ;
                 builderTemplate.Using = databaseTemplate.Using = immutableBuilderTemplate.Using = resolverTemplate.Using = contextTemplate.Using = (usingStrings + Environment.NewLine + ("using " + usingNamespace + ".Tables;"));
                 builderTemplate.GenerationContexts = databaseTemplate.GenerationContexts = immutableBuilderTemplate.GenerationContexts = resolverTemplate.GenerationContexts = contextTemplate.GenerationContexts = list.ToArray();
+                contextTemplate.Using += Environment.NewLine + ("using System.Security.Cryptography;");
                 contextTemplate.DatabaseBuilderClassName = builderTemplate.ClassName;
                 contextTemplate.MemoryDatabaseClassName = databaseTemplate.ClassName;
                 contextTemplate.TransactionClassName = immutableBuilderTemplate.ClassName;
@@ -152,7 +153,7 @@ namespace ReactiveMemory.GeneratorCore
             var usingStrings = root.DescendantNodes()
                 .OfType<UsingDirectiveSyntax>()
                 .Select(x => x.ToFullString().Trim())
-                .Concat(new[] { "using ReactiveMemory", "using ReactiveMemory.Validation", "using System", "using System.Collections.Generic" })
+                .Concat(new[] { "using ReactiveMemory", "using ReactiveMemory.Validation", "using System", "using System.Collections.Generic", "using System.Linq" })
                 .Concat(ns)
                 .Select(x => x.Trim(';') + ";")
                 .Distinct()
