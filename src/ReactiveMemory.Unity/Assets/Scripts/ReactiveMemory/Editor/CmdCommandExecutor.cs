@@ -40,7 +40,7 @@ namespace ReactiveMemory.Editor
             var error = p.StandardError.ReadToEnd();
 
             if (p.ExitCode != 0)
-                Debug.Log("CmdCommandExecutor error: " + error);
+                Debug.LogError("CmdCommandExecutor error: " + error);
 
             return data;
         }

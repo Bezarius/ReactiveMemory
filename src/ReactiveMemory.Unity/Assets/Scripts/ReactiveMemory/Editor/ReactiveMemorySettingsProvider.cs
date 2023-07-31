@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -7,8 +8,12 @@ namespace ReactiveMemory.Editor
 {
     public class ReactiveMemorySettingsProvider : SettingsProvider
     {
+        public const string PkgName = "ReactiveMemory.Generator";
+
         private SerializedObject _serializedObject;
         private SerializedProperty _reactiveMemoryDirs;
+        private bool _generatorIsInstalled = false;
+
 
         private const string PreferencesPath = "Project/Reactive Memory";
 
@@ -33,7 +38,9 @@ namespace ReactiveMemory.Editor
             }
             _serializedObject = new SerializedObject(settings);
             _reactiveMemoryDirs = _serializedObject.FindProperty(nameof(ReactiveMemorySettings.reactiveMemoryDirs));
+            _generatorIsInstalled = NPMHelper.CheckPackageExists(PkgName);
         }
+
 
         public override void OnGUI(string searchContext)
         {
@@ -47,9 +54,27 @@ namespace ReactiveMemory.Editor
                 _serializedObject.ApplyModifiedProperties();
             }
 
-            if (GUILayout.Button("Generate"))
+
+            if (!_generatorIsInstalled)
             {
-                ReactiveMemoryGenerator.Run();
+                if (GUILayout.Button("Install"))
+                {
+                    NPMHelper.InstallPackage(PkgName);
+                    _generatorIsInstalled = NPMHelper.CheckPackageExists(PkgName);
+                }
+                    
+            }
+            else
+            {
+                if (GUILayout.Button("Generate"))
+                {
+                    ReactiveMemoryGenerator.Run();
+                }
+                if (GUILayout.Button("Remove"))
+                {
+                    NPMHelper.DeletePackage(PkgName);
+                    _generatorIsInstalled = NPMHelper.CheckPackageExists(PkgName);
+                }
             }
         }
     }
@@ -73,6 +98,32 @@ namespace ReactiveMemory.Editor
                 Debug.Log("Generating MessagePack generated file: " + msgPackResult);
             }
             AssetDatabase.Refresh();
+        }
+    }
+
+    public static class NPMHelper
+    {
+        public static bool CheckPackageExists(string packageName)
+        {
+            string output = CmdCommandExecutor.Execute("dotnet", $"tool list --global");
+            return output.Contains(packageName.ToLower());
+        }
+
+        public static string InstallPackage(string packageName, string version = null)
+        {
+            string args = $"tool install --global {packageName}";
+            if (!string.IsNullOrEmpty(version))
+            {
+                args += $" --version {version}";
+            }
+
+            return CmdCommandExecutor.Execute("dotnet", args);
+        }
+
+        public static string DeletePackage(string packageName)
+        {
+            string args = $"tool uninstall --global {packageName}";
+            return CmdCommandExecutor.Execute("dotnet", args);
         }
     }
 }
