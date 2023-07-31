@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>dotnet-rmgen</ToolCommandName>
@@ -22,6 +22,8 @@
         <IsPackable>true</IsPackable>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Title>ReactiveMemory.Generator</Title>
+        <Version>1.0.1.1</Version>
+        <AnalysisLevel>6.0-recommended</AnalysisLevel>
     </PropertyGroup>
 
     <ItemGroup>
