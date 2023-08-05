@@ -75,20 +75,10 @@ namespace ReactiveMemory.Tests
             return ctx;
         }
 
-        public DbContext CreateCtx()
-        {
-            var builder = new DatabaseBuilder();
-            builder.Append(CreateData());
-
-            var bin = builder.Build();
-            var ctx = new DbContext(bin, new ChangesMediatorFactory());
-            return ctx;
-        }
-
         [Fact]
         public void TestDelete()
         {
-            var ctx = CreateCtx();
+            var ctx = GetContext();
             var t = ctx.BeginTransaction();
             t.RemoveSample(9);
             t.RemoveSample(10);
@@ -101,7 +91,7 @@ namespace ReactiveMemory.Tests
         [Fact]
         public void TestUpdate()
         {
-            var ctx = CreateCtx();
+            var ctx = GetContext();
             var sample = ctx.Database.SampleTable.FindById(9);
             var t = ctx.BeginTransaction();
             t.Diff(sample with
