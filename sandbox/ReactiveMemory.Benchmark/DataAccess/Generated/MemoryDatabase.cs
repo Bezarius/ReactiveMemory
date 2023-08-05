@@ -34,7 +34,7 @@ namespace ReactiveMemory.Benchmark
             this.PersonTable = PersonTable;
         }
 
-        public MemoryDatabase(byte[] databaseBinary, IChangesMediatorFactory changesMediatorFactory, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
+        public MemoryDatabase(byte[] databaseBinary, IChangesMediatorFactory changesMediatorFactory = null, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
             : base(databaseBinary, changesMediatorFactory, internString, formatterResolver, maxDegreeOfParallelism)
         {
         }

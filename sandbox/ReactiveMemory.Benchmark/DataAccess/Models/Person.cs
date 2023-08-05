@@ -17,11 +17,11 @@ namespace ReactiveMemory.Benchmark.DataAccess.Models
     {
         [PrimaryKey(keyOrder: 1)]
         public int PersonId { get; set; }
-        [SecondaryKey(0), NonUnique]
-        [SecondaryKey(2, keyOrder: 1), NonUnique]
+        //[SecondaryKey(0), NonUnique]
+        //[SecondaryKey(2, keyOrder: 1), NonUnique]
         public int Age { get; set; }
-        [SecondaryKey(1), NonUnique]
-        [SecondaryKey(2, keyOrder: 0), NonUnique]
+        //[SecondaryKey(1), NonUnique]
+        //[SecondaryKey(2, keyOrder: 0), NonUnique]
         public Gender Gender { get; set; }
         public string Name { get; set; }
 
