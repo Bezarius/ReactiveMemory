@@ -3,7 +3,7 @@ using MessagePack;
 namespace ReactiveMemory.Tests
 {
     [MemoryTable("s_a_m_p_l_e"), MessagePackObject(true)]
-    public class Sample
+    public record Sample
     {
         [PrimaryKey]
         [SecondaryKey(1)]

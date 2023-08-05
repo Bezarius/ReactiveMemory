@@ -30,6 +30,10 @@ namespace <#= Namespace #>
         private IChangesQueue<<#= item.ClassName #>> _<#= item.ClassName #>ChangeTracker;
 <# } #> 
 
+<# for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; #>
+        private <#= item.ClassName #>[] _<#= item.ClassName #>Changes;
+<# } #> 
+
         public <#= ClassName #>(<#= PrefixClassName #>MemoryDatabase memory)
         {
             this.memory = memory;
@@ -40,6 +44,23 @@ namespace <#= Namespace #>
 
         public <#= PrefixClassName #>MemoryDatabase Commit()
         {
+<# for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; #>
+            <#= item.ClassName #>Table <#= item.ClassName #>Table;
+            if(_<#= item.ClassName #>Changes != null)
+            {
+                <#= item.ClassName #>Table = new <#= item.ClassName #>Table(CloneAndSortBy(_<#= item.ClassName #>Changes, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>));
+            }
+            else
+            {
+                <#= item.ClassName #>Table = memory.<#= item.ClassName #>Table;
+            }
+<# } #> 
+            memory = new <#= PrefixClassName #>MemoryDatabase(
+<# for(var j = 0; j < GenerationContexts.Length; j++) { var item = GenerationContexts[j]; #>
+                <#= item.ClassName #>Table,
+<# } #> 
+                memory.ChangesConveyor             
+            );
             memory.ChangesConveyor.Publish();
             return memory;
         }
@@ -61,15 +82,14 @@ namespace <#= Namespace #>
         
         public void Remove<#= item.ClassName #>(<#= item.PrimaryKey.BuildTypeName() #> key)
         {
-            var data = RemoveCore(memory.<#= item.ClassName #>Table.GetRawDataUnsafe(), key, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker);
-            var newData = CloneAndSortBy(data, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>);
-            var table = new <#= item.ClassName #>Table(newData);
-            memory = new <#= PrefixClassName #>MemoryDatabase(
-<# for(var j = 0; j < GenerationContexts.Length; j++) { var item2 = GenerationContexts[j]; #>
-                <#= (i == j) ? "table" : "memory." + item2.ClassName + "Table"  #><#= "," #>
-<# } #>
-                memory.ChangesConveyor             
-            );
+            if(_<#= item.ClassName #>Changes == null)
+            {
+                _<#= item.ClassName #>Changes = RemoveCore(memory.<#= item.ClassName #>Table.GetRawDataUnsafe(), key, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker);
+            }
+            else
+            {
+                _<#= item.ClassName #>Changes = RemoveCore(_<#= item.ClassName #>Changes, key, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker);
+            }
         }
 
 
@@ -88,28 +108,26 @@ namespace <#= Namespace #>
 
         public void Diff(<#= item.ClassName #> addOrReplaceData)
         {
-            var data = DiffCore(memory.<#= item.ClassName #>Table.GetRawDataUnsafe(), addOrReplaceData, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker);
-            var newData = CloneAndSortBy(data, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>);
-            var table = new <#= item.ClassName #>Table(newData);
-            memory = new <#= PrefixClassName #>MemoryDatabase(
-<# for(var j = 0; j < GenerationContexts.Length; j++) { var item2 = GenerationContexts[j]; #>
-                <#= (i == j) ? "table" : "memory." + item2.ClassName + "Table"  #><#= "," #>
-<# } #> 
-                memory.ChangesConveyor             
-            );
+            if(_<#= item.ClassName #>Changes == null)
+            {
+                _<#= item.ClassName #>Changes = DiffCore(memory.<#= item.ClassName #>Table.GetRawDataUnsafe(), addOrReplaceData, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker, true);
+            }
+            else
+            {
+                _<#= item.ClassName #>Changes = DiffCore(_<#= item.ClassName #>Changes, addOrReplaceData, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker, false);
+            }
         }
 
         public void Diff(<#= item.ClassName #>[] addOrReplaceData)
         {
-            var data = DiffCore(memory.<#= item.ClassName #>Table.GetRawDataUnsafe(), addOrReplaceData, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker);
-            var newData = CloneAndSortBy(data, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>);
-            var table = new <#= item.ClassName #>Table(newData);
-            memory = new <#= PrefixClassName #>MemoryDatabase(
-<# for(var j = 0; j < GenerationContexts.Length; j++) { var item2 = GenerationContexts[j]; #>
-                <#= (i == j) ? "table" : "memory." + item2.ClassName + "Table"  #><#= "," #>
-<# } #> 
-                memory.ChangesConveyor             
-            );
+            if(_<#= item.ClassName #>Changes == null)
+            {
+                _<#= item.ClassName #>Changes = DiffCore(memory.<#= item.ClassName #>Table.GetRawDataUnsafe(), addOrReplaceData, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker).ToArray();  
+            }
+            else
+            {
+                _<#= item.ClassName #>Changes = DiffCore(_<#= item.ClassName #>Changes, addOrReplaceData, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker).ToArray();  
+            }
         }
 <# } #>
 

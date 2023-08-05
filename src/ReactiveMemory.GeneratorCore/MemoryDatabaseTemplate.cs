@@ -73,7 +73,7 @@ namespace ReactiveMemory.GeneratorCore
  } 
             this.Write("        }\r\n\r\n        public ");
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
-            this.Write(@"(byte[] databaseBinary, IChangesMediatorFactory changesMediatorFactory, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
+            this.Write(@"(byte[] databaseBinary, IChangesMediatorFactory changesMediatorFactory = null, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
             : base(databaseBinary, changesMediatorFactory, internString, formatterResolver, maxDegreeOfParallelism)
         {
         }

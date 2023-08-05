@@ -59,7 +59,9 @@ namespace ReactiveMemory.GeneratorCore
 			}
         }
 
-        public void BeginTransaction()
+        public I");
+            this.Write(this.ToStringHelper.ToStringWithCulture(TransactionClassName));
+            this.Write(@" BeginTransaction()
         {
             if (IsTransactionStarted)
             {
@@ -86,6 +88,7 @@ namespace ReactiveMemory.GeneratorCore
             }
             // it just cast, but when we make changes it make copy of data, so Database will not be changed
             _transaction = _database.BeginTransaction();
+            return _transaction;
         }
 
 

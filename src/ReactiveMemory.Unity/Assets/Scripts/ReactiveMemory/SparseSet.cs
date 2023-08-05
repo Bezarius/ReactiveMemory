@@ -27,7 +27,7 @@ namespace ReactiveMemory
             if (objectId + 1 >= _sparse.Length)
                 Array.Resize(ref _sparse, objectId + 1);
 
-            if (_dense.Length<= _count + 1)
+            if (_dense.Length <= _count + 1)
                 Array.Resize(ref _dense, _dense.Length * 2);
 
             _dense[_count] = item;
@@ -56,7 +56,7 @@ namespace ReactiveMemory
             _dense[itemIndex] = lastItem;
             _sparse[objectId] = itemIndex;
 
-            _dense[_count - 1] = default(T);
+            _dense[_count - 1] = default;
             _sparse[objectId] = 0;
 
             _count--;
@@ -64,7 +64,7 @@ namespace ReactiveMemory
 
         public bool Contains(int objectId)
         {
-            return 
+            return
                 objectId < _sparse.Length &&
                 _sparse[objectId] > -1 &&
                 _sparse[objectId] < _dense.Length &&

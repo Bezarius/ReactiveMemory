@@ -15,6 +15,9 @@ namespace ReactiveMemory
 
         public IChangesQueue<TElement> GetQueue<TElement>()
         {
+            if(_changesMediatorFactory == null)
+                return null;
+
             var typeId = TypeId<TElement>.Id;
             if (!_dbChangesPublishers.Contains(typeId))
             {

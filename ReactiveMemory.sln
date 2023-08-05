@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveMemory.GeneratorCor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveMemory.MSBuild.Tasks", "src\ReactiveMemory.MSBuild.Tasks\ReactiveMemory.MSBuild.Tasks.csproj", "{E789B562-A13A-460C-87BA-2B3CACD2CEAC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveMemory.Benchmark", "sandbox\ReactiveMemory.Benchmark\ReactiveMemory.Benchmark.csproj", "{37778F4E-9B34-4DDC-A08B-0435B0677B64}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{E789B562-A13A-460C-87BA-2B3CACD2CEAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E789B562-A13A-460C-87BA-2B3CACD2CEAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E789B562-A13A-460C-87BA-2B3CACD2CEAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37778F4E-9B34-4DDC-A08B-0435B0677B64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37778F4E-9B34-4DDC-A08B-0435B0677B64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37778F4E-9B34-4DDC-A08B-0435B0677B64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37778F4E-9B34-4DDC-A08B-0435B0677B64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,6 +89,7 @@ Global
 		{7D0AAF64-6C67-401A-89AF-5E8C0C24A9B1} = {60662102-4523-441E-8D6C-D87A3246C648}
 		{BB706176-1E82-4B13-9BD9-D67C6C0D97DC} = {60662102-4523-441E-8D6C-D87A3246C648}
 		{E789B562-A13A-460C-87BA-2B3CACD2CEAC} = {60662102-4523-441E-8D6C-D87A3246C648}
+		{37778F4E-9B34-4DDC-A08B-0435B0677B64} = {FFAA235C-D30F-4958-BC4E-60CD08979464}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0121A3C4-6AE0-4622-BE04-05D9A3E729AC}

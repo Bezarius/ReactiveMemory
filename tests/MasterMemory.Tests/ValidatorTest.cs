@@ -274,7 +274,7 @@ namespace ReactiveMemory.Tests
             var results = validateResult.FailedResults.Select(x => x.Message).Where(x => x.Contains("ValidateAction faile")).ToArray();
 
             results[0].Should().Be("ValidateAction failed: >= -90!!!, PK(QuestId) = 1");
-            results[1].Should().Be("ValidateAction failed: (value(MasterMemory.Tests.TestStructures.QuestMaster).Cost <= 1000), PK(QuestId) = 4");
+            results[1].Should().Be("ValidateAction failed: (value(ReactiveMemory.Tests.TestStructures.QuestMaster).Cost <= 1000), PK(QuestId) = 4");
         }
 
         [Fact]
