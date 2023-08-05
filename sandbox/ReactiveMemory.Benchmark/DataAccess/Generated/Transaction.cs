@@ -80,14 +80,7 @@ namespace ReactiveMemory.Benchmark
 
         public void ReplaceAll(System.Collections.Generic.IList<Monster> data)
         {
-            var newData = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new MonsterTable(newData);
-            memory = new MemoryDatabase(
-                table,
-                memory.PersonTable,
- 
-                memory.ChangesConveyor            
-            );
+            _MonsterChanges = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
         }
 
         
@@ -143,14 +136,7 @@ namespace ReactiveMemory.Benchmark
 
         public void ReplaceAll(System.Collections.Generic.IList<Person> data)
         {
-            var newData = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new PersonTable(newData);
-            memory = new MemoryDatabase(
-                memory.MonsterTable,
-                table,
- 
-                memory.ChangesConveyor            
-            );
+            _PersonChanges = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
         }
 
         

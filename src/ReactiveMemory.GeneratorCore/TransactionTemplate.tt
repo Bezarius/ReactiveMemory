@@ -68,14 +68,7 @@ namespace <#= Namespace #>
 <# for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; #>
         public void ReplaceAll(System.Collections.Generic.IList<<#= item.ClassName #>> data)
         {
-            var newData = CloneAndSortBy(data, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>);
-            var table = new <#= item.ClassName #>Table(newData);
-            memory = new <#= PrefixClassName #>MemoryDatabase(
-<# for(var j = 0; j < GenerationContexts.Length; j++) { var item2 = GenerationContexts[j]; #>
-                <#= (i == j) ? "table" : "memory." + item2.ClassName + "Table"  #><#= "," #>
-<# } #> 
-                memory.ChangesConveyor            
-            );
+            _<#= item.ClassName #>Changes = CloneAndSortBy(data, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>);
         }
 
 <# if(!item.PrimaryKey.IsNonUnique) { #>

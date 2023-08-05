@@ -125,23 +125,13 @@ namespace ReactiveMemory.GeneratorCore
  for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; 
             this.Write("        public void ReplaceAll(System.Collections.Generic.IList<");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
-            this.Write("> data)\r\n        {\r\n            var newData = CloneAndSortBy(data, x => ");
+            this.Write("> data)\r\n        {\r\n            _");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write("Changes = CloneAndSortBy(data, x => ");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildKeyAccessor("x")));
             this.Write(", ");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildComparer()));
-            this.Write(");\r\n            var table = new ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
-            this.Write("Table(newData);\r\n            memory = new ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(PrefixClassName));
-            this.Write("MemoryDatabase(\r\n");
- for(var j = 0; j < GenerationContexts.Length; j++) { var item2 = GenerationContexts[j]; 
-            this.Write("                ");
-            this.Write(this.ToStringHelper.ToStringWithCulture((i == j) ? "table" : "memory." + item2.ClassName + "Table"));
-            this.Write(this.ToStringHelper.ToStringWithCulture(","));
-            this.Write("\r\n");
- } 
-            this.Write(" \r\n                memory.ChangesConveyor            \r\n            );\r\n        }\r" +
-                    "\n\r\n");
+            this.Write(");\r\n        }\r\n\r\n");
  if(!item.PrimaryKey.IsNonUnique) { 
             this.Write("        \r\n        public void Remove");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));

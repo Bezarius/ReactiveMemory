@@ -87,8 +87,6 @@ namespace ReactiveMemory.Benchmark
             var persons = GenerateRandomPersons(PersonsCount);
             builder.Append(persons);
             _ctx = new DbContext(builder.Build(), null);
-            _ctx.BeginTransaction();
-            _ctx.Commit();
             _ids = _ctx.Database.PersonTable.All
                 .Select(x => x.PersonId)
                 .ToArray()
@@ -98,6 +96,12 @@ namespace ReactiveMemory.Benchmark
             _personsDict = persons.ToDictionary(x => x.PersonId, x => x);
         }
 
+        [Benchmark]
+        public void TestTransactionOverhead()
+        {
+            _ctx.BeginTransaction();
+            _ctx.Commit();
+        }
 
         [Benchmark]
         public void TestFind()
@@ -201,53 +205,6 @@ namespace ReactiveMemory.Benchmark
                 _personsDict.Remove(i);
             }
         }
-
-
-
-        /*
-        [Benchmark]
-        public void TestFindAndDiff2()
-        {
-            Random random = new Random();
-
-            _ctx.BeginTransaction();
-            var t = _ctx.Transaction;
-            for (int i = 0; i < PersonsCount / 10; i++)
-            {
-                int index = random.Next(1, PersonsCount);
-                var person = _ctx.Database.PersonTable.FindByPersonId(index);
-                if (person != null)
-                {
-                    person = person with
-                    {
-                        Age = random.Next(1, 100)
-                    };
-                    t.Diff(new[] { person });
-                }
-            }
-            _ctx.Commit();
-        }*/
-
-
-        /*
-        [Benchmark]
-        public void TestFindAndDiffSha256()
-        {
-            Random random = new Random();
-
-            _ctx2.BeginTransaction();
-            var t = _ctx2.Transaction;
-            for (int i = 0; i < PersonsCount / 10; i++)
-            {
-                int index = random.Next(1, PersonsCount);
-                var person = _ctx2.Database.PersonTable.FindByPersonId(index);
-                person = person with
-                {
-                    Age = random.Next(1, 100)
-                };
-                t.Diff(person);
-            }
-        }*/
     }
 
     public class Program
