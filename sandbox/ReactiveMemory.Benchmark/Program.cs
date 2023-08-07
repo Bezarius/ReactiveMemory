@@ -107,15 +107,11 @@ namespace ReactiveMemory.Benchmark
         public void TestFind()
         {
             Random random = new Random();
-
-            _ctx.BeginTransaction();
-            var t = _ctx.Transaction;
             for (int i = 0; i < PersonsCount; i++)
             {
                 int index = random.Next(1, PersonsCount);
                 var person = _ctx.Database.PersonTable.FindByPersonId(index);
             }
-            _ctx.Commit();
         }
 
         [Benchmark]

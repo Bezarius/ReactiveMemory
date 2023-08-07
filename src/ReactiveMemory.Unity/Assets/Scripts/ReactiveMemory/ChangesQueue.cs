@@ -45,5 +45,10 @@ namespace ReactiveMemory
         {
             _entityChanges.Clear();
         }
+
+        public void OnCompleted()
+        {
+            _observer.OnCompleted();
+        }
     }
 }

@@ -9,7 +9,7 @@
 
 namespace <#= Namespace #>
 {
-   public sealed class <#= ClassName #> 
+   public sealed class <#= ClassName #>  : IDisposable
    {
         public bool IsTransactionStarted { get; private set; }
         public event Action OnUnauthorizedMemoryModification;
@@ -91,6 +91,12 @@ namespace <#= Namespace #>
         public byte[] ToBytes()
         {
             return _database.ToDatabaseBuilder().Build();
+        }
+
+        public void Dispose()
+        {
+            _changesConveyor?.Dispose();
+            _md5?.Dispose();
         }
    }
 }

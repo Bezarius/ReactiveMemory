@@ -4,5 +4,6 @@
     {
         void PublishNext();
         void Clear();
+        void OnCompleted();
     }
 }

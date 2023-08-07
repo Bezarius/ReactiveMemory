@@ -20,7 +20,7 @@ using System.Security.Cryptography;
 
 namespace ConsoleApp
 {
-   public sealed class DbContext 
+   public sealed class DbContext : IDisposable
    {
         public bool IsTransactionStarted { get; private set; }
         public event Action OnUnauthorizedMemoryModification;
@@ -102,6 +102,12 @@ namespace ConsoleApp
         public byte[] ToBytes()
         {
             return _database.ToDatabaseBuilder().Build();
+        }
+
+        public void Dispose()
+        {
+            _changesConveyor?.Dispose();
+            _md5?.Dispose();
         }
    }
 }

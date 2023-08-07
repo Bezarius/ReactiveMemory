@@ -14,7 +14,7 @@ using System.Security.Cryptography;
 
 namespace ReactiveMemory.Benchmark
 {
-   public sealed class DbContext 
+   public sealed class DbContext  : IDisposable
    {
         public bool IsTransactionStarted { get; private set; }
         public event Action OnUnauthorizedMemoryModification;
@@ -96,6 +96,12 @@ namespace ReactiveMemory.Benchmark
         public byte[] ToBytes()
         {
             return _database.ToDatabaseBuilder().Build();
+        }
+
+        public void Dispose()
+        {
+            _changesConveyor?.Dispose();
+            _md5?.Dispose();
         }
    }
 }

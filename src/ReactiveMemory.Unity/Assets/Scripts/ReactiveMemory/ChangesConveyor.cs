@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ReactiveMemory
 {
-    public class ChangesConveyor
+    public class ChangesConveyor : IDisposable
     {
         private readonly SparseSet<IDbChangesPublisher> _dbChangesPublishers = new SparseSet<IDbChangesPublisher>();
         private readonly Queue<IDbChangesPublisher> _publishersQueue = new Queue<IDbChangesPublisher>();
@@ -46,6 +47,14 @@ namespace ReactiveMemory
             foreach (var publisher in _dbChangesPublishers)
             {
                 publisher.Clear();
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var publisher in _dbChangesPublishers)
+            {
+                publisher.OnCompleted();
             }
         }
     }
