@@ -18,7 +18,7 @@ namespace ReactiveMemory.Benchmark
    {
         public bool IsTransactionStarted { get; private set; }
         public event Action OnUnauthorizedMemoryModification;
-		public IMemoryDatabase  Database => _database ??= new MemoryDatabase(_data, _changesConveyor);
+		public IMemoryDatabase  Database => _database ??= new MemoryDatabase(_data, _changesConveyor, maxDegreeOfParallelism: Environment.ProcessorCount);
         public ITransaction  Transaction => _transaction;
 
         private MemoryDatabase _database;
@@ -50,7 +50,7 @@ namespace ReactiveMemory.Benchmark
             if (_database == null)
             {
                 // serialization of db from bytes, it's slow
-                _database = new MemoryDatabase(_data, _changesConveyor);
+                _database = new MemoryDatabase(_data, _changesConveyor, maxDegreeOfParallelism : Environment.ProcessorCount);
             }
             else if(_md5 != null)
             {

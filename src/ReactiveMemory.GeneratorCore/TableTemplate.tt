@@ -15,15 +15,25 @@ namespace <#= Namespace #>.Tables
         readonly Func<<#= GenerationContext.ClassName #>, <#= GenerationContext.PrimaryKey.BuildTypeName() #>> <#= GenerationContext.PrimaryKey.SelectorName #>;
 
 <# for(var i = 0; i < GenerationContext.SecondaryKeys.Length; i++) { var item = GenerationContext.SecondaryKeys[i]; #>
-        readonly <#= GenerationContext.ClassName #>[] <#= item.TableName #>;
-        readonly Func<<#= GenerationContext.ClassName #>, <#= item.BuildTypeName() #>> <#= item.SelectorName #>;
+        private <#= GenerationContext.ClassName #>[] <#= item.TableName #>;
+        private Func<<#= GenerationContext.ClassName #>, <#= item.BuildTypeName() #>> <#= item.SelectorName #>;
 <# } #>
 
         public <#= GenerationContext.ClassName #>Table(<#= GenerationContext.ClassName #>[] sortedData)
             : base(sortedData)
         {
             this.<#= GenerationContext.PrimaryKey.SelectorName #> = x => <#= GenerationContext.PrimaryKey.BuildKeyAccessor("x") #>;
+<# if (GenerationContext.SecondaryKeys.Length > 1) { #>
+            var tasks = new List<Task>();
 <# for(var i = 0; i < GenerationContext.SecondaryKeys.Length; i++) { var item = GenerationContext.SecondaryKeys[i]; #>
+            tasks.Add(Task.Run(() =>
+            {
+                this.<#= item.SelectorName #> = x => <#= item.BuildKeyAccessor("x") #>;
+                this.<#= item.TableName #> = CloneAndSortBy(this.secondaryIndex<#= item.IndexNo #>Selector, <#= item.BuildComparer() #>);
+            }));
+<# } #>
+            Task.WhenAll(tasks).Wait();
+<# } else if (GenerationContext.SecondaryKeys.Length == 1) { var item = GenerationContext.SecondaryKeys[0]; #>
             this.<#= item.SelectorName #> = x => <#= item.BuildKeyAccessor("x") #>;
             this.<#= item.TableName #> = CloneAndSortBy(this.secondaryIndex<#= item.IndexNo #>Selector, <#= item.BuildComparer() #>);
 <# } #>

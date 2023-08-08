@@ -47,11 +47,11 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationContext.PrimaryKey.SelectorName));
             this.Write(";\r\n\r\n");
  for(var i = 0; i < GenerationContext.SecondaryKeys.Length; i++) { var item = GenerationContext.SecondaryKeys[i]; 
-            this.Write("        readonly ");
+            this.Write("        private ");
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationContext.ClassName));
             this.Write("[] ");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.TableName));
-            this.Write(";\r\n        readonly Func<");
+            this.Write(";\r\n        private Func<");
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationContext.ClassName));
             this.Write(", ");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.BuildTypeName()));
@@ -68,7 +68,23 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(" = x => ");
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationContext.PrimaryKey.BuildKeyAccessor("x")));
             this.Write(";\r\n");
+ if (GenerationContext.SecondaryKeys.Length > 1) { 
+            this.Write("            var tasks = new List<Task>();\r\n");
  for(var i = 0; i < GenerationContext.SecondaryKeys.Length; i++) { var item = GenerationContext.SecondaryKeys[i]; 
+            this.Write("            tasks.Add(Task.Run(() =>\r\n            {\r\n                this.");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.SelectorName));
+            this.Write(" = x => ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.BuildKeyAccessor("x")));
+            this.Write(";\r\n                this.");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.TableName));
+            this.Write(" = CloneAndSortBy(this.secondaryIndex");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.IndexNo));
+            this.Write("Selector, ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.BuildComparer()));
+            this.Write(");\r\n            }));\r\n");
+ } 
+            this.Write("            Task.WhenAll(tasks).Wait();\r\n");
+ } else if (GenerationContext.SecondaryKeys.Length == 1) { var item = GenerationContext.SecondaryKeys[0]; 
             this.Write("            this.");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.SelectorName));
             this.Write(" = x => ");

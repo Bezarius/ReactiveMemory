@@ -17,16 +17,42 @@ namespace ReactiveMemory.Benchmark.Tables
         public Func<Person, int> PrimaryKeySelector => primaryIndexSelector;
         readonly Func<Person, int> primaryIndexSelector;
 
+        private Person[] secondaryIndex0;
+        private Func<Person, int> secondaryIndex0Selector;
+        private Person[] secondaryIndex2;
+        private Func<Person, (Gender Gender, int Age)> secondaryIndex2Selector;
+        private Person[] secondaryIndex1;
+        private Func<Person, Gender> secondaryIndex1Selector;
 
         public PersonTable(Person[] sortedData)
             : base(sortedData)
         {
             this.primaryIndexSelector = x => x.PersonId;
+            var tasks = new List<Task>();
+            tasks.Add(Task.Run(() =>
+            {
+                this.secondaryIndex0Selector = x => x.Age;
+                this.secondaryIndex0 = CloneAndSortBy(this.secondaryIndex0Selector, System.Collections.Generic.Comparer<int>.Default);
+            }));
+            tasks.Add(Task.Run(() =>
+            {
+                this.secondaryIndex2Selector = x => (x.Gender, x.Age);
+                this.secondaryIndex2 = CloneAndSortBy(this.secondaryIndex2Selector, System.Collections.Generic.Comparer<(Gender Gender, int Age)>.Default);
+            }));
+            tasks.Add(Task.Run(() =>
+            {
+                this.secondaryIndex1Selector = x => x.Gender;
+                this.secondaryIndex1 = CloneAndSortBy(this.secondaryIndex1Selector, System.Collections.Generic.Comparer<Gender>.Default);
+            }));
+            Task.WhenAll(tasks).Wait();
             OnAfterConstruct();
         }
 
         partial void OnAfterConstruct();
 
+        public RangeView<Person> SortByAge => new RangeView<Person>(secondaryIndex0, 0, secondaryIndex0.Length - 1, true);
+        public RangeView<Person> SortByGenderAndAge => new RangeView<Person>(secondaryIndex2, 0, secondaryIndex2.Length - 1, true);
+        public RangeView<Person> SortByGender => new RangeView<Person>(secondaryIndex1, 0, secondaryIndex1.Length - 1, true);
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public Person FindByPersonId(int key)
@@ -73,6 +99,51 @@ namespace ReactiveMemory.Benchmark.Tables
             return FindUniqueRangeCore(data, primaryIndexSelector, System.Collections.Generic.Comparer<int>.Default, min, max, ascendant);
         }
 
+        public RangeView<Person> FindByAge(int key)
+        {
+            return FindManyCore(secondaryIndex0, secondaryIndex0Selector, System.Collections.Generic.Comparer<int>.Default, key);
+        }
+
+        public RangeView<Person> FindClosestByAge(int key, bool selectLower = true)
+        {
+            return FindManyClosestCore(secondaryIndex0, secondaryIndex0Selector, System.Collections.Generic.Comparer<int>.Default, key, selectLower);
+        }
+
+        public RangeView<Person> FindRangeByAge(int min, int max, bool ascendant = true)
+        {
+            return FindManyRangeCore(secondaryIndex0, secondaryIndex0Selector, System.Collections.Generic.Comparer<int>.Default, min, max, ascendant);
+        }
+
+        public RangeView<Person> FindByGenderAndAge((Gender Gender, int Age) key)
+        {
+            return FindManyCore(secondaryIndex2, secondaryIndex2Selector, System.Collections.Generic.Comparer<(Gender Gender, int Age)>.Default, key);
+        }
+
+        public RangeView<Person> FindClosestByGenderAndAge((Gender Gender, int Age) key, bool selectLower = true)
+        {
+            return FindManyClosestCore(secondaryIndex2, secondaryIndex2Selector, System.Collections.Generic.Comparer<(Gender Gender, int Age)>.Default, key, selectLower);
+        }
+
+        public RangeView<Person> FindRangeByGenderAndAge((Gender Gender, int Age) min, (Gender Gender, int Age) max, bool ascendant = true)
+        {
+            return FindManyRangeCore(secondaryIndex2, secondaryIndex2Selector, System.Collections.Generic.Comparer<(Gender Gender, int Age)>.Default, min, max, ascendant);
+        }
+
+        public RangeView<Person> FindByGender(Gender key)
+        {
+            return FindManyCore(secondaryIndex1, secondaryIndex1Selector, System.Collections.Generic.Comparer<Gender>.Default, key);
+        }
+
+        public RangeView<Person> FindClosestByGender(Gender key, bool selectLower = true)
+        {
+            return FindManyClosestCore(secondaryIndex1, secondaryIndex1Selector, System.Collections.Generic.Comparer<Gender>.Default, key, selectLower);
+        }
+
+        public RangeView<Person> FindRangeByGender(Gender min, Gender max, bool ascendant = true)
+        {
+            return FindManyRangeCore(secondaryIndex1, secondaryIndex1Selector, System.Collections.Generic.Comparer<Gender>.Default, min, max, ascendant);
+        }
+
 
         void ITableUniqueValidate.ValidateUnique(ValidateResult resultSet)
         {
@@ -99,6 +170,16 @@ namespace ReactiveMemory.Benchmark.Tables
                     new ReactiveMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
                         typeof(Person).GetProperty("PersonId"),
                     }, true, true, System.Collections.Generic.Comparer<int>.Default),
+                    new ReactiveMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
+                        typeof(Person).GetProperty("Age"),
+                    }, false, false, System.Collections.Generic.Comparer<int>.Default),
+                    new ReactiveMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
+                        typeof(Person).GetProperty("Gender"),
+                        typeof(Person).GetProperty("Age"),
+                    }, false, false, System.Collections.Generic.Comparer<(Gender Gender, int Age)>.Default),
+                    new ReactiveMemory.Meta.MetaIndex(new System.Reflection.PropertyInfo[] {
+                        typeof(Person).GetProperty("Gender"),
+                    }, false, false, System.Collections.Generic.Comparer<Gender>.Default),
                 });
         }
 
