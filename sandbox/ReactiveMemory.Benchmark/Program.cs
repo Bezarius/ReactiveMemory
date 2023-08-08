@@ -148,6 +148,51 @@ namespace ReactiveMemory.Benchmark
         }
 
         [Benchmark]
+        public void TestFindAndUpdate2()
+        {
+            var sourcePerson = new Person
+            {
+                Age = 100500,
+                Gender = Gender.Male,
+                Name = "Default",
+                PersonId = 0
+            };
+            _ctx.BeginTransaction();
+            var t = _ctx.Transaction;
+            for (int i = 0; i < PersonsCount; i++)
+            {
+                t.Diff(new Person[] {sourcePerson with
+                {
+                    PersonId = i + 1
+                } });
+            }
+            _ctx.Commit();
+        }
+
+
+        [Benchmark]
+        public void TestFindAndUpdateStruct()
+        {
+            var sourcePerson = new PersonStruct
+            {
+                Age = 100500,
+                Gender = Gender.Male,
+                Name = "Default",
+                PersonId = 0
+            };
+            _ctx.BeginTransaction();
+            var t = _ctx.Transaction;
+            for (int i = 0; i < PersonsCount; i++)
+            {
+                t.Diff(sourcePerson with
+                {
+                    PersonId = i + 1
+                });
+            }
+            _ctx.Commit();
+        }
+
+        [Benchmark]
         public void TestFindAndUpdateWithRollback()
         {
             var sourcePerson = new Person

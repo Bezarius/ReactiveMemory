@@ -45,6 +45,34 @@ namespace ReactiveMemory.Benchmark.DataAccess.Models
         }
     }
 
+    [MemoryTable("person_struct"), MessagePackObject(true)]
+    public struct PersonStruct
+    {
+        [PrimaryKey(keyOrder: 1)]
+        public int PersonId { get; set; }
+        [SecondaryKey(0), NonUnique]
+        [SecondaryKey(2, keyOrder: 1), NonUnique]
+        public int Age { get; set; }
+        [SecondaryKey(1), NonUnique]
+        [SecondaryKey(2, keyOrder: 0), NonUnique]
+        public Gender Gender { get; set; }
+        public string Name { get; set; }
+
+
+        public override string ToString()
+        {
+            return $"{PersonId} {Age} {Gender} {Name}";
+        }
+
+        public PersonStruct(int PersonId, int Age, Gender Gender, string Name)
+        {
+            this.PersonId = PersonId;
+            this.Age = Age;
+            this.Gender = Gender;
+            this.Name = Name;
+        }
+    }
+
     [MemoryTable("monster"), MessagePackObject(true)]
     public record Monster
     {

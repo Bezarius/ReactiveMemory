@@ -30,5 +30,11 @@ namespace ReactiveMemory.Benchmark
             return this;
         }
 
+        public DatabaseBuilder Append(System.Collections.Generic.IEnumerable<PersonStruct> dataSource)
+        {
+            AppendCore(dataSource, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
+            return this;
+        }
+
     }
 }

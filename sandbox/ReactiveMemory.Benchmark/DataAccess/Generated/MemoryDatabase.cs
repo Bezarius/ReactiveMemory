@@ -18,20 +18,24 @@ namespace ReactiveMemory.Benchmark
         public IObservable<EntityChange<TEntity>> OnChange<TEntity>();
         public MonsterTable MonsterTable { get; }
         public PersonTable PersonTable { get; }
+        public PersonStructTable PersonStructTable { get; }
    }
 
    public sealed class MemoryDatabase : MemoryDatabaseBase, IMemoryDatabase
    {
         public MonsterTable MonsterTable { get; private set; }
         public PersonTable PersonTable { get; private set; }
+        public PersonStructTable PersonStructTable { get; private set; }
 
         public MemoryDatabase(
             MonsterTable MonsterTable,
-            PersonTable PersonTable
+            PersonTable PersonTable,
+            PersonStructTable PersonStructTable
         , ChangesConveyor changesConveyor) : base(changesConveyor)
         {
             this.MonsterTable = MonsterTable;
             this.PersonTable = PersonTable;
+            this.PersonStructTable = PersonStructTable;
         }
 
         public MemoryDatabase(byte[] databaseBinary, IChangesMediatorFactory changesMediatorFactory = null, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
@@ -60,6 +64,7 @@ namespace ReactiveMemory.Benchmark
         {
             this.MonsterTable = ExtractTableData<Monster, MonsterTable>(header, databaseBinary, options, xs => new MonsterTable(xs));
             this.PersonTable = ExtractTableData<Person, PersonTable>(header, databaseBinary, options, xs => new PersonTable(xs));
+            this.PersonStructTable = ExtractTableData<PersonStruct, PersonStructTable>(header, databaseBinary, options, xs => new PersonStructTable(xs));
         }
 
         void InitParallel(Dictionary<string, (int offset, int count)> header, System.ReadOnlyMemory<byte> databaseBinary, MessagePack.MessagePackSerializerOptions options, int maxDegreeOfParallelism)
@@ -68,6 +73,7 @@ namespace ReactiveMemory.Benchmark
             {
                 () => this.MonsterTable = ExtractTableData<Monster, MonsterTable>(header, databaseBinary, options, xs => new MonsterTable(xs)),
                 () => this.PersonTable = ExtractTableData<Person, PersonTable>(header, databaseBinary, options, xs => new PersonTable(xs)),
+                () => this.PersonStructTable = ExtractTableData<PersonStruct, PersonStructTable>(header, databaseBinary, options, xs => new PersonStructTable(xs)),
             };
             
             System.Threading.Tasks.Parallel.Invoke(new System.Threading.Tasks.ParallelOptions
@@ -86,6 +92,7 @@ namespace ReactiveMemory.Benchmark
             var builder = new DatabaseBuilder();
             builder.Append(this.MonsterTable.GetRawDataUnsafe());
             builder.Append(this.PersonTable.GetRawDataUnsafe());
+            builder.Append(this.PersonStructTable.GetRawDataUnsafe());
             return builder;
         }
 
@@ -94,6 +101,7 @@ namespace ReactiveMemory.Benchmark
             var builder = new DatabaseBuilder(resolver);
             builder.Append(this.MonsterTable.GetRawDataUnsafe());
             builder.Append(this.PersonTable.GetRawDataUnsafe());
+            builder.Append(this.PersonStructTable.GetRawDataUnsafe());
             return builder;
         }
 
@@ -106,12 +114,15 @@ namespace ReactiveMemory.Benchmark
             {
                 MonsterTable,
                 PersonTable,
+                PersonStructTable,
             });
 
             ((ITableUniqueValidate)MonsterTable).ValidateUnique(result);
             ValidateTable(MonsterTable.All, database, "MonsterId", MonsterTable.PrimaryKeySelector, result);
             ((ITableUniqueValidate)PersonTable).ValidateUnique(result);
             ValidateTable(PersonTable.All, database, "PersonId", PersonTable.PrimaryKeySelector, result);
+            ((ITableUniqueValidate)PersonStructTable).ValidateUnique(result);
+            ValidateTable(PersonStructTable.All, database, "PersonId", PersonStructTable.PrimaryKeySelector, result);
 
             return result;
         }
@@ -128,6 +139,8 @@ namespace ReactiveMemory.Benchmark
                     return db.MonsterTable;
                 case "person":
                     return db.PersonTable;
+                case "person_struct":
+                    return db.PersonStructTable;
                 
                 default:
                     return null;
@@ -143,6 +156,7 @@ namespace ReactiveMemory.Benchmark
             var dict = new Dictionary<string, ReactiveMemory.Meta.MetaTable>();
             dict.Add("monster", ReactiveMemory.Benchmark.Tables.MonsterTable.CreateMetaTable());
             dict.Add("person", ReactiveMemory.Benchmark.Tables.PersonTable.CreateMetaTable());
+            dict.Add("person_struct", ReactiveMemory.Benchmark.Tables.PersonStructTable.CreateMetaTable());
 
             metaTable = new ReactiveMemory.Meta.MetaDatabase(dict);
             return metaTable;

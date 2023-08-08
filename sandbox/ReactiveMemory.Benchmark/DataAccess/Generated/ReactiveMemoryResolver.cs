@@ -48,10 +48,11 @@ namespace ReactiveMemory.Benchmark
 
         static ReactiveMemoryResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(2)
+            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(3)
             {
                 {typeof(Monster[]), 0 },
                 {typeof(Person[]), 1 },
+                {typeof(PersonStruct[]), 2 },
             };
         }
 
@@ -64,6 +65,7 @@ namespace ReactiveMemory.Benchmark
             {
                 case 0: return new MessagePack.Formatters.ArrayFormatter<Monster>();
                 case 1: return new MessagePack.Formatters.ArrayFormatter<Person>();
+                case 2: return new MessagePack.Formatters.ArrayFormatter<PersonStruct>();
                 default: return null;
             }
         }

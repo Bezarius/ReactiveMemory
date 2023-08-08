@@ -18,7 +18,7 @@ namespace ReactiveMemory.Benchmark
    {
         public bool IsTransactionStarted { get; private set; }
         public event Action OnUnauthorizedMemoryModification;
-		public IMemoryDatabase  Database => _database ??= new MemoryDatabase(_data, _changesConveyor, maxDegreeOfParallelism: Environment.ProcessorCount);
+		public IMemoryDatabase  Database => _database ??= new MemoryDatabase(_data, _changesConveyor, maxDegreeOfParallelism : Environment.ProcessorCount);
         public ITransaction  Transaction => _transaction;
 
         private MemoryDatabase _database;
