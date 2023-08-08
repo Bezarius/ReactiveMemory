@@ -148,17 +148,46 @@ namespace ReactiveMemory.Benchmark
         }
 
         [Benchmark]
-        public void TestFindAndUpdateDict()
+        public void TestFindAndUpdateWithRollback()
         {
-            Random random = new Random();
-            int index = random.Next(1, PersonsCount);
-            var person = _personsDict[index];
-            _personsDict[index] = person with
+            var sourcePerson = new Person
             {
-                Age = random.Next(1, 100)
+                Age = 100500,
+                Gender = Gender.Male,
+                Name = "Default",
+                PersonId = 0
             };
+            _ctx.BeginTransaction();
+            var t = _ctx.Transaction;
+            for (int i = 0; i < PersonsCount; i++)
+            {
+                t.Diff(sourcePerson with
+                {
+                    PersonId = i + 1
+                });
+            }
+            _ctx.Rollback();
         }
 
+
+        [Benchmark]
+        public void TestFindAndUpdateDict()
+        {
+            var sourcePerson = new Person
+            {
+                Age = 100500,
+                Gender = Gender.Male,
+                Name = "Default",
+                PersonId = 0
+            };
+            for (int i = 0; i < PersonsCount; i++)
+            {
+                _personsDict[i] = sourcePerson with
+                {
+                    PersonId = i + 1
+                };
+            }
+        }
 
         [Benchmark]
         public void TestRandomRemove()
