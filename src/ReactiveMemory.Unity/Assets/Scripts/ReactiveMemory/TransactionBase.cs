@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace ReactiveMemory
 {
@@ -145,110 +146,16 @@ namespace ReactiveMemory
         }
 
 
-        protected static List<TElement> DiffCore<TElement, TKey>(TElement[] array, TElement[] addOrReplaceData,
-            Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue)
+        protected static TElement[] DiffCore<TElement, TKey>(TElement[] array, TElement[] addOrReplaceData,
+            Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue,
+                bool createNewArray = true)
         {
-            var newList = new List<TElement>(array.Length);
-            var replaceIndexes = new Dictionary<int, TElement>();
-            foreach (var data in addOrReplaceData)
+            TElement[] dest = null;
+            for (var i = 0; i < addOrReplaceData.Length; i++)
             {
-                var index = BinarySearch.FindFirst(array, keySelector(data), keySelector, comparer);
-                if (index != -1)
-                {
-                    replaceIndexes.Add(index, data);
-                    changesQueue?.EnqueueUpdate(data, array[index]);
-                }
-                else
-                {
-                    newList.Add(data);
-                    changesQueue?.EnqueueAdd(data);
-                }
+                dest = DiffCore(array, addOrReplaceData[i], keySelector, comparer, changesQueue, createNewArray);
             }
-
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (replaceIndexes.TryGetValue(i, out var data))
-                {
-                    newList.Add(data);
-                }
-                else
-                {
-                    newList.Add(array[i]);
-                }
-            }
-
-            return newList;
-        }
-
-        protected static TElement[] DiffCore2<TElement, TKey>(
-            TElement[] array, TElement[] addOrReplaceData,
-            Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue)
-        {
-            // Sort the keys in the addOrReplaceData array
-            Array.Sort(addOrReplaceData, (a, b) => comparer.Compare(keySelector(a), keySelector(b)));
-
-            // Arrays to store indices for updates and additions
-            List<int> updateIndices = new List<int>();
-            List<int> addIndices = new List<int>();
-
-            int arrayIndex = 0;
-            int addOrReplaceIndex = 0;
-
-
-            while (arrayIndex < array.Length && addOrReplaceIndex < addOrReplaceData.Length)
-            {
-                TKey arrayKey = keySelector(array[arrayIndex]);
-                TKey addOrReplaceKey = keySelector(addOrReplaceData[addOrReplaceIndex]);
-
-                int comparisonResult = comparer.Compare(arrayKey, addOrReplaceKey);
-
-                if (comparisonResult < 0)
-                {
-                    arrayIndex++;
-                }
-                else if (comparisonResult == 0)
-                {
-                    updateIndices.Add(arrayIndex);
-                    arrayIndex++;
-                    addOrReplaceIndex++;
-                }
-                else
-                {
-                    addIndices.Add(addOrReplaceIndex);
-                    addOrReplaceIndex++;
-                }
-            }
-
-            while (addOrReplaceIndex < addOrReplaceData.Length)
-            {
-                addIndices.Add(addOrReplaceIndex);
-                addOrReplaceIndex++;
-            }
-
-            // Create the newArray with the correct length
-            int newArrayLength = array.Length + addIndices.Count;
-            var newArray = new TElement[newArrayLength];
-
-            int newArrayIndex = 0;
-            arrayIndex = 0;
-            addOrReplaceIndex = 0;
-
-            // Perform the merge using the saved indices
-            while (arrayIndex < array.Length || addOrReplaceIndex < addIndices.Count)
-            {
-                if (arrayIndex < array.Length &&
-                    (addOrReplaceIndex >= addIndices.Count || arrayIndex != updateIndices[addIndices[addOrReplaceIndex]]))
-                {
-                    newArray[newArrayIndex++] = array[arrayIndex++];
-                }
-                else
-                {
-                    newArray[newArrayIndex++] = addOrReplaceData[addIndices[addOrReplaceIndex++]];
-                    changesQueue?.EnqueueAdd(newArray[newArrayIndex - 1]);
-                }
-            }
-
-            return newArray;
+            return dest;
         }
     }
 }

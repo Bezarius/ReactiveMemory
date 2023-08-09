@@ -227,8 +227,8 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildComparer()));
             this.Write(", _");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
-            this.Write("ChangeTracker).ToArray();  \r\n            }\r\n            else\r\n            {\r\n    " +
-                    "            _");
+            this.Write("ChangeTracker, true);  \r\n            }\r\n            else\r\n            {\r\n        " +
+                    "        _");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
             this.Write("Changes = DiffCore(_");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
@@ -238,7 +238,7 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildComparer()));
             this.Write(", _");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
-            this.Write("ChangeTracker).ToArray();  \r\n            }\r\n        }\r\n");
+            this.Write("ChangeTracker, false);  \r\n            }\r\n        }\r\n");
  } 
             this.Write("\r\n");
  } 

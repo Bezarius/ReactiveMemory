@@ -145,11 +145,11 @@ namespace ReactiveMemory.Benchmark
         {
             if(_MonsterChanges == null)
             {
-                _MonsterChanges = DiffCore(memory.MonsterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker).ToArray();  
+                _MonsterChanges = DiffCore(memory.MonsterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker, true);  
             }
             else
             {
-                _MonsterChanges = DiffCore(_MonsterChanges, addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker).ToArray();  
+                _MonsterChanges = DiffCore(_MonsterChanges, addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker, false);  
             }
         }
 
@@ -202,11 +202,11 @@ namespace ReactiveMemory.Benchmark
         {
             if(_PersonChanges == null)
             {
-                _PersonChanges = DiffCore(memory.PersonTable.GetRawDataUnsafe(), addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker).ToArray();  
+                _PersonChanges = DiffCore(memory.PersonTable.GetRawDataUnsafe(), addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker, true);  
             }
             else
             {
-                _PersonChanges = DiffCore(_PersonChanges, addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker).ToArray();  
+                _PersonChanges = DiffCore(_PersonChanges, addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker, false);  
             }
         }
 
@@ -259,11 +259,11 @@ namespace ReactiveMemory.Benchmark
         {
             if(_PersonStructChanges == null)
             {
-                _PersonStructChanges = DiffCore(memory.PersonStructTable.GetRawDataUnsafe(), addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonStructChangeTracker).ToArray();  
+                _PersonStructChanges = DiffCore(memory.PersonStructTable.GetRawDataUnsafe(), addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonStructChangeTracker, true);  
             }
             else
             {
-                _PersonStructChanges = DiffCore(_PersonStructChanges, addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonStructChangeTracker).ToArray();  
+                _PersonStructChanges = DiffCore(_PersonStructChanges, addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonStructChangeTracker, false);  
             }
         }
 

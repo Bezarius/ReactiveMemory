@@ -115,11 +115,11 @@ namespace <#= Namespace #>
         {
             if(_<#= item.ClassName #>Changes == null)
             {
-                _<#= item.ClassName #>Changes = DiffCore(memory.<#= item.ClassName #>Table.GetRawDataUnsafe(), addOrReplaceData, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker).ToArray();  
+                _<#= item.ClassName #>Changes = DiffCore(memory.<#= item.ClassName #>Table.GetRawDataUnsafe(), addOrReplaceData, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker, true);  
             }
             else
             {
-                _<#= item.ClassName #>Changes = DiffCore(_<#= item.ClassName #>Changes, addOrReplaceData, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker).ToArray();  
+                _<#= item.ClassName #>Changes = DiffCore(_<#= item.ClassName #>Changes, addOrReplaceData, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker, false);  
             }
         }
 <# } #>

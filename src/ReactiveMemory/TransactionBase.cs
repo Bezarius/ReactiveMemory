@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace ReactiveMemory
 {
@@ -145,39 +146,16 @@ namespace ReactiveMemory
         }
 
 
-        protected static List<TElement> DiffCore<TElement, TKey>(TElement[] array, TElement[] addOrReplaceData,
-            Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue)
+        protected static TElement[] DiffCore<TElement, TKey>(TElement[] array, TElement[] addOrReplaceData,
+            Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue,
+                bool createNewArray = true)
         {
-            var newList = new List<TElement>(array.Length);
-            var replaceIndexes = new Dictionary<int, TElement>();
-            foreach (var data in addOrReplaceData)
+            TElement[] dest = null;
+            for (var i = 0; i < addOrReplaceData.Length; i++)
             {
-                var index = BinarySearch.FindFirst(array, keySelector(data), keySelector, comparer);
-                if (index != -1)
-                {
-                    replaceIndexes.Add(index, data);
-                    changesQueue?.EnqueueUpdate(data, array[index]);
-                }
-                else
-                {
-                    newList.Add(data);
-                    changesQueue?.EnqueueAdd(data);
-                }
+                dest = DiffCore(array, addOrReplaceData[i], keySelector, comparer, changesQueue, createNewArray);
             }
-
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (replaceIndexes.TryGetValue(i, out var data))
-                {
-                    newList.Add(data);
-                }
-                else
-                {
-                    newList.Add(array[i]);
-                }
-            }
-
-            return newList;
+            return dest;
         }
     }
 }
