@@ -20,6 +20,7 @@ namespace ReactiveMemory.Benchmark
         public event Action OnUnauthorizedMemoryModification;
 		public IMemoryDatabase  Database => _database ??= new MemoryDatabase(_data, _changesConveyor, maxDegreeOfParallelism : Environment.ProcessorCount);
         public ITransaction  Transaction => _transaction;
+        public event Action OnTransactionFinished;
 
         private MemoryDatabase _database;
         private Transaction _transaction;
@@ -77,6 +78,7 @@ namespace ReactiveMemory.Benchmark
 
             // cast to  MemoryDatabase 
             _database = _transaction.Commit();
+            OnTransactionFinished?.Invoke();
             if(_md5 != null)
 			{
 				_data = ToBytes();

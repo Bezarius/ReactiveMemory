@@ -39,7 +39,8 @@ namespace ReactiveMemory.GeneratorCore
             this.Write("(_data, _changesConveyor, maxDegreeOfParallelism : Environment.ProcessorCount);\r\n" +
                     "        public I");
             this.Write(this.ToStringHelper.ToStringWithCulture(TransactionClassName));
-            this.Write("  Transaction => _transaction;\r\n\r\n        private ");
+            this.Write("  Transaction => _transaction;\r\n        public event Action OnTransactionFinished" +
+                    ";\r\n\r\n        private ");
             this.Write(this.ToStringHelper.ToStringWithCulture(MemoryDatabaseClassName));
             this.Write(" _database;\r\n        private ");
             this.Write(this.ToStringHelper.ToStringWithCulture(TransactionClassName));
@@ -104,6 +105,7 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(MemoryDatabaseClassName));
             this.Write(@" 
             _database = _transaction.Commit();
+            OnTransactionFinished?.Invoke();
             if(_md5 != null)
 			{
 				_data = ToBytes();

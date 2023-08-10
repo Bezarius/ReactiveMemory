@@ -15,6 +15,7 @@ namespace <#= Namespace #>
         public event Action OnUnauthorizedMemoryModification;
 		public I<#= MemoryDatabaseClassName #>  Database => _database ??= new <#=MemoryDatabaseClassName#>(_data, _changesConveyor, maxDegreeOfParallelism : Environment.ProcessorCount);
         public I<#= TransactionClassName #>  Transaction => _transaction;
+        public event Action OnTransactionFinished;
 
         private <#= MemoryDatabaseClassName #> _database;
         private <#= TransactionClassName #> _transaction;
@@ -72,6 +73,7 @@ namespace <#= Namespace #>
 
             // cast to  <#= MemoryDatabaseClassName #> 
             _database = _transaction.Commit();
+            OnTransactionFinished?.Invoke();
             if(_md5 != null)
 			{
 				_data = ToBytes();
