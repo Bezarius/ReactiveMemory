@@ -46,19 +46,45 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(TransactionClassName));
             this.Write(@" _transaction;
         private ChangesConveyor _changesConveyor;
+        private bool _compositeTransactionIsStarted;
         private byte[] _data;
         private byte[] _hash;
-        private MD5 _md5;
+        private HashAlgorithm _hashAlg;
 
-        public DbContext(byte[] dbBytes, IChangesMediatorFactory changesMediatorFactory, string md5 = """")
+        public DbContext(byte[] dbBytes, IChangesMediatorFactory changesMediatorFactory, string hashAlg = """")
         {
             _changesConveyor = new ChangesConveyor(changesMediatorFactory);
             _data = dbBytes;
-            if(!string.IsNullOrWhiteSpace(md5))
+            if(!string.IsNullOrWhiteSpace(hashAlg))
 			{
-				_md5 = MD5.Create(md5);
-				_hash = _md5.ComputeHash(_data);
+				_hashAlg = HashAlgorithm.Create(hashAlg);
+				_hash = _hashAlg.ComputeHash(_data);
 			}
+        }
+
+        public ITransaction BeginCompositeTransaction()
+        {
+            if (_compositeTransactionIsStarted)
+            {
+                throw new InvalidOperationException(""Shared transaction is already started"");
+            }
+            _compositeTransactionIsStarted = true;
+
+            if (IsTransactionStarted)
+                return _transaction;
+            else
+                return BeginTransaction();
+        }
+
+        public void CommitCompositeTransaction()
+        {
+            if (!_compositeTransactionIsStarted)
+            {
+                throw new InvalidOperationException(""Shared transaction is not started"");
+            }
+            _compositeTransactionIsStarted = false;
+            
+            Commit();
         }
 
         public I");
@@ -67,6 +93,8 @@ namespace ReactiveMemory.GeneratorCore
         {
             if (IsTransactionStarted)
             {
+                if (_compositeTransactionIsStarted)
+                        return _transaction;
                 throw new InvalidOperationException(""Transaction is already started"");
             }
 
@@ -78,11 +106,11 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(MemoryDatabaseClassName));
             this.Write(@"(_data, _changesConveyor, maxDegreeOfParallelism : Environment.ProcessorCount);
             }
-            else if(_md5 != null)
+            else if(_hashAlg != null)
             {
                 // calc hash of current db data
-                var prevDataHash = _md5.ComputeHash(_data); 
-                if (!prevDataHash.SequenceEqual(_hash) || !prevDataHash.SequenceEqual(_md5.ComputeHash(ToBytes())))
+                var prevDataHash = _hashAlg.ComputeHash(_data); 
+                if (!prevDataHash.SequenceEqual(_hash) || !prevDataHash.SequenceEqual(_hashAlg.ComputeHash(ToBytes())))
                 {
                     // detected memory modifications
                     OnUnauthorizedMemoryModification?.Invoke();
@@ -101,15 +129,18 @@ namespace ReactiveMemory.GeneratorCore
                 throw new InvalidOperationException(""Transaction is not started"");
             }
 
+            if(_compositeTransactionIsStarted)
+                return;
+
             // cast to  ");
             this.Write(this.ToStringHelper.ToStringWithCulture(MemoryDatabaseClassName));
             this.Write(@" 
             _database = _transaction.Commit();
             OnTransactionFinished?.Invoke();
-            if(_md5 != null)
+            if(_hashAlg != null)
 			{
 				_data = ToBytes();
-				_hash = _md5.ComputeHash(_data);
+				_hash = _hashAlg.ComputeHash(_data);
 			}
             IsTransactionStarted = false;
         }
@@ -130,7 +161,7 @@ namespace ReactiveMemory.GeneratorCore
         public void Dispose()
         {
             _changesConveyor?.Dispose();
-            _md5?.Dispose();
+            _hashAlg?.Dispose();
         }
    }
 }");
