@@ -45,7 +45,7 @@ namespace ReactiveMemory.Benchmark
         {
             if (_compositeTransactionIsStarted)
             {
-                throw new InvalidOperationException("Shared transaction is already started");
+                throw new InvalidOperationException("Composite transaction is already started");
             }
             _compositeTransactionIsStarted = true;
 
@@ -59,7 +59,7 @@ namespace ReactiveMemory.Benchmark
         {
             if (!_compositeTransactionIsStarted)
             {
-                throw new InvalidOperationException("Shared transaction is not started");
+                throw new InvalidOperationException("Composite transaction is not started");
             }
             _compositeTransactionIsStarted = false;
             
@@ -124,6 +124,19 @@ namespace ReactiveMemory.Benchmark
             _database.ChangesConveyor.Clear();
             _transaction = null;
             IsTransactionStarted = false;
+            _compositeTransactionIsStarted = false;
+        }
+
+        public void Reload(byte[] data)
+        {
+            if (_compositeTransactionIsStarted || IsTransactionStarted)
+            {
+                throw new InvalidOperationException("Transaction is already started");
+            }
+            _data = data;
+            _changesConveyor.Clear();
+            _hash = null;
+            _database = null;
         }
         
         public byte[] ToBytes()

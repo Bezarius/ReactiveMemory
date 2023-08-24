@@ -6,7 +6,51 @@ namespace ReactiveMemory
 {
     public readonly struct RangeView<T> : IEnumerable<T>, IReadOnlyList<T>, IList<T>
     {
-        public static RangeView<T> Empty => new RangeView<T>( null, -1, -1, false ); 
+        public struct Enumerator : IEnumerator<T>
+        {
+            readonly RangeView<T> rangeView;
+            int index;
+            readonly int count;
+            T current;
+
+            public Enumerator(RangeView<T> rangeView)
+            {
+                this.rangeView = rangeView;
+                index = 0;
+                count = rangeView.Count;
+                current = default;
+            }
+
+            public bool MoveNext()
+            {
+                if (index < count)
+                {
+                    current = rangeView[index];
+                    index++;
+                    return true;
+                }
+                else
+                {
+                    current = default;
+                    index = count + 1;
+                    return false;
+                }
+            }
+
+            public void Reset()
+            {
+                index = 0;
+                current = default;
+            }
+
+            public T Current => current;
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose() { }
+        }
+
+        public static RangeView<T> Empty => new RangeView<T>(null, -1, -1, false);
 
         readonly T[] orderedData;
         readonly int left;
@@ -46,20 +90,21 @@ namespace ReactiveMemory
 
         public RangeView(T[] orderedData, int left, int right, bool ascendant)
         {
-            this.hasValue = (orderedData != null ) && (orderedData.Length != 0) && (left <= right); // same index is length = 1            this.orderedData = orderedData;
+            this.hasValue = (orderedData != null) && (orderedData.Length != 0) && (left <= right); // same index is length = 1            this.orderedData = orderedData;
             this.orderedData = orderedData;
             this.left = left;
             this.right = right;
             this.ascendant = ascendant;
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public Enumerator GetEnumerator()
         {
-            var count = Count;
-            for (int i = 0; i < count; i++)
-            {
-                yield return this[i];
-            }
+            return new Enumerator(this);
+        }
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
