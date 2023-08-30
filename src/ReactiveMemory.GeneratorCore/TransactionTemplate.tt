@@ -68,6 +68,7 @@ namespace <#= Namespace #>
             if(_<#= item.ClassName #>Changes != null)
             {
                 <#= item.ClassName #>Table = new <#= item.ClassName #>Table(CloneAndSortBy(_<#= item.ClassName #>Changes, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>));
+                _<#= item.ClassName #>Changes = null;
             }
             else
             {

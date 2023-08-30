@@ -148,6 +148,7 @@ namespace ReactiveMemory.Tests
             if(_FailChanges != null)
             {
                 FailTable = new FailTable(CloneAndSortBy(_FailChanges, x => x.Id, System.Collections.Generic.Comparer<int>.Default));
+                _FailChanges = null;
             }
             else
             {
@@ -157,6 +158,7 @@ namespace ReactiveMemory.Tests
             if(_ItemMasterChanges != null)
             {
                 ItemMasterTable = new ItemMasterTable(CloneAndSortBy(_ItemMasterChanges, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default));
+                _ItemMasterChanges = null;
             }
             else
             {
@@ -166,6 +168,7 @@ namespace ReactiveMemory.Tests
             if(_ItemMasterEmptyValidateChanges != null)
             {
                 ItemMasterEmptyValidateTable = new ItemMasterEmptyValidateTable(CloneAndSortBy(_ItemMasterEmptyValidateChanges, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default));
+                _ItemMasterEmptyValidateChanges = null;
             }
             else
             {
@@ -175,6 +178,7 @@ namespace ReactiveMemory.Tests
             if(_PersonModelChanges != null)
             {
                 PersonModelTable = new PersonModelTable(CloneAndSortBy(_PersonModelChanges, x => x.RandomId, System.StringComparer.Ordinal));
+                _PersonModelChanges = null;
             }
             else
             {
@@ -184,6 +188,7 @@ namespace ReactiveMemory.Tests
             if(_QuestMasterChanges != null)
             {
                 QuestMasterTable = new QuestMasterTable(CloneAndSortBy(_QuestMasterChanges, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default));
+                _QuestMasterChanges = null;
             }
             else
             {
@@ -193,6 +198,7 @@ namespace ReactiveMemory.Tests
             if(_QuestMasterEmptyValidateChanges != null)
             {
                 QuestMasterEmptyValidateTable = new QuestMasterEmptyValidateTable(CloneAndSortBy(_QuestMasterEmptyValidateChanges, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default));
+                _QuestMasterEmptyValidateChanges = null;
             }
             else
             {
@@ -202,6 +208,7 @@ namespace ReactiveMemory.Tests
             if(_SampleChanges != null)
             {
                 SampleTable = new SampleTable(CloneAndSortBy(_SampleChanges, x => x.Id, System.Collections.Generic.Comparer<int>.Default));
+                _SampleChanges = null;
             }
             else
             {
@@ -211,6 +218,7 @@ namespace ReactiveMemory.Tests
             if(_SequentialCheckMasterChanges != null)
             {
                 SequentialCheckMasterTable = new SequentialCheckMasterTable(CloneAndSortBy(_SequentialCheckMasterChanges, x => x.Id, System.Collections.Generic.Comparer<int>.Default));
+                _SequentialCheckMasterChanges = null;
             }
             else
             {
@@ -220,6 +228,7 @@ namespace ReactiveMemory.Tests
             if(_SingleMasterChanges != null)
             {
                 SingleMasterTable = new SingleMasterTable(CloneAndSortBy(_SingleMasterChanges, x => x.Id, System.Collections.Generic.Comparer<int>.Default));
+                _SingleMasterChanges = null;
             }
             else
             {
@@ -229,6 +238,7 @@ namespace ReactiveMemory.Tests
             if(_SkillMasterChanges != null)
             {
                 SkillMasterTable = new SkillMasterTable(CloneAndSortBy(_SkillMasterChanges, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default));
+                _SkillMasterChanges = null;
             }
             else
             {
@@ -238,6 +248,7 @@ namespace ReactiveMemory.Tests
             if(_TestMasterChanges != null)
             {
                 TestMasterTable = new TestMasterTable(CloneAndSortBy(_TestMasterChanges, x => x.TestID, System.Collections.Generic.Comparer<int>.Default));
+                _TestMasterChanges = null;
             }
             else
             {
@@ -247,6 +258,7 @@ namespace ReactiveMemory.Tests
             if(_UserLevelChanges != null)
             {
                 UserLevelTable = new UserLevelTable(CloneAndSortBy(_UserLevelChanges, x => x.Level, System.Collections.Generic.Comparer<int>.Default));
+                _UserLevelChanges = null;
             }
             else
             {

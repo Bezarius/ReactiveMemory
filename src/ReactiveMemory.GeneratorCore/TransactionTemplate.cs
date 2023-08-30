@@ -121,7 +121,10 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildKeyAccessor("x")));
             this.Write(", ");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildComparer()));
-            this.Write("));\r\n            }\r\n            else\r\n            {\r\n                ");
+            this.Write("));\r\n                _");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write("Changes = null;\r\n            }\r\n            else\r\n            {\r\n                " +
+                    "");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
             this.Write("Table = memory.");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
