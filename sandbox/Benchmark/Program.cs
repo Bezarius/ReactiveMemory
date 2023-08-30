@@ -23,6 +23,7 @@ using Enyim.Caching.Memcached.Transcoders;
 using RocksDbSharp;
 using MessagePack;
 using System.Text;
+using ReactiveMemory.Benchmark;
 
 namespace Benchmark
 {

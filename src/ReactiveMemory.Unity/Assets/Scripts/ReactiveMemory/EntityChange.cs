@@ -1,4 +1,7 @@
-﻿namespace ReactiveMemory
+﻿using System.Collections.Generic;
+using System;
+
+namespace ReactiveMemory
 {
     public readonly struct EntityChange<TEntity>
     {
@@ -18,6 +21,11 @@
             Change = change;
             Entity = entity;
             Old = old;
+        }
+
+        public bool IsChanged<TProp>(Func<TEntity, TProp> selector)
+        {
+            return Comparer<TProp>.Default.Compare(selector(Entity), selector(Old)) != 0;
         }
     }
 }

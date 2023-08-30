@@ -24,7 +24,20 @@ namespace <#= Namespace #>
 
    public sealed class <#= ClassName #> : TransactionBase, I<#= ClassName #>
    {
-        <#= PrefixClassName #>MemoryDatabase memory;
+
+        public <#= PrefixClassName #>MemoryDatabase Database
+        {
+            get
+            {
+                if(_rebuildIsNeeded)
+                {
+                    Commit(false);
+                }
+                return memory;
+            }
+        }
+
+        private <#= PrefixClassName #>MemoryDatabase memory;
 
 <# for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; #>
         private IChangesQueue<<#= item.ClassName #>> _<#= item.ClassName #>ChangeTracker;
@@ -34,6 +47,8 @@ namespace <#= Namespace #>
         private <#= item.ClassName #>[] _<#= item.ClassName #>Changes;
 <# } #> 
 
+        private bool _rebuildIsNeeded;
+
         public <#= ClassName #>(<#= PrefixClassName #>MemoryDatabase memory)
         {
             this.memory = memory;
@@ -42,8 +57,12 @@ namespace <#= Namespace #>
 <# } #> 
         }
 
-        public <#= PrefixClassName #>MemoryDatabase Commit()
+        public <#= PrefixClassName #>MemoryDatabase Commit(bool withPublish = true)
         {
+            if(!_rebuildIsNeeded)
+            {
+                return memory;
+            }
 <# for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; #>
             <#= item.ClassName #>Table <#= item.ClassName #>Table;
             if(_<#= item.ClassName #>Changes != null)
@@ -61,7 +80,11 @@ namespace <#= Namespace #>
 <# } #> 
                 memory.ChangesConveyor             
             );
-            memory.ChangesConveyor.Publish();
+            if(withPublish)
+            {
+                memory.ChangesConveyor.Publish();
+            }
+            _rebuildIsNeeded = false;
             return memory;
         }
 
@@ -69,6 +92,7 @@ namespace <#= Namespace #>
         public void ReplaceAll(System.Collections.Generic.IList<<#= item.ClassName #>> data)
         {
             _<#= item.ClassName #>Changes = CloneAndSortBy(data, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>);
+            _rebuildIsNeeded = true;
         }
 
 <# if(!item.PrimaryKey.IsNonUnique) { #>
@@ -83,6 +107,7 @@ namespace <#= Namespace #>
             {
                 _<#= item.ClassName #>Changes = RemoveCore(_<#= item.ClassName #>Changes, key, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
@@ -97,6 +122,7 @@ namespace <#= Namespace #>
 <# } #> 
                 memory.ChangesConveyor             
             );
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(<#= item.ClassName #> addOrReplaceData)
@@ -109,6 +135,7 @@ namespace <#= Namespace #>
             {
                 _<#= item.ClassName #>Changes = DiffCore(_<#= item.ClassName #>Changes, addOrReplaceData, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(<#= item.ClassName #>[] addOrReplaceData)
@@ -121,6 +148,7 @@ namespace <#= Namespace #>
             {
                 _<#= item.ClassName #>Changes = DiffCore(_<#= item.ClassName #>Changes, addOrReplaceData, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>, _<#= item.ClassName #>ChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 <# } #>
 

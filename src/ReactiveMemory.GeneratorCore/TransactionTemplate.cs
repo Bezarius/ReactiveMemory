@@ -56,7 +56,21 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
             this.Write(" : TransactionBase, I");
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
-            this.Write("\r\n   {\r\n        ");
+            this.Write("\r\n   {\r\n\r\n        public ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(PrefixClassName));
+            this.Write(@"MemoryDatabase Database
+        {
+            get
+            {
+                if(_rebuildIsNeeded)
+                {
+                    Commit(false);
+                }
+                return memory;
+            }
+        }
+
+        private ");
             this.Write(this.ToStringHelper.ToStringWithCulture(PrefixClassName));
             this.Write("MemoryDatabase memory;\r\n\r\n");
  for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; 
@@ -74,7 +88,7 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
             this.Write("Changes;\r\n");
  } 
-            this.Write(" \r\n\r\n        public ");
+            this.Write(" \r\n\r\n        private bool _rebuildIsNeeded;\r\n\r\n        public ");
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
             this.Write("(");
             this.Write(this.ToStringHelper.ToStringWithCulture(PrefixClassName));
@@ -88,7 +102,8 @@ namespace ReactiveMemory.GeneratorCore
  } 
             this.Write(" \r\n        }\r\n\r\n        public ");
             this.Write(this.ToStringHelper.ToStringWithCulture(PrefixClassName));
-            this.Write("MemoryDatabase Commit()\r\n        {\r\n");
+            this.Write("MemoryDatabase Commit(bool withPublish = true)\r\n        {\r\n            if(!_rebui" +
+                    "ldIsNeeded)\r\n            {\r\n                return memory;\r\n            }\r\n");
  for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; 
             this.Write("            ");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
@@ -120,8 +135,18 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
             this.Write("Table,\r\n");
  } 
-            this.Write(" \r\n                memory.ChangesConveyor             \r\n            );\r\n         " +
-                    "   memory.ChangesConveyor.Publish();\r\n            return memory;\r\n        }\r\n\r\n");
+            this.Write(@" 
+                memory.ChangesConveyor             
+            );
+            if(withPublish)
+            {
+                memory.ChangesConveyor.Publish();
+            }
+            _rebuildIsNeeded = false;
+            return memory;
+        }
+
+");
  for(var i = 0; i < GenerationContexts.Length; i++) { var item = GenerationContexts[i]; 
             this.Write("        public void ReplaceAll(System.Collections.Generic.IList<");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
@@ -131,7 +156,7 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildKeyAccessor("x")));
             this.Write(", ");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildComparer()));
-            this.Write(");\r\n        }\r\n\r\n");
+            this.Write(");\r\n            _rebuildIsNeeded = true;\r\n        }\r\n\r\n");
  if(!item.PrimaryKey.IsNonUnique) { 
             this.Write("        \r\n        public void Remove");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
@@ -160,7 +185,8 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildComparer()));
             this.Write(", _");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
-            this.Write("ChangeTracker);\r\n            }\r\n        }\r\n\r\n\r\n        public void Remove");
+            this.Write("ChangeTracker);\r\n            }\r\n            _rebuildIsNeeded = true;\r\n        }\r\n" +
+                    "\r\n\r\n        public void Remove");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
             this.Write("(");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildTypeName()));
@@ -187,8 +213,8 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(","));
             this.Write("\r\n");
  } 
-            this.Write(" \r\n                memory.ChangesConveyor             \r\n            );\r\n        }" +
-                    "\r\n\r\n        public void Diff(");
+            this.Write(" \r\n                memory.ChangesConveyor             \r\n            );\r\n         " +
+                    "   _rebuildIsNeeded = true;\r\n        }\r\n\r\n        public void Diff(");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
             this.Write(" addOrReplaceData)\r\n        {\r\n            if(_");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
@@ -213,7 +239,8 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildComparer()));
             this.Write(", _");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
-            this.Write("ChangeTracker, false);\r\n            }\r\n        }\r\n\r\n        public void Diff(");
+            this.Write("ChangeTracker, false);\r\n            }\r\n            _rebuildIsNeeded = true;\r\n    " +
+                    "    }\r\n\r\n        public void Diff(");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
             this.Write("[] addOrReplaceData)\r\n        {\r\n            if(_");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
@@ -238,7 +265,8 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildComparer()));
             this.Write(", _");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
-            this.Write("ChangeTracker, false);  \r\n            }\r\n        }\r\n");
+            this.Write("ChangeTracker, false);  \r\n            }\r\n            _rebuildIsNeeded = true;\r\n  " +
+                    "      }\r\n");
  } 
             this.Write("\r\n");
  } 

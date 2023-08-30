@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MessagePack;
 using LiteDB;
-using MasterMemory;
+using ReactiveMemory;
 
 namespace TestPerfLiteDB
 {

@@ -75,7 +75,20 @@ namespace ReactiveMemory.Tests
 
    public sealed class Transaction : TransactionBase, ITransaction
    {
-        MemoryDatabase memory;
+
+        public MemoryDatabase Database
+        {
+            get
+            {
+                if(_rebuildIsNeeded)
+                {
+                    Commit(false);
+                }
+                return memory;
+            }
+        }
+
+        private MemoryDatabase memory;
 
         private IChangesQueue<Fail> _FailChangeTracker;
         private IChangesQueue<ItemMaster> _ItemMasterChangeTracker;
@@ -105,6 +118,8 @@ namespace ReactiveMemory.Tests
         private UserLevel[] _UserLevelChanges;
  
 
+        private bool _rebuildIsNeeded;
+
         public Transaction(MemoryDatabase memory)
         {
             this.memory = memory;
@@ -123,8 +138,12 @@ namespace ReactiveMemory.Tests
  
         }
 
-        public MemoryDatabase Commit()
+        public MemoryDatabase Commit(bool withPublish = true)
         {
+            if(!_rebuildIsNeeded)
+            {
+                return memory;
+            }
             FailTable FailTable;
             if(_FailChanges != null)
             {
@@ -250,30 +269,18 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
-            memory.ChangesConveyor.Publish();
+            if(withPublish)
+            {
+                memory.ChangesConveyor.Publish();
+            }
+            _rebuildIsNeeded = false;
             return memory;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<Fail> data)
         {
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new FailTable(newData);
-            memory = new MemoryDatabase(
-                table,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor            
-            );
+            _FailChanges = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -287,6 +294,7 @@ namespace ReactiveMemory.Tests
             {
                 _FailChanges = RemoveCore(_FailChanges, key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _FailChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
@@ -311,6 +319,7 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Fail addOrReplaceData)
@@ -323,40 +332,26 @@ namespace ReactiveMemory.Tests
             {
                 _FailChanges = DiffCore(_FailChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _FailChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Fail[] addOrReplaceData)
         {
             if(_FailChanges == null)
             {
-                _FailChanges = DiffCore(memory.FailTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _FailChangeTracker).ToArray();  
+                _FailChanges = DiffCore(memory.FailTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _FailChangeTracker, true);  
             }
             else
             {
-                _FailChanges = DiffCore(_FailChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _FailChangeTracker).ToArray();  
+                _FailChanges = DiffCore(_FailChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _FailChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<ItemMaster> data)
         {
-            var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new ItemMasterTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                table,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor            
-            );
+            _ItemMasterChanges = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -370,6 +365,7 @@ namespace ReactiveMemory.Tests
             {
                 _ItemMasterChanges = RemoveCore(_ItemMasterChanges, key, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
@@ -394,6 +390,7 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(ItemMaster addOrReplaceData)
@@ -406,40 +403,26 @@ namespace ReactiveMemory.Tests
             {
                 _ItemMasterChanges = DiffCore(_ItemMasterChanges, addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(ItemMaster[] addOrReplaceData)
         {
             if(_ItemMasterChanges == null)
             {
-                _ItemMasterChanges = DiffCore(memory.ItemMasterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterChangeTracker).ToArray();  
+                _ItemMasterChanges = DiffCore(memory.ItemMasterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterChangeTracker, true);  
             }
             else
             {
-                _ItemMasterChanges = DiffCore(_ItemMasterChanges, addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterChangeTracker).ToArray();  
+                _ItemMasterChanges = DiffCore(_ItemMasterChanges, addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<ItemMasterEmptyValidate> data)
         {
-            var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new ItemMasterEmptyValidateTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                table,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor            
-            );
+            _ItemMasterEmptyValidateChanges = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -453,6 +436,7 @@ namespace ReactiveMemory.Tests
             {
                 _ItemMasterEmptyValidateChanges = RemoveCore(_ItemMasterEmptyValidateChanges, key, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterEmptyValidateChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
@@ -477,6 +461,7 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(ItemMasterEmptyValidate addOrReplaceData)
@@ -489,40 +474,26 @@ namespace ReactiveMemory.Tests
             {
                 _ItemMasterEmptyValidateChanges = DiffCore(_ItemMasterEmptyValidateChanges, addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterEmptyValidateChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(ItemMasterEmptyValidate[] addOrReplaceData)
         {
             if(_ItemMasterEmptyValidateChanges == null)
             {
-                _ItemMasterEmptyValidateChanges = DiffCore(memory.ItemMasterEmptyValidateTable.GetRawDataUnsafe(), addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterEmptyValidateChangeTracker).ToArray();  
+                _ItemMasterEmptyValidateChanges = DiffCore(memory.ItemMasterEmptyValidateTable.GetRawDataUnsafe(), addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterEmptyValidateChangeTracker, true);  
             }
             else
             {
-                _ItemMasterEmptyValidateChanges = DiffCore(_ItemMasterEmptyValidateChanges, addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterEmptyValidateChangeTracker).ToArray();  
+                _ItemMasterEmptyValidateChanges = DiffCore(_ItemMasterEmptyValidateChanges, addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterEmptyValidateChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<PersonModel> data)
         {
-            var newData = CloneAndSortBy(data, x => x.RandomId, System.StringComparer.Ordinal);
-            var table = new PersonModelTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                table,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor            
-            );
+            _PersonModelChanges = CloneAndSortBy(data, x => x.RandomId, System.StringComparer.Ordinal);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -536,6 +507,7 @@ namespace ReactiveMemory.Tests
             {
                 _PersonModelChanges = RemoveCore(_PersonModelChanges, key, x => x.RandomId, System.StringComparer.Ordinal, _PersonModelChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
@@ -560,6 +532,7 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(PersonModel addOrReplaceData)
@@ -572,40 +545,26 @@ namespace ReactiveMemory.Tests
             {
                 _PersonModelChanges = DiffCore(_PersonModelChanges, addOrReplaceData, x => x.RandomId, System.StringComparer.Ordinal, _PersonModelChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(PersonModel[] addOrReplaceData)
         {
             if(_PersonModelChanges == null)
             {
-                _PersonModelChanges = DiffCore(memory.PersonModelTable.GetRawDataUnsafe(), addOrReplaceData, x => x.RandomId, System.StringComparer.Ordinal, _PersonModelChangeTracker).ToArray();  
+                _PersonModelChanges = DiffCore(memory.PersonModelTable.GetRawDataUnsafe(), addOrReplaceData, x => x.RandomId, System.StringComparer.Ordinal, _PersonModelChangeTracker, true);  
             }
             else
             {
-                _PersonModelChanges = DiffCore(_PersonModelChanges, addOrReplaceData, x => x.RandomId, System.StringComparer.Ordinal, _PersonModelChangeTracker).ToArray();  
+                _PersonModelChanges = DiffCore(_PersonModelChanges, addOrReplaceData, x => x.RandomId, System.StringComparer.Ordinal, _PersonModelChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<QuestMaster> data)
         {
-            var newData = CloneAndSortBy(data, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new QuestMasterTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                table,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor            
-            );
+            _QuestMasterChanges = CloneAndSortBy(data, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -619,6 +578,7 @@ namespace ReactiveMemory.Tests
             {
                 _QuestMasterChanges = RemoveCore(_QuestMasterChanges, key, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
@@ -643,6 +603,7 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(QuestMaster addOrReplaceData)
@@ -655,40 +616,26 @@ namespace ReactiveMemory.Tests
             {
                 _QuestMasterChanges = DiffCore(_QuestMasterChanges, addOrReplaceData, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(QuestMaster[] addOrReplaceData)
         {
             if(_QuestMasterChanges == null)
             {
-                _QuestMasterChanges = DiffCore(memory.QuestMasterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterChangeTracker).ToArray();  
+                _QuestMasterChanges = DiffCore(memory.QuestMasterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterChangeTracker, true);  
             }
             else
             {
-                _QuestMasterChanges = DiffCore(_QuestMasterChanges, addOrReplaceData, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterChangeTracker).ToArray();  
+                _QuestMasterChanges = DiffCore(_QuestMasterChanges, addOrReplaceData, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<QuestMasterEmptyValidate> data)
         {
-            var newData = CloneAndSortBy(data, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new QuestMasterEmptyValidateTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                table,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor            
-            );
+            _QuestMasterEmptyValidateChanges = CloneAndSortBy(data, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -702,6 +649,7 @@ namespace ReactiveMemory.Tests
             {
                 _QuestMasterEmptyValidateChanges = RemoveCore(_QuestMasterEmptyValidateChanges, key, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterEmptyValidateChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
@@ -726,6 +674,7 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(QuestMasterEmptyValidate addOrReplaceData)
@@ -738,40 +687,26 @@ namespace ReactiveMemory.Tests
             {
                 _QuestMasterEmptyValidateChanges = DiffCore(_QuestMasterEmptyValidateChanges, addOrReplaceData, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterEmptyValidateChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(QuestMasterEmptyValidate[] addOrReplaceData)
         {
             if(_QuestMasterEmptyValidateChanges == null)
             {
-                _QuestMasterEmptyValidateChanges = DiffCore(memory.QuestMasterEmptyValidateTable.GetRawDataUnsafe(), addOrReplaceData, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterEmptyValidateChangeTracker).ToArray();  
+                _QuestMasterEmptyValidateChanges = DiffCore(memory.QuestMasterEmptyValidateTable.GetRawDataUnsafe(), addOrReplaceData, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterEmptyValidateChangeTracker, true);  
             }
             else
             {
-                _QuestMasterEmptyValidateChanges = DiffCore(_QuestMasterEmptyValidateChanges, addOrReplaceData, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterEmptyValidateChangeTracker).ToArray();  
+                _QuestMasterEmptyValidateChanges = DiffCore(_QuestMasterEmptyValidateChanges, addOrReplaceData, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterEmptyValidateChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<Sample> data)
         {
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new SampleTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                table,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor            
-            );
+            _SampleChanges = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -785,6 +720,7 @@ namespace ReactiveMemory.Tests
             {
                 _SampleChanges = RemoveCore(_SampleChanges, key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SampleChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
@@ -809,6 +745,7 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Sample addOrReplaceData)
@@ -821,40 +758,26 @@ namespace ReactiveMemory.Tests
             {
                 _SampleChanges = DiffCore(_SampleChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SampleChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Sample[] addOrReplaceData)
         {
             if(_SampleChanges == null)
             {
-                _SampleChanges = DiffCore(memory.SampleTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SampleChangeTracker).ToArray();  
+                _SampleChanges = DiffCore(memory.SampleTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SampleChangeTracker, true);  
             }
             else
             {
-                _SampleChanges = DiffCore(_SampleChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SampleChangeTracker).ToArray();  
+                _SampleChanges = DiffCore(_SampleChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SampleChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<SequentialCheckMaster> data)
         {
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new SequentialCheckMasterTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                table,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor            
-            );
+            _SequentialCheckMasterChanges = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -868,6 +791,7 @@ namespace ReactiveMemory.Tests
             {
                 _SequentialCheckMasterChanges = RemoveCore(_SequentialCheckMasterChanges, key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SequentialCheckMasterChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
@@ -892,6 +816,7 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(SequentialCheckMaster addOrReplaceData)
@@ -904,40 +829,26 @@ namespace ReactiveMemory.Tests
             {
                 _SequentialCheckMasterChanges = DiffCore(_SequentialCheckMasterChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SequentialCheckMasterChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(SequentialCheckMaster[] addOrReplaceData)
         {
             if(_SequentialCheckMasterChanges == null)
             {
-                _SequentialCheckMasterChanges = DiffCore(memory.SequentialCheckMasterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SequentialCheckMasterChangeTracker).ToArray();  
+                _SequentialCheckMasterChanges = DiffCore(memory.SequentialCheckMasterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SequentialCheckMasterChangeTracker, true);  
             }
             else
             {
-                _SequentialCheckMasterChanges = DiffCore(_SequentialCheckMasterChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SequentialCheckMasterChangeTracker).ToArray();  
+                _SequentialCheckMasterChanges = DiffCore(_SequentialCheckMasterChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SequentialCheckMasterChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<SingleMaster> data)
         {
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new SingleMasterTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                table,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor            
-            );
+            _SingleMasterChanges = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -951,6 +862,7 @@ namespace ReactiveMemory.Tests
             {
                 _SingleMasterChanges = RemoveCore(_SingleMasterChanges, key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SingleMasterChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
@@ -975,6 +887,7 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(SingleMaster addOrReplaceData)
@@ -987,40 +900,26 @@ namespace ReactiveMemory.Tests
             {
                 _SingleMasterChanges = DiffCore(_SingleMasterChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SingleMasterChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(SingleMaster[] addOrReplaceData)
         {
             if(_SingleMasterChanges == null)
             {
-                _SingleMasterChanges = DiffCore(memory.SingleMasterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SingleMasterChangeTracker).ToArray();  
+                _SingleMasterChanges = DiffCore(memory.SingleMasterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SingleMasterChangeTracker, true);  
             }
             else
             {
-                _SingleMasterChanges = DiffCore(_SingleMasterChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SingleMasterChangeTracker).ToArray();  
+                _SingleMasterChanges = DiffCore(_SingleMasterChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SingleMasterChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<SkillMaster> data)
         {
-            var newData = CloneAndSortBy(data, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default);
-            var table = new SkillMasterTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                table,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor            
-            );
+            _SkillMasterChanges = CloneAndSortBy(data, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -1034,6 +933,7 @@ namespace ReactiveMemory.Tests
             {
                 _SkillMasterChanges = RemoveCore(_SkillMasterChanges, key, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default, _SkillMasterChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
@@ -1058,6 +958,7 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(SkillMaster addOrReplaceData)
@@ -1070,63 +971,33 @@ namespace ReactiveMemory.Tests
             {
                 _SkillMasterChanges = DiffCore(_SkillMasterChanges, addOrReplaceData, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default, _SkillMasterChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(SkillMaster[] addOrReplaceData)
         {
             if(_SkillMasterChanges == null)
             {
-                _SkillMasterChanges = DiffCore(memory.SkillMasterTable.GetRawDataUnsafe(), addOrReplaceData, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default, _SkillMasterChangeTracker).ToArray();  
+                _SkillMasterChanges = DiffCore(memory.SkillMasterTable.GetRawDataUnsafe(), addOrReplaceData, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default, _SkillMasterChangeTracker, true);  
             }
             else
             {
-                _SkillMasterChanges = DiffCore(_SkillMasterChanges, addOrReplaceData, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default, _SkillMasterChangeTracker).ToArray();  
+                _SkillMasterChanges = DiffCore(_SkillMasterChanges, addOrReplaceData, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default, _SkillMasterChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<TestMaster> data)
         {
-            var newData = CloneAndSortBy(data, x => x.TestID, System.Collections.Generic.Comparer<int>.Default);
-            var table = new TestMasterTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                table,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor            
-            );
+            _TestMasterChanges = CloneAndSortBy(data, x => x.TestID, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
 
         public void ReplaceAll(System.Collections.Generic.IList<UserLevel> data)
         {
-            var newData = CloneAndSortBy(data, x => x.Level, System.Collections.Generic.Comparer<int>.Default);
-            var table = new UserLevelTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                table,
- 
-                memory.ChangesConveyor            
-            );
+            _UserLevelChanges = CloneAndSortBy(data, x => x.Level, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -1140,6 +1011,7 @@ namespace ReactiveMemory.Tests
             {
                 _UserLevelChanges = RemoveCore(_UserLevelChanges, key, x => x.Level, System.Collections.Generic.Comparer<int>.Default, _UserLevelChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
@@ -1164,6 +1036,7 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(UserLevel addOrReplaceData)
@@ -1176,18 +1049,20 @@ namespace ReactiveMemory.Tests
             {
                 _UserLevelChanges = DiffCore(_UserLevelChanges, addOrReplaceData, x => x.Level, System.Collections.Generic.Comparer<int>.Default, _UserLevelChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(UserLevel[] addOrReplaceData)
         {
             if(_UserLevelChanges == null)
             {
-                _UserLevelChanges = DiffCore(memory.UserLevelTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Level, System.Collections.Generic.Comparer<int>.Default, _UserLevelChangeTracker).ToArray();  
+                _UserLevelChanges = DiffCore(memory.UserLevelTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Level, System.Collections.Generic.Comparer<int>.Default, _UserLevelChangeTracker, true);  
             }
             else
             {
-                _UserLevelChanges = DiffCore(_UserLevelChanges, addOrReplaceData, x => x.Level, System.Collections.Generic.Comparer<int>.Default, _UserLevelChangeTracker).ToArray();  
+                _UserLevelChanges = DiffCore(_UserLevelChanges, addOrReplaceData, x => x.Level, System.Collections.Generic.Comparer<int>.Default, _UserLevelChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
     }

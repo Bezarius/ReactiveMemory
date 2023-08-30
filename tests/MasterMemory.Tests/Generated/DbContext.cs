@@ -14,35 +14,75 @@ using System.Security.Cryptography;
 
 namespace ReactiveMemory.Tests
 {
-   public sealed class DbContext 
+   public sealed class DbContext  : IDisposable
    {
         public bool IsTransactionStarted { get; private set; }
         public event Action OnUnauthorizedMemoryModification;
-		public IMemoryDatabase  Database => _database ??= new MemoryDatabase(_data, _changesConveyor);
+
+        public IMemoryDatabase  Database
+        {
+            get
+            {
+                if (IsTransactionStarted)
+                    return _transaction.Database;
+                return _database ??= new MemoryDatabase(_data, _changesConveyor,
+                    maxDegreeOfParallelism: Environment.ProcessorCount);
+            }
+        }
+
         public ITransaction  Transaction => _transaction;
+        public event Action OnTransactionFinished;
 
         private MemoryDatabase _database;
         private Transaction _transaction;
         private ChangesConveyor _changesConveyor;
+        private bool _compositeTransactionIsStarted;
         private byte[] _data;
         private byte[] _hash;
-        private MD5 _md5;
+        private HashAlgorithm _hashAlg;
 
-        public DbContext(byte[] dbBytes, IChangesMediatorFactory changesMediatorFactory, string md5 = "")
+        public DbContext(byte[] dbBytes, IChangesMediatorFactory changesMediatorFactory, string hashAlg = "")
         {
             _changesConveyor = new ChangesConveyor(changesMediatorFactory);
             _data = dbBytes;
-            if(!string.IsNullOrWhiteSpace(md5))
+            if(!string.IsNullOrWhiteSpace(hashAlg))
 			{
-				_md5 = MD5.Create(md5);
-				_hash = _md5.ComputeHash(_data);
+				_hashAlg = HashAlgorithm.Create(hashAlg);
+				_hash = _hashAlg.ComputeHash(_data);
 			}
+        }
+
+        public ITransaction BeginCompositeTransaction()
+        {
+            if (_compositeTransactionIsStarted)
+            {
+                throw new InvalidOperationException("Composite transaction is already started");
+            }
+            _compositeTransactionIsStarted = true;
+
+            if (IsTransactionStarted)
+                return _transaction;
+            else
+                return BeginTransaction();
+        }
+
+        public void CommitCompositeTransaction()
+        {
+            if (!_compositeTransactionIsStarted)
+            {
+                throw new InvalidOperationException("Composite transaction is not started");
+            }
+            _compositeTransactionIsStarted = false;
+            
+            Commit();
         }
 
         public ITransaction BeginTransaction()
         {
             if (IsTransactionStarted)
             {
+                if (_compositeTransactionIsStarted)
+                        return _transaction;
                 throw new InvalidOperationException("Transaction is already started");
             }
 
@@ -50,13 +90,13 @@ namespace ReactiveMemory.Tests
             if (_database == null)
             {
                 // serialization of db from bytes, it's slow
-                _database = new MemoryDatabase(_data, _changesConveyor);
+                _database = new MemoryDatabase(_data, _changesConveyor, maxDegreeOfParallelism : Environment.ProcessorCount);
             }
-            else if(_md5 != null)
+            else if(_hashAlg != null)
             {
                 // calc hash of current db data
-                var prevDataHash = _md5.ComputeHash(_data); 
-                if (!prevDataHash.SequenceEqual(_hash) || !prevDataHash.SequenceEqual(_md5.ComputeHash(ToBytes())))
+                var prevDataHash = _hashAlg.ComputeHash(_data); 
+                if (!prevDataHash.SequenceEqual(_hash) || !prevDataHash.SequenceEqual(_hashAlg.ComputeHash(ToBytes())))
                 {
                     // detected memory modifications
                     OnUnauthorizedMemoryModification?.Invoke();
@@ -75,12 +115,16 @@ namespace ReactiveMemory.Tests
                 throw new InvalidOperationException("Transaction is not started");
             }
 
+            if(_compositeTransactionIsStarted)
+                return;
+
             // cast to  MemoryDatabase 
             _database = _transaction.Commit();
-            if(_md5 != null)
+            OnTransactionFinished?.Invoke();
+            if(_hashAlg != null)
 			{
 				_data = ToBytes();
-				_hash = _md5.ComputeHash(_data);
+				_hash = _hashAlg.ComputeHash(_data);
 			}
             IsTransactionStarted = false;
         }
@@ -91,11 +135,30 @@ namespace ReactiveMemory.Tests
             _database.ChangesConveyor.Clear();
             _transaction = null;
             IsTransactionStarted = false;
+            _compositeTransactionIsStarted = false;
+        }
+
+        public void Reload(byte[] data)
+        {
+            if (_compositeTransactionIsStarted || IsTransactionStarted)
+            {
+                throw new InvalidOperationException("Transaction is already started");
+            }
+            _data = data;
+            _changesConveyor.Clear();
+            _hash = null;
+            _database = null;
         }
         
         public byte[] ToBytes()
         {
             return _database.ToDatabaseBuilder().Build();
+        }
+
+        public void Dispose()
+        {
+            _changesConveyor?.Dispose();
+            _hashAlg?.Dispose();
         }
    }
 }

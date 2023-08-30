@@ -15,8 +15,8 @@ namespace ReactiveMemory.Tests.Tables
         public Func<UserLevel, int> PrimaryKeySelector => primaryIndexSelector;
         readonly Func<UserLevel, int> primaryIndexSelector;
 
-        readonly UserLevel[] secondaryIndex0;
-        readonly Func<UserLevel, int> secondaryIndex0Selector;
+        private UserLevel[] secondaryIndex0;
+        private Func<UserLevel, int> secondaryIndex0Selector;
 
         public UserLevelTable(UserLevel[] sortedData)
             : base(sortedData)

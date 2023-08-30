@@ -101,5 +101,24 @@ namespace ReactiveMemory.Tests
             ctx.Commit();
             ctx.Database.SampleTable.FindById(9).Age.Should().Be(98);
         }
+
+        [Fact]
+        public void TestAccessInsideTransaction()
+        {
+            var ctx = GetContext();
+            var t = ctx.BeginTransaction();
+            t.Diff(new Sample
+            {
+                Id = 99,
+                Age = 99,
+                FirstName = "99",
+                LastName = "99"
+            });
+            ctx.Database.SampleTable.TryFindById(99, out var sample);
+            sample.Should().NotBeNull();
+            ctx.Commit();
+            ctx.Database.SampleTable.TryFindById(99, out var sample2);
+            sample2.Should().NotBeNull();
+        }
     }
 }

@@ -2,7 +2,7 @@
   "profiles": {
     "ReactiveMemory.Generator": {
       "commandName": "Project",
-      "commandLineArgs": "-i \"E:\\Repositories\\ReactiveMemory\\sandbox\\ConsoleApp\" -o \"E:\\Repositories\\ReactiveMemory\\sandbox\\ConsoleApp\\Generated\" -n ConsoleApp"
+      "commandLineArgs": "-i \"E:\\Repositories\\ReactiveMemory\\tests\\MasterMemory.Tests\" -o \"E:\\Repositories\\ReactiveMemory\\tests\\MasterMemory.Tests\\Generated\" -n ReactiveMemory.Tests"
     }
   }
 }
