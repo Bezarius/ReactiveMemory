@@ -82,7 +82,7 @@ namespace ReactiveMemory.Tests
             {
                 if(_rebuildIsNeeded)
                 {
-                    Commit(false);
+                    Commit();
                 }
                 return memory;
             }
@@ -138,7 +138,7 @@ namespace ReactiveMemory.Tests
  
         }
 
-        public MemoryDatabase Commit(bool withPublish = true)
+        public MemoryDatabase Commit()
         {
             if(!_rebuildIsNeeded)
             {
@@ -281,10 +281,6 @@ namespace ReactiveMemory.Tests
  
                 memory.ChangesConveyor             
             );
-            if(withPublish)
-            {
-                memory.ChangesConveyor.Publish();
-            }
             _rebuildIsNeeded = false;
             return memory;
         }

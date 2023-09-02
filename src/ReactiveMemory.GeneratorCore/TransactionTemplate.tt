@@ -31,7 +31,7 @@ namespace <#= Namespace #>
             {
                 if(_rebuildIsNeeded)
                 {
-                    Commit(false);
+                    Commit();
                 }
                 return memory;
             }
@@ -57,7 +57,7 @@ namespace <#= Namespace #>
 <# } #> 
         }
 
-        public <#= PrefixClassName #>MemoryDatabase Commit(bool withPublish = true)
+        public <#= PrefixClassName #>MemoryDatabase Commit()
         {
             if(!_rebuildIsNeeded)
             {
@@ -81,10 +81,6 @@ namespace <#= Namespace #>
 <# } #> 
                 memory.ChangesConveyor             
             );
-            if(withPublish)
-            {
-                memory.ChangesConveyor.Publish();
-            }
             _rebuildIsNeeded = false;
             return memory;
         }
