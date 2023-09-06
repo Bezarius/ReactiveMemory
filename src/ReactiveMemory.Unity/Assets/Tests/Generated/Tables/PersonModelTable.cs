@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System;
+using System.Threading.Tasks;
 
 namespace ReactiveMemory.Tests.Tables
 {
@@ -16,23 +17,34 @@ namespace ReactiveMemory.Tests.Tables
         public Func<PersonModel, string> PrimaryKeySelector => primaryIndexSelector;
         readonly Func<PersonModel, string> primaryIndexSelector;
 
-        readonly PersonModel[] secondaryIndex0;
-        readonly Func<PersonModel, string> secondaryIndex0Selector;
-        readonly PersonModel[] secondaryIndex1;
-        readonly Func<PersonModel, (string FirstName, string LastName)> secondaryIndex1Selector;
-        readonly PersonModel[] secondaryIndex2;
-        readonly Func<PersonModel, string> secondaryIndex2Selector;
+        private PersonModel[] secondaryIndex0;
+        private Func<PersonModel, string> secondaryIndex0Selector;
+        private PersonModel[] secondaryIndex1;
+        private Func<PersonModel, (string FirstName, string LastName)> secondaryIndex1Selector;
+        private PersonModel[] secondaryIndex2;
+        private Func<PersonModel, string> secondaryIndex2Selector;
 
         public PersonModelTable(PersonModel[] sortedData)
             : base(sortedData)
         {
             this.primaryIndexSelector = x => x.RandomId;
-            this.secondaryIndex0Selector = x => x.LastName;
-            this.secondaryIndex0 = CloneAndSortBy(this.secondaryIndex0Selector, System.StringComparer.Ordinal);
-            this.secondaryIndex1Selector = x => (x.FirstName, x.LastName);
-            this.secondaryIndex1 = CloneAndSortBy(this.secondaryIndex1Selector, System.Collections.Generic.Comparer<(string FirstName, string LastName)>.Default);
-            this.secondaryIndex2Selector = x => x.FirstName;
-            this.secondaryIndex2 = CloneAndSortBy(this.secondaryIndex2Selector, System.StringComparer.Ordinal);
+            var tasks = new List<Task>();
+            tasks.Add(Task.Run(() =>
+            {
+                this.secondaryIndex0Selector = x => x.LastName;
+                this.secondaryIndex0 = CloneAndSortBy(this.secondaryIndex0Selector, System.StringComparer.Ordinal);
+            }));
+            tasks.Add(Task.Run(() =>
+            {
+                this.secondaryIndex1Selector = x => (x.FirstName, x.LastName);
+                this.secondaryIndex1 = CloneAndSortBy(this.secondaryIndex1Selector, System.Collections.Generic.Comparer<(string FirstName, string LastName)>.Default);
+            }));
+            tasks.Add(Task.Run(() =>
+            {
+                this.secondaryIndex2Selector = x => x.FirstName;
+                this.secondaryIndex2 = CloneAndSortBy(this.secondaryIndex2Selector, System.StringComparer.Ordinal);
+            }));
+            Task.WhenAll(tasks).Wait();
             OnAfterConstruct();
         }
 

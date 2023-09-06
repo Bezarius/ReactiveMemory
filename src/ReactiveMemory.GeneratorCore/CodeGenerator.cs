@@ -153,7 +153,7 @@ namespace ReactiveMemory.GeneratorCore
             var usingStrings = root.DescendantNodes()
                 .OfType<UsingDirectiveSyntax>()
                 .Select(x => x.ToFullString().Trim())
-                .Concat(new[] { "using ReactiveMemory", "using ReactiveMemory.Validation", "using System", "using System.Collections.Generic", "using System.Linq" })
+                .Concat(new[] { "using ReactiveMemory", "using ReactiveMemory.Validation", "using System", "using System.Collections.Generic", "using System.Linq", "using System.Threading.Tasks" })
                 .Concat(ns)
                 .Select(x => x.Trim(';') + ";")
                 .Distinct()

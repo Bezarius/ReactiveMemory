@@ -120,5 +120,6 @@ namespace ReactiveMemory.Tests
             ctx.Database.SampleTable.TryFindById(99, out var sample2);
             sample2.Should().NotBeNull();
         }
+
     }
 }

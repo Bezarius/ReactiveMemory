@@ -8,11 +8,13 @@ namespace ReactiveMemory.Editor
 {
     public class ReactiveMemorySettingsProvider : SettingsProvider
     {
-        public const string PkgName = "ReactiveMemory.Generator";
+        private const string PkgRmGenName = "ReactiveMemory.Generator";
+        private const string PkgMpcName = "Messagepack.Generator";
 
         private SerializedObject _serializedObject;
         private SerializedProperty _reactiveMemoryDirs;
-        private bool _generatorIsInstalled = false;
+        private bool _rmGeneratorIsInstalled;
+        private bool _mpcGeneratorIsInstalled;
 
 
         private const string PreferencesPath = "Project/Reactive Memory";
@@ -38,7 +40,8 @@ namespace ReactiveMemory.Editor
             }
             _serializedObject = new SerializedObject(settings);
             _reactiveMemoryDirs = _serializedObject.FindProperty(nameof(ReactiveMemorySettings.reactiveMemoryDirs));
-            _generatorIsInstalled = NPMHelper.CheckPackageExists(PkgName);
+            _rmGeneratorIsInstalled = NPMHelper.CheckPackageExists(PkgRmGenName);
+            _mpcGeneratorIsInstalled = NPMHelper.CheckPackageExists(PkgMpcName);
         }
 
 
@@ -55,26 +58,44 @@ namespace ReactiveMemory.Editor
             }
 
 
-            if (!_generatorIsInstalled)
+            if (!_rmGeneratorIsInstalled)
             {
-                if (GUILayout.Button("Install"))
+                if (GUILayout.Button("Install Reactive Memory"))
                 {
-                    NPMHelper.InstallPackage(PkgName);
-                    _generatorIsInstalled = NPMHelper.CheckPackageExists(PkgName);
+                    NPMHelper.InstallPackage(PkgRmGenName);
+                    _rmGeneratorIsInstalled = NPMHelper.CheckPackageExists(PkgRmGenName);
                 }
                     
             }
             else
             {
-                if (GUILayout.Button("Generate"))
+                if (GUILayout.Button("Remove Reactive Memory"))
                 {
-                    ReactiveMemoryGenerator.Run();
+                    NPMHelper.DeletePackage(PkgRmGenName);
+                    _rmGeneratorIsInstalled = NPMHelper.CheckPackageExists(PkgRmGenName);
                 }
-                if (GUILayout.Button("Remove"))
+            }
+
+            if (!_mpcGeneratorIsInstalled)
+            {
+                if(GUILayout.Button("Install MessagePack"))
                 {
-                    NPMHelper.DeletePackage(PkgName);
-                    _generatorIsInstalled = NPMHelper.CheckPackageExists(PkgName);
+                    NPMHelper.InstallPackage(PkgMpcName);
+                    _mpcGeneratorIsInstalled = NPMHelper.CheckPackageExists(PkgMpcName);
                 }
+            }
+            else
+            {
+                if(GUILayout.Button("Remove MessagePack"))
+                {
+                    NPMHelper.DeletePackage(PkgMpcName);
+                    _mpcGeneratorIsInstalled = NPMHelper.CheckPackageExists(PkgMpcName);
+                }
+            }
+            
+            if (_rmGeneratorIsInstalled && _mpcGeneratorIsInstalled && GUILayout.Button("Generate"))
+            {
+                ReactiveMemoryGenerator.Run();
             }
         }
     }

@@ -6,6 +6,7 @@ using ReactiveMemory.Validation;
 using ReactiveMemory;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System;
 
 namespace ReactiveMemory.Tests.Tables
