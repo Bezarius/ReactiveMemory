@@ -28,7 +28,7 @@ IterationCount=1  LaunchCount=1  WarmupCount=1
 |        RocksDbQuery |    580.918 ns |    NA |    98.62 | 0.0792 |    1328 B |          NA |
 
 
-**4700** times faster than SQLite and achieves zero allocation per query. Also the DB size is small. When SQLite is 3560kb then MasterMemory is only 222kb.
+Many times faster than SQLite and achieves zero allocation per query. Also the DB size is small. When SQLite is 3560kb then MasterMemory is only 222kb.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
