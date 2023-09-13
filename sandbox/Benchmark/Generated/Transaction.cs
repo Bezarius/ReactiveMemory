@@ -33,12 +33,13 @@ namespace ReactiveMemory.Benchmark
             {
                 if(_rebuildIsNeeded)
                 {
-                    Commit(false);
+                    Commit();
                 }
                 return memory;
             }
         }
-        MemoryDatabase memory;
+
+        private MemoryDatabase memory;
 
         private IChangesQueue<TestDoc> _TestDocChangeTracker;
  
@@ -55,7 +56,7 @@ namespace ReactiveMemory.Benchmark
  
         }
 
-        public MemoryDatabase Commit(bool withPublish)
+        public MemoryDatabase Commit()
         {
             if(!_rebuildIsNeeded)
             {
@@ -65,6 +66,7 @@ namespace ReactiveMemory.Benchmark
             if(_TestDocChanges != null)
             {
                 TestDocTable = new TestDocTable(CloneAndSortBy(_TestDocChanges, x => x.id, System.Collections.Generic.Comparer<int>.Default));
+                _TestDocChanges = null;
             }
             else
             {
@@ -76,10 +78,6 @@ namespace ReactiveMemory.Benchmark
  
                 memory.ChangesConveyor             
             );
-            if(withPublish)
-            {
-                memory.ChangesConveyor.Publish();
-            }
             _rebuildIsNeeded = false;
             return memory;
         }

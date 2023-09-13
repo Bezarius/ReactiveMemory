@@ -43,13 +43,10 @@ namespace Benchmark
             // run quickly:)
             var baseConfig = Job.ShortRun.WithIterationCount(1).WithWarmupCount(1);
 
-            // Add(baseConfig.With(Runtime.Clr).With(Jit.RyuJit).With(Platform.X64));
-            Add(baseConfig.With(Runtime.Core).With(Jit.RyuJit).With(Platform.X64));
-            // Add(baseConfig.With(InProcessEmitToolchain.Instance));
-
-            Add(MarkdownExporter.GitHub);
-            Add(CsvExporter.Default);
-            Add(MemoryDiagnoser.Default);
+            AddJob(baseConfig.WithJit(Jit.Default).WithPlatform(Platform.X64));
+            AddExporter(MarkdownExporter.GitHub);
+            AddExporter(CsvExporter.Default);
+            AddDiagnoser(MemoryDiagnoser.Default);
         }
     }
 
@@ -134,7 +131,7 @@ namespace Benchmark
         }
 
         [Benchmark(Baseline = true)]
-        public TestDoc MasterMemoryQuery()
+        public TestDoc ReactiveMemoryQuery()
         {
             return db.TestDocTable.FindByid(QueryId);
         }

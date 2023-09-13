@@ -120,15 +120,15 @@ namespace ReactiveMemory.Benchmark
             if(_compositeTransactionIsStarted)
                 return;
 
-            // cast to  MemoryDatabase 
             _database = _transaction.Commit();
-            OnTransactionFinished?.Invoke();
+            IsTransactionStarted = false;
             if(_hashAlg != null)
 			{
 				_data = ToBytes();
 				_hash = _hashAlg.ComputeHash(_data);
 			}
-            IsTransactionStarted = false;
+            _database.ChangesConveyor.Publish();
+            OnTransactionFinished?.Invoke();
         }
 
         public void Rollback()
