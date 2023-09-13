@@ -8,7 +8,7 @@ namespace ReactiveMemory
         public IObservable<EntityChange<TEntity>> OnChange => _observer;
 
         private readonly ChangesConveyor _changesConveyor;
-        private readonly Queue<EntityChange<TEntity>> _entityChanges = new Queue<EntityChange<TEntity>>();
+        private readonly Queue<EntityChange<TEntity>> _entityChanges = new();
         private readonly IChangesMediator<TEntity> _observer;
 
         public ChangesQueue(ChangesConveyor changesConveyor, IChangesMediator<TEntity> observer)
@@ -49,6 +49,12 @@ namespace ReactiveMemory
         public void OnCompleted()
         {
             _observer.OnCompleted();
+        }
+
+        public Action Prepare()
+        {
+            var change = _entityChanges.Dequeue();
+            return () => _observer.OnNext(change);
         }
     }
 }
