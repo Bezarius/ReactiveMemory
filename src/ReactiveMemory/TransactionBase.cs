@@ -18,7 +18,7 @@ namespace ReactiveMemory
         {
             var array = new TElement[elementData.Count];
             var sortSource = new TKey[elementData.Count];
-            for (int i = 0; i < elementData.Count; i++)
+            for (var i = 0; i < elementData.Count; i++)
             {
                 array[i] = elementData[i];
                 sortSource[i] = indexSelector(elementData[i]);
@@ -35,15 +35,13 @@ namespace ReactiveMemory
             if (index >= 0)
             {
                 changesQueue?.EnqueueRemove(array[index]);
-                TElement[] newArray = new TElement[array.Length - 1];
+                var newArray = new TElement[array.Length - 1];
                 Array.Copy(array, 0, newArray, 0, index);
                 Array.Copy(array, index + 1, newArray, index, array.Length - index - 1);
                 return newArray;
             }
-            else
-            {
-                return array; // Key not found, return the original array.
-            }
+
+            return array; // Key not found, return the original array.
         }
 
         protected static List<TElement> RemoveCore<TElement, TKey>(TElement[] array, TKey[] keys,
@@ -76,7 +74,7 @@ namespace ReactiveMemory
             Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue)
         {
             var newList = new List<TElement>(array.Length);
-            bool isUpdated = false;
+            var isUpdated = false;
             for (var i = 0; i < array.Length; i++)
             {
                 if (comparer.Compare(keySelector(array[i]), keySelector(addOrReplaceData)) == 0)
@@ -101,8 +99,8 @@ namespace ReactiveMemory
         }
 
         protected static TElement[] DiffCore<TElement, TKey>(TElement[] array, TElement addOrReplaceData,
-                Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue,
-                bool createNewArray = true)
+            Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue,
+            bool createNewArray = true)
         {
             TElement[] dest;
             if (createNewArray)
@@ -120,12 +118,10 @@ namespace ReactiveMemory
             if (insertionIndex >= 0)
             {
                 // Element found, update the array in place and enqueue the update if allowed
+                var old = dest[insertionIndex];
                 dest[insertionIndex] = addOrReplaceData;
 
-                if (changesQueue != null)
-                {
-                    changesQueue.EnqueueUpdate(addOrReplaceData, array[insertionIndex]);
-                }
+                changesQueue?.EnqueueUpdate(addOrReplaceData, old);
             }
             else
             {
@@ -136,10 +132,7 @@ namespace ReactiveMemory
                 newArray[insertionIndex] = addOrReplaceData;
                 Array.Copy(dest, insertionIndex, newArray, insertionIndex + 1, dest.Length - insertionIndex);
                 dest = newArray;
-                if (changesQueue != null)
-                {
-                    changesQueue.EnqueueAdd(addOrReplaceData);
-                }
+                changesQueue?.EnqueueAdd(addOrReplaceData);
             }
 
             return dest;
@@ -148,13 +141,14 @@ namespace ReactiveMemory
 
         protected static TElement[] DiffCore<TElement, TKey>(TElement[] array, TElement[] addOrReplaceData,
             Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue,
-                bool createNewArray = true)
+            bool createNewArray = true)
         {
             TElement[] dest = null;
             for (var i = 0; i < addOrReplaceData.Length; i++)
             {
                 dest = DiffCore(array, addOrReplaceData[i], keySelector, comparer, changesQueue, createNewArray);
             }
+
             return dest;
         }
     }
