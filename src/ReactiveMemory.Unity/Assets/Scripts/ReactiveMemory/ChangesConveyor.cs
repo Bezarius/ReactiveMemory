@@ -5,8 +5,8 @@ namespace ReactiveMemory
 {
     public class ChangesConveyor : IDisposable
     {
-        private readonly SparseSet<IDbChangesPublisher> _dbChangesPublishers = new();
-        private readonly Queue<IDbChangesPublisher> _publishersQueue = new();
+        private readonly SparseSet<IDbChangesPublisher> _dbChangesPublishers = new SparseSet<IDbChangesPublisher>();
+        private readonly Queue<IDbChangesPublisher> _publishersQueue = new Queue<IDbChangesPublisher>();
         private readonly IChangesMediatorFactory _changesMediatorFactory;
 
         public ChangesConveyor(IChangesMediatorFactory changesMediatorFactory)
@@ -16,7 +16,7 @@ namespace ReactiveMemory
 
         public IChangesQueue<TElement> GetQueue<TElement>()
         {
-            if(_changesMediatorFactory == null)
+            if (_changesMediatorFactory == null)
                 return null;
 
             var typeId = TypeId<TElement>.Id;
@@ -27,15 +27,15 @@ namespace ReactiveMemory
             var publisher = _dbChangesPublishers[typeId];
             return publisher as IChangesQueue<TElement>;
         }
-        
+
         internal void Enqueue(IDbChangesPublisher publisher)
         {
             _publishersQueue.Enqueue(publisher);
         }
 
         private bool _isPublishing;
-        
-        private readonly Queue<Queue<Action>> _publishActionQueue = new();
+
+        private readonly Queue<Queue<Action>> _publishActionQueue = new Queue<Queue<Action>>();
 
         private Queue<Action> PrepareToPublish()
         {
@@ -48,7 +48,7 @@ namespace ReactiveMemory
             }
             return q;
         }
-        
+
         // todo: right now ChangesConveyor know nothing about transaction and that problem for design of the ReactiveMemory
         // i should rework it to make Publish() method transactional with simple logic 
         public void Publish()
@@ -57,17 +57,17 @@ namespace ReactiveMemory
             // so we should enqueue all publishers before publishing to preserve them
             // when we publish we can change db and this will lead to publishing of other modifications
             // but is some cases changes could be rolled back and we should clean queue, because it shared, changes could be cleared
-            
+
             var preparation = PrepareToPublish();
-            if(preparation.Count > 0)
+            if (preparation.Count > 0)
                 _publishActionQueue.Enqueue(preparation);
-            
+
             // this flag is needed to prevent recursive calls
             // because PublishNext() can lead to changes in db
             // and this will lead to recursive call of Publish()
             // recursive call of Publish() could lead to order disorder
-            if(_isPublishing) return;
-            
+            if (_isPublishing) return;
+
             _isPublishing = true;
 
             while (_publishActionQueue.Count > 0)
@@ -79,7 +79,7 @@ namespace ReactiveMemory
                     action.Invoke();
                 }
             }
-            
+
             _isPublishing = false;
         }
 

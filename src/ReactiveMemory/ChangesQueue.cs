@@ -50,5 +50,11 @@ namespace ReactiveMemory
         {
             _observer.OnCompleted();
         }
+
+        public Action Prepare()
+        {
+            var change = _entityChanges.Dequeue();
+            return () => _observer.OnNext(change);
+        }
     }
 }
