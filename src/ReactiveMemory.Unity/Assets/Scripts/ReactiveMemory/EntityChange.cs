@@ -25,7 +25,8 @@ namespace ReactiveMemory
 
         public bool IsChanged<TProp>(Func<TEntity, TProp> selector)
         {
-            return Comparer<TProp>.Default.Compare(selector(Entity), selector(Old)) != 0;
+            return Change != EEntityChangeType.Update ||
+                Comparer<TProp>.Default.Compare(selector(Entity), selector(Old)) != 0;
         }
     }
 }
