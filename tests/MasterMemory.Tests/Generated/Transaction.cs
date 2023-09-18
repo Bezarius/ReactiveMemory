@@ -309,25 +309,14 @@ namespace ReactiveMemory.Tests
 
         public void RemoveFail(int[] keys)
         {
-            var data = RemoveCore(memory.FailTable.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _FailChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new FailTable(newData);
-            memory = new MemoryDatabase(
-                table,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor             
-            );
+            if(_FailChanges == null)
+            {
+                _FailChanges = RemoveCore(memory.FailTable.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _FailChangeTracker);
+            }
+            else
+            {
+                _FailChanges = RemoveCore(_FailChanges, keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _FailChangeTracker);
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -380,25 +369,14 @@ namespace ReactiveMemory.Tests
 
         public void RemoveItemMaster(int[] keys)
         {
-            var data = RemoveCore(memory.ItemMasterTable.GetRawDataUnsafe(), keys, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new ItemMasterTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                table,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor             
-            );
+            if(_ItemMasterChanges == null)
+            {
+                _ItemMasterChanges = RemoveCore(memory.ItemMasterTable.GetRawDataUnsafe(), keys, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterChangeTracker);
+            }
+            else
+            {
+                _ItemMasterChanges = RemoveCore(_ItemMasterChanges, keys, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterChangeTracker);
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -451,25 +429,14 @@ namespace ReactiveMemory.Tests
 
         public void RemoveItemMasterEmptyValidate(int[] keys)
         {
-            var data = RemoveCore(memory.ItemMasterEmptyValidateTable.GetRawDataUnsafe(), keys, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterEmptyValidateChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new ItemMasterEmptyValidateTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                table,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor             
-            );
+            if(_ItemMasterEmptyValidateChanges == null)
+            {
+                _ItemMasterEmptyValidateChanges = RemoveCore(memory.ItemMasterEmptyValidateTable.GetRawDataUnsafe(), keys, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterEmptyValidateChangeTracker);
+            }
+            else
+            {
+                _ItemMasterEmptyValidateChanges = RemoveCore(_ItemMasterEmptyValidateChanges, keys, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemMasterEmptyValidateChangeTracker);
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -522,25 +489,14 @@ namespace ReactiveMemory.Tests
 
         public void RemovePersonModel(string[] keys)
         {
-            var data = RemoveCore(memory.PersonModelTable.GetRawDataUnsafe(), keys, x => x.RandomId, System.StringComparer.Ordinal, _PersonModelChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.RandomId, System.StringComparer.Ordinal);
-            var table = new PersonModelTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                table,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor             
-            );
+            if(_PersonModelChanges == null)
+            {
+                _PersonModelChanges = RemoveCore(memory.PersonModelTable.GetRawDataUnsafe(), keys, x => x.RandomId, System.StringComparer.Ordinal, _PersonModelChangeTracker);
+            }
+            else
+            {
+                _PersonModelChanges = RemoveCore(_PersonModelChanges, keys, x => x.RandomId, System.StringComparer.Ordinal, _PersonModelChangeTracker);
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -593,25 +549,14 @@ namespace ReactiveMemory.Tests
 
         public void RemoveQuestMaster(int[] keys)
         {
-            var data = RemoveCore(memory.QuestMasterTable.GetRawDataUnsafe(), keys, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new QuestMasterTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                table,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor             
-            );
+            if(_QuestMasterChanges == null)
+            {
+                _QuestMasterChanges = RemoveCore(memory.QuestMasterTable.GetRawDataUnsafe(), keys, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterChangeTracker);
+            }
+            else
+            {
+                _QuestMasterChanges = RemoveCore(_QuestMasterChanges, keys, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterChangeTracker);
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -664,25 +609,14 @@ namespace ReactiveMemory.Tests
 
         public void RemoveQuestMasterEmptyValidate(int[] keys)
         {
-            var data = RemoveCore(memory.QuestMasterEmptyValidateTable.GetRawDataUnsafe(), keys, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterEmptyValidateChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new QuestMasterEmptyValidateTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                table,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor             
-            );
+            if(_QuestMasterEmptyValidateChanges == null)
+            {
+                _QuestMasterEmptyValidateChanges = RemoveCore(memory.QuestMasterEmptyValidateTable.GetRawDataUnsafe(), keys, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterEmptyValidateChangeTracker);
+            }
+            else
+            {
+                _QuestMasterEmptyValidateChanges = RemoveCore(_QuestMasterEmptyValidateChanges, keys, x => x.QuestId, System.Collections.Generic.Comparer<int>.Default, _QuestMasterEmptyValidateChangeTracker);
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -735,25 +669,14 @@ namespace ReactiveMemory.Tests
 
         public void RemoveSample(int[] keys)
         {
-            var data = RemoveCore(memory.SampleTable.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SampleChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new SampleTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                table,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor             
-            );
+            if(_SampleChanges == null)
+            {
+                _SampleChanges = RemoveCore(memory.SampleTable.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SampleChangeTracker);
+            }
+            else
+            {
+                _SampleChanges = RemoveCore(_SampleChanges, keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SampleChangeTracker);
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -806,25 +729,14 @@ namespace ReactiveMemory.Tests
 
         public void RemoveSequentialCheckMaster(int[] keys)
         {
-            var data = RemoveCore(memory.SequentialCheckMasterTable.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SequentialCheckMasterChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new SequentialCheckMasterTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                table,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor             
-            );
+            if(_SequentialCheckMasterChanges == null)
+            {
+                _SequentialCheckMasterChanges = RemoveCore(memory.SequentialCheckMasterTable.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SequentialCheckMasterChangeTracker);
+            }
+            else
+            {
+                _SequentialCheckMasterChanges = RemoveCore(_SequentialCheckMasterChanges, keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SequentialCheckMasterChangeTracker);
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -877,25 +789,14 @@ namespace ReactiveMemory.Tests
 
         public void RemoveSingleMaster(int[] keys)
         {
-            var data = RemoveCore(memory.SingleMasterTable.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SingleMasterChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new SingleMasterTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                table,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor             
-            );
+            if(_SingleMasterChanges == null)
+            {
+                _SingleMasterChanges = RemoveCore(memory.SingleMasterTable.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SingleMasterChangeTracker);
+            }
+            else
+            {
+                _SingleMasterChanges = RemoveCore(_SingleMasterChanges, keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _SingleMasterChangeTracker);
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -948,25 +849,14 @@ namespace ReactiveMemory.Tests
 
         public void RemoveSkillMaster((int SkillId, int SkillLevel)[] keys)
         {
-            var data = RemoveCore(memory.SkillMasterTable.GetRawDataUnsafe(), keys, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default, _SkillMasterChangeTracker);
-            var newData = CloneAndSortBy(data, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default);
-            var table = new SkillMasterTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                table,
-                memory.TestMasterTable,
-                memory.UserLevelTable,
- 
-                memory.ChangesConveyor             
-            );
+            if(_SkillMasterChanges == null)
+            {
+                _SkillMasterChanges = RemoveCore(memory.SkillMasterTable.GetRawDataUnsafe(), keys, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default, _SkillMasterChangeTracker);
+            }
+            else
+            {
+                _SkillMasterChanges = RemoveCore(_SkillMasterChanges, keys, x => (x.SkillId, x.SkillLevel), System.Collections.Generic.Comparer<(int SkillId, int SkillLevel)>.Default, _SkillMasterChangeTracker);
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -1026,25 +916,14 @@ namespace ReactiveMemory.Tests
 
         public void RemoveUserLevel(int[] keys)
         {
-            var data = RemoveCore(memory.UserLevelTable.GetRawDataUnsafe(), keys, x => x.Level, System.Collections.Generic.Comparer<int>.Default, _UserLevelChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Level, System.Collections.Generic.Comparer<int>.Default);
-            var table = new UserLevelTable(newData);
-            memory = new MemoryDatabase(
-                memory.FailTable,
-                memory.ItemMasterTable,
-                memory.ItemMasterEmptyValidateTable,
-                memory.PersonModelTable,
-                memory.QuestMasterTable,
-                memory.QuestMasterEmptyValidateTable,
-                memory.SampleTable,
-                memory.SequentialCheckMasterTable,
-                memory.SingleMasterTable,
-                memory.SkillMasterTable,
-                memory.TestMasterTable,
-                table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_UserLevelChanges == null)
+            {
+                _UserLevelChanges = RemoveCore(memory.UserLevelTable.GetRawDataUnsafe(), keys, x => x.Level, System.Collections.Generic.Comparer<int>.Default, _UserLevelChangeTracker);
+            }
+            else
+            {
+                _UserLevelChanges = RemoveCore(_UserLevelChanges, keys, x => x.Level, System.Collections.Generic.Comparer<int>.Default, _UserLevelChangeTracker);
+            }
             _rebuildIsNeeded = true;
         }
 

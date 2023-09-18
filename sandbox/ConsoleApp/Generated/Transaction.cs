@@ -14,6 +14,7 @@ using System.Linq.Expressions;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System;
 using ConsoleApp.Tables;
 
@@ -60,7 +61,20 @@ namespace ConsoleApp
 
    public sealed class Transaction : TransactionBase, ITransaction
    {
-        MemoryDatabase memory;
+
+        public MemoryDatabase Database
+        {
+            get
+            {
+                if(_rebuildIsNeeded)
+                {
+                    Commit();
+                }
+                return memory;
+            }
+        }
+
+        private MemoryDatabase memory;
 
         private IChangesQueue<EnumKeyTable> _EnumKeyTableChangeTracker;
         private IChangesQueue<Item> _ItemChangeTracker;
@@ -70,6 +84,17 @@ namespace ConsoleApp
         private IChangesQueue<Test1> _Test1ChangeTracker;
         private IChangesQueue<Test2> _Test2ChangeTracker;
  
+
+        private EnumKeyTable[] _EnumKeyTableChanges;
+        private Item[] _ItemChanges;
+        private Monster[] _MonsterChanges;
+        private Person[] _PersonChanges;
+        private Quest[] _QuestChanges;
+        private Test1[] _Test1Changes;
+        private Test2[] _Test2Changes;
+ 
+
+        private bool _rebuildIsNeeded;
 
         public Transaction(MemoryDatabase memory)
         {
@@ -86,638 +111,514 @@ namespace ConsoleApp
 
         public MemoryDatabase Commit()
         {
-            memory.ChangesConveyor.Publish();
+            if(!_rebuildIsNeeded)
+            {
+                return memory;
+            }
+            EnumKeyTableTable EnumKeyTableTable;
+            if(_EnumKeyTableChanges != null)
+            {
+                EnumKeyTableTable = new EnumKeyTableTable(CloneAndSortBy(_EnumKeyTableChanges, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default));
+                _EnumKeyTableChanges = null;
+            }
+            else
+            {
+                EnumKeyTableTable = memory.EnumKeyTableTable;
+            }
+            ItemTable ItemTable;
+            if(_ItemChanges != null)
+            {
+                ItemTable = new ItemTable(CloneAndSortBy(_ItemChanges, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default));
+                _ItemChanges = null;
+            }
+            else
+            {
+                ItemTable = memory.ItemTable;
+            }
+            MonsterTable MonsterTable;
+            if(_MonsterChanges != null)
+            {
+                MonsterTable = new MonsterTable(CloneAndSortBy(_MonsterChanges, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default));
+                _MonsterChanges = null;
+            }
+            else
+            {
+                MonsterTable = memory.MonsterTable;
+            }
+            PersonTable PersonTable;
+            if(_PersonChanges != null)
+            {
+                PersonTable = new PersonTable(CloneAndSortBy(_PersonChanges, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default));
+                _PersonChanges = null;
+            }
+            else
+            {
+                PersonTable = memory.PersonTable;
+            }
+            QuestTable QuestTable;
+            if(_QuestChanges != null)
+            {
+                QuestTable = new QuestTable(CloneAndSortBy(_QuestChanges, x => x.Id, System.Collections.Generic.Comparer<int>.Default));
+                _QuestChanges = null;
+            }
+            else
+            {
+                QuestTable = memory.QuestTable;
+            }
+            Test1Table Test1Table;
+            if(_Test1Changes != null)
+            {
+                Test1Table = new Test1Table(CloneAndSortBy(_Test1Changes, x => x.Id, System.Collections.Generic.Comparer<int>.Default));
+                _Test1Changes = null;
+            }
+            else
+            {
+                Test1Table = memory.Test1Table;
+            }
+            Test2Table Test2Table;
+            if(_Test2Changes != null)
+            {
+                Test2Table = new Test2Table(CloneAndSortBy(_Test2Changes, x => x.Id, System.Collections.Generic.Comparer<int>.Default));
+                _Test2Changes = null;
+            }
+            else
+            {
+                Test2Table = memory.Test2Table;
+            }
+ 
+            memory = new MemoryDatabase(
+                EnumKeyTableTable,
+                ItemTable,
+                MonsterTable,
+                PersonTable,
+                QuestTable,
+                Test1Table,
+                Test2Table,
+ 
+                memory.ChangesConveyor             
+            );
+            _rebuildIsNeeded = false;
             return memory;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<EnumKeyTable> data)
         {
-            var newData = CloneAndSortBy(data, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
-            var table = new EnumKeyTableTable(newData);
-            memory = new MemoryDatabase(
-                table,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor            
-            );
+            _EnumKeyTableChanges = CloneAndSortBy(data, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
         public void RemoveEnumKeyTable(Gender key)
         {
-            var data = RemoveCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), key, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
-            var table = new EnumKeyTableTable(newData);
-            memory = new MemoryDatabase(
-                table,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
-                memory.ChangesConveyor             
-            );
+            if(_EnumKeyTableChanges == null)
+            {
+                _EnumKeyTableChanges = RemoveCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), key, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker);
+            }
+            else
+            {
+                _EnumKeyTableChanges = RemoveCore(_EnumKeyTableChanges, key, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
 
         public void RemoveEnumKeyTable(Gender[] keys)
         {
-            var data = RemoveCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), keys, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
-            var table = new EnumKeyTableTable(newData);
-            memory = new MemoryDatabase(
-                table,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_EnumKeyTableChanges == null)
+            {
+                _EnumKeyTableChanges = RemoveCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), keys, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker);
+            }
+            else
+            {
+                _EnumKeyTableChanges = RemoveCore(_EnumKeyTableChanges, keys, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(EnumKeyTable addOrReplaceData)
         {
-            var data = DiffCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
-            var table = new EnumKeyTableTable(newData);
-            memory = new MemoryDatabase(
-                table,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_EnumKeyTableChanges == null)
+            {
+                _EnumKeyTableChanges = DiffCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker, true);
+            }
+            else
+            {
+                _EnumKeyTableChanges = DiffCore(_EnumKeyTableChanges, addOrReplaceData, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker, false);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(EnumKeyTable[] addOrReplaceData)
         {
-            var data = DiffCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
-            var table = new EnumKeyTableTable(newData);
-            memory = new MemoryDatabase(
-                table,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_EnumKeyTableChanges == null)
+            {
+                _EnumKeyTableChanges = DiffCore(memory.EnumKeyTableTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker, true);  
+            }
+            else
+            {
+                _EnumKeyTableChanges = DiffCore(_EnumKeyTableChanges, addOrReplaceData, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default, _EnumKeyTableChangeTracker, false);  
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<Item> data)
         {
-            var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new ItemTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                table,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor            
-            );
+            _ItemChanges = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
         public void RemoveItem(int key)
         {
-            var data = RemoveCore(memory.ItemTable.GetRawDataUnsafe(), key, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new ItemTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                table,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
-                memory.ChangesConveyor             
-            );
+            if(_ItemChanges == null)
+            {
+                _ItemChanges = RemoveCore(memory.ItemTable.GetRawDataUnsafe(), key, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker);
+            }
+            else
+            {
+                _ItemChanges = RemoveCore(_ItemChanges, key, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
 
         public void RemoveItem(int[] keys)
         {
-            var data = RemoveCore(memory.ItemTable.GetRawDataUnsafe(), keys, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new ItemTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                table,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_ItemChanges == null)
+            {
+                _ItemChanges = RemoveCore(memory.ItemTable.GetRawDataUnsafe(), keys, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker);
+            }
+            else
+            {
+                _ItemChanges = RemoveCore(_ItemChanges, keys, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Item addOrReplaceData)
         {
-            var data = DiffCore(memory.ItemTable.GetRawDataUnsafe(), addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new ItemTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                table,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_ItemChanges == null)
+            {
+                _ItemChanges = DiffCore(memory.ItemTable.GetRawDataUnsafe(), addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker, true);
+            }
+            else
+            {
+                _ItemChanges = DiffCore(_ItemChanges, addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker, false);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Item[] addOrReplaceData)
         {
-            var data = DiffCore(memory.ItemTable.GetRawDataUnsafe(), addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new ItemTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                table,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_ItemChanges == null)
+            {
+                _ItemChanges = DiffCore(memory.ItemTable.GetRawDataUnsafe(), addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker, true);  
+            }
+            else
+            {
+                _ItemChanges = DiffCore(_ItemChanges, addOrReplaceData, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default, _ItemChangeTracker, false);  
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<Monster> data)
         {
-            var newData = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new MonsterTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                table,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor            
-            );
+            _MonsterChanges = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
         public void RemoveMonster(int key)
         {
-            var data = RemoveCore(memory.MonsterTable.GetRawDataUnsafe(), key, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new MonsterTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                table,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
-                memory.ChangesConveyor             
-            );
+            if(_MonsterChanges == null)
+            {
+                _MonsterChanges = RemoveCore(memory.MonsterTable.GetRawDataUnsafe(), key, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
+            }
+            else
+            {
+                _MonsterChanges = RemoveCore(_MonsterChanges, key, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
 
         public void RemoveMonster(int[] keys)
         {
-            var data = RemoveCore(memory.MonsterTable.GetRawDataUnsafe(), keys, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new MonsterTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                table,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_MonsterChanges == null)
+            {
+                _MonsterChanges = RemoveCore(memory.MonsterTable.GetRawDataUnsafe(), keys, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
+            }
+            else
+            {
+                _MonsterChanges = RemoveCore(_MonsterChanges, keys, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Monster addOrReplaceData)
         {
-            var data = DiffCore(memory.MonsterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new MonsterTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                table,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_MonsterChanges == null)
+            {
+                _MonsterChanges = DiffCore(memory.MonsterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker, true);
+            }
+            else
+            {
+                _MonsterChanges = DiffCore(_MonsterChanges, addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker, false);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Monster[] addOrReplaceData)
         {
-            var data = DiffCore(memory.MonsterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new MonsterTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                table,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_MonsterChanges == null)
+            {
+                _MonsterChanges = DiffCore(memory.MonsterTable.GetRawDataUnsafe(), addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker, true);  
+            }
+            else
+            {
+                _MonsterChanges = DiffCore(_MonsterChanges, addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker, false);  
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<Person> data)
         {
-            var newData = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new PersonTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                table,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor            
-            );
+            _PersonChanges = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
         public void RemovePerson(int key)
         {
-            var data = RemoveCore(memory.PersonTable.GetRawDataUnsafe(), key, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new PersonTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                table,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
-                memory.ChangesConveyor             
-            );
+            if(_PersonChanges == null)
+            {
+                _PersonChanges = RemoveCore(memory.PersonTable.GetRawDataUnsafe(), key, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
+            }
+            else
+            {
+                _PersonChanges = RemoveCore(_PersonChanges, key, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
 
         public void RemovePerson(int[] keys)
         {
-            var data = RemoveCore(memory.PersonTable.GetRawDataUnsafe(), keys, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new PersonTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                table,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_PersonChanges == null)
+            {
+                _PersonChanges = RemoveCore(memory.PersonTable.GetRawDataUnsafe(), keys, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
+            }
+            else
+            {
+                _PersonChanges = RemoveCore(_PersonChanges, keys, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Person addOrReplaceData)
         {
-            var data = DiffCore(memory.PersonTable.GetRawDataUnsafe(), addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new PersonTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                table,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_PersonChanges == null)
+            {
+                _PersonChanges = DiffCore(memory.PersonTable.GetRawDataUnsafe(), addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker, true);
+            }
+            else
+            {
+                _PersonChanges = DiffCore(_PersonChanges, addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker, false);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Person[] addOrReplaceData)
         {
-            var data = DiffCore(memory.PersonTable.GetRawDataUnsafe(), addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new PersonTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                table,
-                memory.QuestTable,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_PersonChanges == null)
+            {
+                _PersonChanges = DiffCore(memory.PersonTable.GetRawDataUnsafe(), addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker, true);  
+            }
+            else
+            {
+                _PersonChanges = DiffCore(_PersonChanges, addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker, false);  
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<Quest> data)
         {
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new QuestTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                table,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor            
-            );
+            _QuestChanges = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
         public void RemoveQuest(int key)
         {
-            var data = RemoveCore(memory.QuestTable.GetRawDataUnsafe(), key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new QuestTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                table,
-                memory.Test1Table,
-                memory.Test2Table,
-                memory.ChangesConveyor             
-            );
+            if(_QuestChanges == null)
+            {
+                _QuestChanges = RemoveCore(memory.QuestTable.GetRawDataUnsafe(), key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker);
+            }
+            else
+            {
+                _QuestChanges = RemoveCore(_QuestChanges, key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
 
         public void RemoveQuest(int[] keys)
         {
-            var data = RemoveCore(memory.QuestTable.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new QuestTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                table,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_QuestChanges == null)
+            {
+                _QuestChanges = RemoveCore(memory.QuestTable.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker);
+            }
+            else
+            {
+                _QuestChanges = RemoveCore(_QuestChanges, keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Quest addOrReplaceData)
         {
-            var data = DiffCore(memory.QuestTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new QuestTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                table,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_QuestChanges == null)
+            {
+                _QuestChanges = DiffCore(memory.QuestTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker, true);
+            }
+            else
+            {
+                _QuestChanges = DiffCore(_QuestChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker, false);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Quest[] addOrReplaceData)
         {
-            var data = DiffCore(memory.QuestTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new QuestTable(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                table,
-                memory.Test1Table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_QuestChanges == null)
+            {
+                _QuestChanges = DiffCore(memory.QuestTable.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker, true);  
+            }
+            else
+            {
+                _QuestChanges = DiffCore(_QuestChanges, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _QuestChangeTracker, false);  
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<Test1> data)
         {
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new Test1Table(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor            
-            );
+            _Test1Changes = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
         public void RemoveTest1(int key)
         {
-            var data = RemoveCore(memory.Test1Table.GetRawDataUnsafe(), key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new Test1Table(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                table,
-                memory.Test2Table,
-                memory.ChangesConveyor             
-            );
+            if(_Test1Changes == null)
+            {
+                _Test1Changes = RemoveCore(memory.Test1Table.GetRawDataUnsafe(), key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker);
+            }
+            else
+            {
+                _Test1Changes = RemoveCore(_Test1Changes, key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
 
         public void RemoveTest1(int[] keys)
         {
-            var data = RemoveCore(memory.Test1Table.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new Test1Table(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_Test1Changes == null)
+            {
+                _Test1Changes = RemoveCore(memory.Test1Table.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker);
+            }
+            else
+            {
+                _Test1Changes = RemoveCore(_Test1Changes, keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Test1 addOrReplaceData)
         {
-            var data = DiffCore(memory.Test1Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new Test1Table(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_Test1Changes == null)
+            {
+                _Test1Changes = DiffCore(memory.Test1Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker, true);
+            }
+            else
+            {
+                _Test1Changes = DiffCore(_Test1Changes, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker, false);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Test1[] addOrReplaceData)
         {
-            var data = DiffCore(memory.Test1Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new Test1Table(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                table,
-                memory.Test2Table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_Test1Changes == null)
+            {
+                _Test1Changes = DiffCore(memory.Test1Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker, true);  
+            }
+            else
+            {
+                _Test1Changes = DiffCore(_Test1Changes, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test1ChangeTracker, false);  
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<Test2> data)
         {
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new Test2Table(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                table,
- 
-                memory.ChangesConveyor            
-            );
+            _Test2Changes = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
         public void RemoveTest2(int key)
         {
-            var data = RemoveCore(memory.Test2Table.GetRawDataUnsafe(), key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new Test2Table(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                table,
-                memory.ChangesConveyor             
-            );
+            if(_Test2Changes == null)
+            {
+                _Test2Changes = RemoveCore(memory.Test2Table.GetRawDataUnsafe(), key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker);
+            }
+            else
+            {
+                _Test2Changes = RemoveCore(_Test2Changes, key, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
 
         public void RemoveTest2(int[] keys)
         {
-            var data = RemoveCore(memory.Test2Table.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new Test2Table(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_Test2Changes == null)
+            {
+                _Test2Changes = RemoveCore(memory.Test2Table.GetRawDataUnsafe(), keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker);
+            }
+            else
+            {
+                _Test2Changes = RemoveCore(_Test2Changes, keys, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Test2 addOrReplaceData)
         {
-            var data = DiffCore(memory.Test2Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new Test2Table(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_Test2Changes == null)
+            {
+                _Test2Changes = DiffCore(memory.Test2Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker, true);
+            }
+            else
+            {
+                _Test2Changes = DiffCore(_Test2Changes, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker, false);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Test2[] addOrReplaceData)
         {
-            var data = DiffCore(memory.Test2Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new Test2Table(newData);
-            memory = new MemoryDatabase(
-                memory.EnumKeyTableTable,
-                memory.ItemTable,
-                memory.MonsterTable,
-                memory.PersonTable,
-                memory.QuestTable,
-                memory.Test1Table,
-                table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_Test2Changes == null)
+            {
+                _Test2Changes = DiffCore(memory.Test2Table.GetRawDataUnsafe(), addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker, true);  
+            }
+            else
+            {
+                _Test2Changes = DiffCore(_Test2Changes, addOrReplaceData, x => x.Id, System.Collections.Generic.Comparer<int>.Default, _Test2ChangeTracker, false);  
+            }
+            _rebuildIsNeeded = true;
         }
 
     }

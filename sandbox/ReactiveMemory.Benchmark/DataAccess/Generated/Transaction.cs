@@ -34,7 +34,20 @@ namespace ReactiveMemory.Benchmark
 
    public sealed class Transaction : TransactionBase, ITransaction
    {
-        MemoryDatabase memory;
+
+        public MemoryDatabase Database
+        {
+            get
+            {
+                if(_rebuildIsNeeded)
+                {
+                    Commit();
+                }
+                return memory;
+            }
+        }
+
+        private MemoryDatabase memory;
 
         private IChangesQueue<Monster> _MonsterChangeTracker;
         private IChangesQueue<Person> _PersonChangeTracker;
@@ -45,6 +58,8 @@ namespace ReactiveMemory.Benchmark
         private Person[] _PersonChanges;
         private PersonStruct[] _PersonStructChanges;
  
+
+        private bool _rebuildIsNeeded;
 
         public Transaction(MemoryDatabase memory)
         {
@@ -57,10 +72,15 @@ namespace ReactiveMemory.Benchmark
 
         public MemoryDatabase Commit()
         {
+            if(!_rebuildIsNeeded)
+            {
+                return memory;
+            }
             MonsterTable MonsterTable;
             if(_MonsterChanges != null)
             {
                 MonsterTable = new MonsterTable(CloneAndSortBy(_MonsterChanges, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default));
+                _MonsterChanges = null;
             }
             else
             {
@@ -70,6 +90,7 @@ namespace ReactiveMemory.Benchmark
             if(_PersonChanges != null)
             {
                 PersonTable = new PersonTable(CloneAndSortBy(_PersonChanges, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default));
+                _PersonChanges = null;
             }
             else
             {
@@ -79,6 +100,7 @@ namespace ReactiveMemory.Benchmark
             if(_PersonStructChanges != null)
             {
                 PersonStructTable = new PersonStructTable(CloneAndSortBy(_PersonStructChanges, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default));
+                _PersonStructChanges = null;
             }
             else
             {
@@ -92,13 +114,14 @@ namespace ReactiveMemory.Benchmark
  
                 memory.ChangesConveyor             
             );
-            memory.ChangesConveyor.Publish();
+            _rebuildIsNeeded = false;
             return memory;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<Monster> data)
         {
             _MonsterChanges = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -112,21 +135,21 @@ namespace ReactiveMemory.Benchmark
             {
                 _MonsterChanges = RemoveCore(_MonsterChanges, key, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
         public void RemoveMonster(int[] keys)
         {
-            var data = RemoveCore(memory.MonsterTable.GetRawDataUnsafe(), keys, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new MonsterTable(newData);
-            memory = new MemoryDatabase(
-                table,
-                memory.PersonTable,
-                memory.PersonStructTable,
- 
-                memory.ChangesConveyor             
-            );
+            if(_MonsterChanges == null)
+            {
+                _MonsterChanges = RemoveCore(memory.MonsterTable.GetRawDataUnsafe(), keys, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
+            }
+            else
+            {
+                _MonsterChanges = RemoveCore(_MonsterChanges, keys, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Monster addOrReplaceData)
@@ -139,6 +162,7 @@ namespace ReactiveMemory.Benchmark
             {
                 _MonsterChanges = DiffCore(_MonsterChanges, addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Monster[] addOrReplaceData)
@@ -151,11 +175,13 @@ namespace ReactiveMemory.Benchmark
             {
                 _MonsterChanges = DiffCore(_MonsterChanges, addOrReplaceData, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default, _MonsterChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<Person> data)
         {
             _PersonChanges = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -169,21 +195,21 @@ namespace ReactiveMemory.Benchmark
             {
                 _PersonChanges = RemoveCore(_PersonChanges, key, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
         public void RemovePerson(int[] keys)
         {
-            var data = RemoveCore(memory.PersonTable.GetRawDataUnsafe(), keys, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new PersonTable(newData);
-            memory = new MemoryDatabase(
-                memory.MonsterTable,
-                table,
-                memory.PersonStructTable,
- 
-                memory.ChangesConveyor             
-            );
+            if(_PersonChanges == null)
+            {
+                _PersonChanges = RemoveCore(memory.PersonTable.GetRawDataUnsafe(), keys, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
+            }
+            else
+            {
+                _PersonChanges = RemoveCore(_PersonChanges, keys, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Person addOrReplaceData)
@@ -196,6 +222,7 @@ namespace ReactiveMemory.Benchmark
             {
                 _PersonChanges = DiffCore(_PersonChanges, addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(Person[] addOrReplaceData)
@@ -208,11 +235,13 @@ namespace ReactiveMemory.Benchmark
             {
                 _PersonChanges = DiffCore(_PersonChanges, addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
         public void ReplaceAll(System.Collections.Generic.IList<PersonStruct> data)
         {
             _PersonStructChanges = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
+            _rebuildIsNeeded = true;
         }
 
         
@@ -226,21 +255,21 @@ namespace ReactiveMemory.Benchmark
             {
                 _PersonStructChanges = RemoveCore(_PersonStructChanges, key, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonStructChangeTracker);
             }
+            _rebuildIsNeeded = true;
         }
 
 
         public void RemovePersonStruct(int[] keys)
         {
-            var data = RemoveCore(memory.PersonStructTable.GetRawDataUnsafe(), keys, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonStructChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
-            var table = new PersonStructTable(newData);
-            memory = new MemoryDatabase(
-                memory.MonsterTable,
-                memory.PersonTable,
-                table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_PersonStructChanges == null)
+            {
+                _PersonStructChanges = RemoveCore(memory.PersonStructTable.GetRawDataUnsafe(), keys, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonStructChangeTracker);
+            }
+            else
+            {
+                _PersonStructChanges = RemoveCore(_PersonStructChanges, keys, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonStructChangeTracker);
+            }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(PersonStruct addOrReplaceData)
@@ -253,6 +282,7 @@ namespace ReactiveMemory.Benchmark
             {
                 _PersonStructChanges = DiffCore(_PersonStructChanges, addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonStructChangeTracker, false);
             }
+            _rebuildIsNeeded = true;
         }
 
         public void Diff(PersonStruct[] addOrReplaceData)
@@ -265,6 +295,7 @@ namespace ReactiveMemory.Benchmark
             {
                 _PersonStructChanges = DiffCore(_PersonStructChanges, addOrReplaceData, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default, _PersonStructChangeTracker, false);  
             }
+            _rebuildIsNeeded = true;
         }
 
     }

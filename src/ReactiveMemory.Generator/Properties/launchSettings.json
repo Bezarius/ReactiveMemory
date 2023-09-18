@@ -1,8 +1,24 @@
 {
   "profiles": {
-    "ReactiveMemory.Generator": {
+    "ConsoleApp": {
       "commandName": "Project",
-      "commandLineArgs": "-i \"E:\\Repositories\\ReactiveMemory\\sandbox\\Benchmark\" -o \"E:\\Repositories\\ReactiveMemory\\sandbox\\Benchmark\\Generated\" -n ReactiveMemory.Benchmark"
+      "commandLineArgs": "-i \"E:\\Repositories\\ReactiveMemory\\sandbox\\ConsoleApp\" -o \"E:\\Repositories\\ReactiveMemory\\sandbox\\ConsoleApp\\Generated\" -n ConsoleApp"
+    },
+    "ReactiveMemory.Tests": {
+      "commandName": "Project",
+      "commandLineArgs": "-i \"E:\\Repositories\\ReactiveMemory\\tests\\MasterMemory.Tests\" -o \"E:\\Repositories\\ReactiveMemory\\tests\\MasterMemory.Tests\\Generated\" -n ReactiveMemory.Tests"
+    },
+    "ReactiveMemory.Benchmark": {
+      "commandName": "Project",
+      "commandLineArgs": "-i \"E:\\Repositories\\ReactiveMemory\\sandbox\\ReactiveMemory.Benchmark\" -o \"E:\\Repositories\\ReactiveMemory\\sandbox\\ReactiveMemory.Benchmark\\DataAccess\\Generated\" -n ReactiveMemory.Benchmark"
+    },
+    "TestPerfLiteDB": {
+      "commandName": "Project",
+      "commandLineArgs": "-i \"E:\\Repositories\\ReactiveMemory\\sandbox\\PerfTest2\" -o \"E:\\Repositories\\ReactiveMemory\\sandbox\\PerfTest2\\Generated\" -n TestPerfLiteDB"
+    },
+    "TestPerfMasterMemory": {
+      "commandName": "Project",
+      "commandLineArgs": "-i \"E:\\Repositories\\ReactiveMemory\\sandbox\\Benchmark\" -o \"E:\\Repositories\\ReactiveMemory\\sandbox\\Benchmark\\Generated\" -n Benchmark"
     }
   }
 }

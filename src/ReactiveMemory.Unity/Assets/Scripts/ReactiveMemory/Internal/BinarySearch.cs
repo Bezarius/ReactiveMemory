@@ -29,6 +29,33 @@ namespace ReactiveMemory.Internal
             return -1;
         }
 
+        public static int FindFirstOrExpectedIndex<T, TKey>(T[] array, TKey key, Func<T, TKey> selector, IComparer<TKey> comparer)
+        {
+            var lo = 0;
+            var hi = array.Length - 1;
+            int expectedIndex = -1;
+
+            while (lo <= hi)
+            {
+                var mid = (int)(((uint)hi + (uint)lo) >> 1);
+                var found = comparer.Compare(selector(array[mid]), key);
+
+                if (found == 0) return mid;
+                if (found < 0)
+                {
+                    lo = mid + 1;
+                    expectedIndex = lo; // Update the expected index
+                }
+                else
+                {
+                    hi = mid - 1;
+                    expectedIndex = hi + 1; // Update the expected index
+                }
+            }
+
+            return -expectedIndex - 1;
+        }
+
         public static int FindFirstIntKey<T>(T[] array, int key, Func<T, int> selector)
         {
             var lo = 0;
@@ -53,6 +80,34 @@ namespace ReactiveMemory.Internal
             }
 
             return -1;
+        }
+
+        public static int FindFirstIntKeyOrExpectedIndex<T>(T[] array, int key, Func<T, int> selector)
+        {
+            var lo = 0;
+            var hi = array.Length - 1;
+            int expectedIndex = -1;
+
+            while (lo <= hi)
+            {
+                var mid = (int)(((uint)hi + (uint)lo) >> 1);
+                var selectedValue = selector(array[mid]);
+                var found = (selectedValue < key) ? -1 : (selectedValue > key) ? 1 : 0;
+
+                if (found == 0) return mid;
+                if (found < 0)
+                {
+                    lo = mid + 1;
+                    expectedIndex = lo; // Update the expected index
+                }
+                else
+                {
+                    hi = mid - 1;
+                    expectedIndex = hi + 1; // Update the expected index
+                }
+            }
+
+            return -expectedIndex - 1;
         }
 
         // lo = 0, hi = Count.
@@ -168,9 +223,9 @@ namespace ReactiveMemory.Internal
 
             var index = lo;         //... index will always be zero or greater
 
-            if ( array.Length <= index)
+            if (array.Length <= index)
             {
-               return array.Length;
+                return array.Length;
             }
 
             // check final
@@ -179,7 +234,7 @@ namespace ReactiveMemory.Internal
                 : -1;
         }
 
- 
+
         //... want the highest index of  Key >= Value
         //... returns -1 if key is < than all values in array
         //... returns array.Length - 1 if key is >= than all values in array
@@ -203,9 +258,9 @@ namespace ReactiveMemory.Internal
 
             var index = (lo == 0) ? 0 : lo - 1;   //... index will always be zero or greater
 
-            if ( index >= array.Length )
+            if (index >= array.Length)
             {
-               return array.Length;
+                return array.Length;
             }
 
             // check final
@@ -213,8 +268,5 @@ namespace ReactiveMemory.Internal
                 ? index
                 : -1;
         }
-
-
-
     }
 }

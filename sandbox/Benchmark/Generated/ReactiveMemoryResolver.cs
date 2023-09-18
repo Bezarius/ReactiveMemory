@@ -11,9 +11,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 using TestPerfLiteDB;
-using ReactiveMemory.Benchmark.Tables;
+using Benchmark.Tables;
 
-namespace ReactiveMemory.Benchmark
+namespace Benchmark
 {
     public class ReactiveMemoryResolver : global::MessagePack.IFormatterResolver
     {

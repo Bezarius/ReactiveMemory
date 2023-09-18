@@ -14,6 +14,7 @@ using System.Linq.Expressions;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System;
 using ConsoleApp.Tables;
 
@@ -60,7 +61,7 @@ namespace ConsoleApp
             this.Test2Table = Test2Table;
         }
 
-        public MemoryDatabase(byte[] databaseBinary, IChangesMediatorFactory changesMediatorFactory, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
+        public MemoryDatabase(byte[] databaseBinary, IChangesMediatorFactory changesMediatorFactory = null, bool internString = true, MessagePack.IFormatterResolver formatterResolver = null, int maxDegreeOfParallelism = 1)
             : base(databaseBinary, changesMediatorFactory, internString, formatterResolver, maxDegreeOfParallelism)
         {
         }

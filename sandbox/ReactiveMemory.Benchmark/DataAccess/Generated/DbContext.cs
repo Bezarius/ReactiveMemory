@@ -18,7 +18,18 @@ namespace ReactiveMemory.Benchmark
    {
         public bool IsTransactionStarted { get; private set; }
         public event Action OnUnauthorizedMemoryModification;
-		public IMemoryDatabase  Database => _database ??= new MemoryDatabase(_data, _changesConveyor, maxDegreeOfParallelism : Environment.ProcessorCount);
+
+        public IMemoryDatabase  Database
+        {
+            get
+            {
+                if (IsTransactionStarted)
+                    return _transaction.Database;
+                return _database ??= new MemoryDatabase(_data, _changesConveyor,
+                    maxDegreeOfParallelism: Environment.ProcessorCount);
+            }
+        }
+
         public ITransaction  Transaction => _transaction;
         public event Action OnTransactionFinished;
 
@@ -107,15 +118,15 @@ namespace ReactiveMemory.Benchmark
             if(_compositeTransactionIsStarted)
                 return;
 
-            // cast to  MemoryDatabase 
             _database = _transaction.Commit();
-            OnTransactionFinished?.Invoke();
+            IsTransactionStarted = false;
             if(_hashAlg != null)
 			{
 				_data = ToBytes();
 				_hash = _hashAlg.ComputeHash(_data);
 			}
-            IsTransactionStarted = false;
+            _database.ChangesConveyor.Publish();
+            OnTransactionFinished?.Invoke();
         }
 
         public void Rollback()

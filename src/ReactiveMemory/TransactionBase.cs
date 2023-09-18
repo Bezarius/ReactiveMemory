@@ -44,63 +44,20 @@ namespace ReactiveMemory
             return array; // Key not found, return the original array.
         }
 
-        protected static List<TElement> RemoveCore<TElement, TKey>(TElement[] array, TKey[] keys,
+        protected static TElement[] RemoveCore<TElement, TKey>(TElement[] array, TKey[] keys,
             Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue)
         {
-            var removeIndexes = new HashSet<int>();
-            foreach (var key in keys)
+            TElement[] dest = null;
+            for (var i = 0; i < keys.Length; i++)
             {
-                var index = BinarySearch.FindFirst(array, key, keySelector, comparer);
-                if (index != -1)
-                {
-                    changesQueue.EnqueueRemove(array[index]);
-                    removeIndexes.Add(index);
-                }
+                dest = RemoveCore(array, keys[i],keySelector, comparer, changesQueue);
             }
-
-            var newList = new List<TElement>(array.Length - removeIndexes.Count);
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (!removeIndexes.Contains(i))
-                {
-                    newList.Add(array[i]);
-                }
-            }
-
-            return newList;
+            return dest;
         }
-
-        protected static List<TElement> DiffCore<TElement, TKey>(TElement[] array, TElement addOrReplaceData,
-            Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue)
-        {
-            var newList = new List<TElement>(array.Length);
-            var isUpdated = false;
-            for (var i = 0; i < array.Length; i++)
-            {
-                if (comparer.Compare(keySelector(array[i]), keySelector(addOrReplaceData)) == 0)
-                {
-                    newList.Add(addOrReplaceData);
-                    isUpdated = true;
-                    changesQueue?.EnqueueUpdate(addOrReplaceData, array[i]);
-                }
-                else
-                {
-                    newList.Add(array[i]);
-                }
-            }
-
-            if (!isUpdated)
-            {
-                newList.Add(addOrReplaceData);
-                changesQueue?.EnqueueAdd(addOrReplaceData);
-            }
-
-            return newList;
-        }
-
+        
         protected static TElement[] DiffCore<TElement, TKey>(TElement[] array, TElement addOrReplaceData,
             Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue,
-            bool createNewArray = true)
+            bool createNewArray)
         {
             TElement[] dest;
             if (createNewArray)
@@ -113,7 +70,7 @@ namespace ReactiveMemory
                 dest = array;
             }
 
-            int insertionIndex = BinarySearch.FindFirst(array, keySelector(addOrReplaceData), keySelector, comparer);
+            var insertionIndex = BinarySearch.FindFirstOrExpectedIndex(array, keySelector(addOrReplaceData), keySelector, comparer);
 
             if (insertionIndex >= 0)
             {
@@ -126,11 +83,26 @@ namespace ReactiveMemory
             else
             {
                 insertionIndex = ~insertionIndex; // Convert the binary search result to the actual insertion index
-
                 var newArray = new TElement[array.Length + 1];
-                Array.Copy(dest, 0, newArray, 0, insertionIndex);
-                newArray[insertionIndex] = addOrReplaceData;
-                Array.Copy(dest, insertionIndex, newArray, insertionIndex + 1, dest.Length - insertionIndex);
+                if (insertionIndex == 0)
+                {
+                    // Insert at the beginning of the array
+                    newArray[0] = addOrReplaceData;
+                    Array.Copy(dest, 0, newArray, 1, dest.Length);
+                }
+                else if (insertionIndex == dest.Length)
+                {
+                    // Insert at the end of the array
+                    Array.Copy(dest, 0, newArray, 0, dest.Length);
+                    newArray[dest.Length] = addOrReplaceData;
+                }
+                else
+                {
+                    // Insert in the middle of the array
+                    Array.Copy(dest, 0, newArray, 0, insertionIndex);
+                    newArray[insertionIndex] = addOrReplaceData;
+                    Array.Copy(dest, insertionIndex, newArray, insertionIndex + 1, dest.Length - insertionIndex);
+                }
                 dest = newArray;
                 changesQueue?.EnqueueAdd(addOrReplaceData);
             }
@@ -147,6 +119,8 @@ namespace ReactiveMemory
             for (var i = 0; i < addOrReplaceData.Length; i++)
             {
                 dest = DiffCore(array, addOrReplaceData[i], keySelector, comparer, changesQueue, createNewArray);
+                // after first iteration we don't need create array anymore
+                createNewArray = false;
             }
 
             return dest;

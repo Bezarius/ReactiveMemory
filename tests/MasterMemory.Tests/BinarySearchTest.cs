@@ -85,7 +85,7 @@ namespace ReactiveMemory.Tests
             };
 
             BinarySearch.FindClosest(source, 0, source.Length, -100, x => x.bound, Comparer<int>.Default, true).Should().Be(-1);
-//          BinarySearch.FindClosest(source, 0, source.Length, -100, x => x.bound, Comparer<int>.Default, true).Should().Be(0);
+            //          BinarySearch.FindClosest(source, 0, source.Length, -100, x => x.bound, Comparer<int>.Default, true).Should().Be(0);
             BinarySearch.FindClosest(source, 0, source.Length, 0, x => x.bound, Comparer<int>.Default, true).Should().Be(0);
             BinarySearch.FindClosest(source, 0, source.Length, 10, x => x.bound, Comparer<int>.Default, true).Should().Be(0);
             BinarySearch.FindClosest(source, 0, source.Length, 50, x => x.bound, Comparer<int>.Default, true).Should().Be(0);
@@ -99,9 +99,40 @@ namespace ReactiveMemory.Tests
             source[BinarySearch.FindClosest(source, 0, source.Length, 1000, x => x.bound, Comparer<int>.Default, true)].id.Should().Be(5);
             source[BinarySearch.FindClosest(source, 0, source.Length, 1001, x => x.bound, Comparer<int>.Default, true)].id.Should().Be(5);
             source[BinarySearch.FindClosest(source, 0, source.Length, 10000, x => x.bound, Comparer<int>.Default, true)].id.Should().Be(5);
-//          source[BinarySearch.FindClosest(source, 0, source.Length, 10000, x => x.bound, Comparer<int>.Default, false)].id.Should().Be(5);
- 
+            //          source[BinarySearch.FindClosest(source, 0, source.Length, 10000, x => x.bound, Comparer<int>.Default, false)].id.Should().Be(5);
+
             BinarySearch.FindClosest(source, 0, source.Length, 10000, x => x.bound, Comparer<int>.Default, false).Should().Be(6);
+        }
+
+        [Fact]
+        public void FindFirstIntKeyWithExpectedIndex()
+        {
+            var array = new[] { 1, 2, 3, 5, 6, 7, 8, 9, 10 }; // 4 is missed
+
+            Search(4).Should().Be(3);
+            Search(11).Should().Be(9);
+            Search(0).Should().Be(0);
+
+            return;
+
+            int Search(int value) => ~BinarySearch.FindFirstIntKeyOrExpectedIndex(array, value, x => x);
+        }
+
+
+        [Fact]
+        public void FindFirstWithExpectedIndex()
+        {
+            var array = new[] { "1", "2", "3", "5", "6", "7", "9" };
+
+            Search("4").Should().Be(3);
+            Search("8").Should().Be(6);
+            Search("0").Should().Be(0);
+            Search("10").Should().Be(1); // because is't string :)
+            Search("21").Should().Be(2);
+
+            return;
+
+            int Search(string value) => ~BinarySearch.FindFirstOrExpectedIndex(array, value, x => x, Comparer<string>.Default);
         }
     }
 }

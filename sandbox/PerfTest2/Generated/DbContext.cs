@@ -5,16 +5,17 @@ using MessagePack;
 using ReactiveMemory.Validation;
 using ReactiveMemory;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System;
 using TestPerfLiteDB;
-using Benchmark.Tables;
+using TestPerfLiteDB.Tables;
 using System.Security.Cryptography;
 
-namespace Benchmark
+namespace TestPerfLiteDB
 {
    public sealed class DbContext  : IDisposable
    {

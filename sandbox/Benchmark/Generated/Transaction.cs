@@ -11,9 +11,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 using TestPerfLiteDB;
-using ReactiveMemory.Benchmark.Tables;
+using Benchmark.Tables;
 
-namespace ReactiveMemory.Benchmark
+namespace Benchmark
 {
    public interface ITransaction
    {
@@ -105,14 +105,14 @@ namespace ReactiveMemory.Benchmark
 
         public void RemoveTestDoc(int[] keys)
         {
-            var data = RemoveCore(memory.TestDocTable.GetRawDataUnsafe(), keys, x => x.id, System.Collections.Generic.Comparer<int>.Default, _TestDocChangeTracker);
-            var newData = CloneAndSortBy(data, x => x.id, System.Collections.Generic.Comparer<int>.Default);
-            var table = new TestDocTable(newData);
-            memory = new MemoryDatabase(
-                table,
- 
-                memory.ChangesConveyor             
-            );
+            if(_TestDocChanges == null)
+            {
+                _TestDocChanges = RemoveCore(memory.TestDocTable.GetRawDataUnsafe(), keys, x => x.id, System.Collections.Generic.Comparer<int>.Default, _TestDocChangeTracker);
+            }
+            else
+            {
+                _TestDocChanges = RemoveCore(_TestDocChanges, keys, x => x.id, System.Collections.Generic.Comparer<int>.Default, _TestDocChangeTracker);
+            }
             _rebuildIsNeeded = true;
         }
 

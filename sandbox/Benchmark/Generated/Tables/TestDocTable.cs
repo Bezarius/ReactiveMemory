@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System;
 using TestPerfLiteDB;
 
-namespace ReactiveMemory.Benchmark.Tables
+namespace Benchmark.Tables
 {
    public sealed partial class TestDocTable : TableBase<TestDoc>, ITableUniqueValidate
    {

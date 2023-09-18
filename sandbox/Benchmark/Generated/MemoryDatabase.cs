@@ -11,9 +11,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 using TestPerfLiteDB;
-using ReactiveMemory.Benchmark.Tables;
+using Benchmark.Tables;
 
-namespace ReactiveMemory.Benchmark
+namespace Benchmark
 {
    public interface IMemoryDatabase
    {
@@ -130,7 +130,7 @@ namespace ReactiveMemory.Benchmark
             if (metaTable != null) return metaTable;
 
             var dict = new Dictionary<string, ReactiveMemory.Meta.MetaTable>();
-            dict.Add("TestDoc", ReactiveMemory.Benchmark.Tables.TestDocTable.CreateMetaTable());
+            dict.Add("TestDoc", Benchmark.Tables.TestDocTable.CreateMetaTable());
 
             metaTable = new ReactiveMemory.Meta.MetaDatabase(dict);
             return metaTable;

@@ -14,6 +14,7 @@ using System.Linq.Expressions;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System;
 
 namespace ConsoleApp.Tables
@@ -23,23 +24,34 @@ namespace ConsoleApp.Tables
         public Func<Person, int> PrimaryKeySelector => primaryIndexSelector;
         readonly Func<Person, int> primaryIndexSelector;
 
-        readonly Person[] secondaryIndex0;
-        readonly Func<Person, int> secondaryIndex0Selector;
-        readonly Person[] secondaryIndex2;
-        readonly Func<Person, (Gender Gender, int Age)> secondaryIndex2Selector;
-        readonly Person[] secondaryIndex1;
-        readonly Func<Person, Gender> secondaryIndex1Selector;
+        private Person[] secondaryIndex0;
+        private Func<Person, int> secondaryIndex0Selector;
+        private Person[] secondaryIndex2;
+        private Func<Person, (Gender Gender, int Age)> secondaryIndex2Selector;
+        private Person[] secondaryIndex1;
+        private Func<Person, Gender> secondaryIndex1Selector;
 
         public PersonTable(Person[] sortedData)
             : base(sortedData)
         {
             this.primaryIndexSelector = x => x.PersonId;
-            this.secondaryIndex0Selector = x => x.Age;
-            this.secondaryIndex0 = CloneAndSortBy(this.secondaryIndex0Selector, System.Collections.Generic.Comparer<int>.Default);
-            this.secondaryIndex2Selector = x => (x.Gender, x.Age);
-            this.secondaryIndex2 = CloneAndSortBy(this.secondaryIndex2Selector, System.Collections.Generic.Comparer<(Gender Gender, int Age)>.Default);
-            this.secondaryIndex1Selector = x => x.Gender;
-            this.secondaryIndex1 = CloneAndSortBy(this.secondaryIndex1Selector, System.Collections.Generic.Comparer<Gender>.Default);
+            var tasks = new List<Task>();
+            tasks.Add(Task.Run(() =>
+            {
+                this.secondaryIndex0Selector = x => x.Age;
+                this.secondaryIndex0 = CloneAndSortBy(this.secondaryIndex0Selector, System.Collections.Generic.Comparer<int>.Default);
+            }));
+            tasks.Add(Task.Run(() =>
+            {
+                this.secondaryIndex2Selector = x => (x.Gender, x.Age);
+                this.secondaryIndex2 = CloneAndSortBy(this.secondaryIndex2Selector, System.Collections.Generic.Comparer<(Gender Gender, int Age)>.Default);
+            }));
+            tasks.Add(Task.Run(() =>
+            {
+                this.secondaryIndex1Selector = x => x.Gender;
+                this.secondaryIndex1 = CloneAndSortBy(this.secondaryIndex1Selector, System.Collections.Generic.Comparer<Gender>.Default);
+            }));
+            Task.WhenAll(tasks).Wait();
             OnAfterConstruct();
         }
 
