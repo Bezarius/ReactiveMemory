@@ -62,7 +62,7 @@ namespace ReactiveMemory
         protected static TElement FindUniqueCore<TKey>(TElement[] indexArray, Func<TElement, TKey> keySelector, IComparer<TKey> comparer, TKey key, bool throwIfNotFound = true)
         {
             var index = BinarySearch.FindFirst(indexArray, key, keySelector, comparer);
-            if (index != -1)
+            if (index > -1)
             {
                 return indexArray[index];
             }
@@ -80,7 +80,7 @@ namespace ReactiveMemory
         protected static TElement FindUniqueCoreInt(TElement[] indexArray, Func<TElement, int> keySelector, IComparer<int> _, int key, bool throwIfNotFound = true)
         {
             var index = BinarySearch.FindFirstIntKey(indexArray, key, keySelector);
-            if (index != -1)
+            if (index > -1)
             {
                 return indexArray[index];
             }
@@ -97,7 +97,7 @@ namespace ReactiveMemory
         protected static bool TryFindUniqueCore<TKey>(TElement[] indexArray, Func<TElement, TKey> keySelector, IComparer<TKey> comparer, TKey key, out TElement result)
         {
             var index = BinarySearch.FindFirst(indexArray, key, keySelector, comparer);
-            if (index != -1)
+            if (index > -1)
             {
                 result = indexArray[index];
                 return true;
@@ -112,7 +112,7 @@ namespace ReactiveMemory
         protected static bool TryFindUniqueCoreInt(TElement[] indexArray, Func<TElement, int> keySelector, IComparer<int> _, int key, out TElement result)
         {
             var index = BinarySearch.FindFirstIntKey(indexArray, key, keySelector);
-            if (index != -1)
+            if (index > -1)
             {
                 result = indexArray[index];
                 return true;
@@ -127,7 +127,7 @@ namespace ReactiveMemory
         protected static TElement FindUniqueClosestCore<TKey>(TElement[] indexArray, Func<TElement, TKey> keySelector, IComparer<TKey> comparer, TKey key, bool selectLower)
         {
             var index = BinarySearch.FindClosest(indexArray, 0, indexArray.Length, key, keySelector, comparer, selectLower);
-            return (index != -1) ? indexArray[index] : default(TElement);
+            return (index > -1) ? indexArray[index] : default(TElement);
         }
 
         protected static RangeView<TElement> FindUniqueRangeCore<TKey>(TElement[] indexArray, Func<TElement, TKey> keySelector, IComparer<TKey> comparer, TKey min, TKey max, bool ascendant)
@@ -135,7 +135,7 @@ namespace ReactiveMemory
             var lo = BinarySearch.FindClosest(indexArray, 0, indexArray.Length, min, keySelector, comparer, false);
             var hi = BinarySearch.FindClosest(indexArray, 0, indexArray.Length, max, keySelector, comparer, true);
 
-            if ( lo == -1 ) lo = 0;
+            if ( lo < 0 ) lo = 0;
             if ( hi == indexArray.Length ) hi -= 1;
 
             return new RangeView<TElement>(indexArray, lo, hi, ascendant);
@@ -146,10 +146,10 @@ namespace ReactiveMemory
         protected static RangeView<TElement> FindManyCore<TKey>(TElement[] indexKeys, Func<TElement, TKey> keySelector, IComparer<TKey> comparer, TKey key)
         {
             var lo = BinarySearch.LowerBound(indexKeys, 0, indexKeys.Length, key, keySelector, comparer);
-            if (lo == -1) return RangeView<TElement>.Empty;
+            if (lo < 0) return RangeView<TElement>.Empty;
 
             var hi = BinarySearch.UpperBound(indexKeys, 0, indexKeys.Length, key, keySelector, comparer);
-            if (hi == -1) return RangeView<TElement>.Empty;
+            if (hi < 0) return RangeView<TElement>.Empty;
 
             return new RangeView<TElement>(indexKeys, lo, hi, true);
         }
@@ -158,7 +158,7 @@ namespace ReactiveMemory
         {
             var closest = BinarySearch.FindClosest(indexArray, 0, indexArray.Length, key, keySelector, comparer, selectLower);
 
-            if ((closest == -1) || ( closest >= indexArray.Length ))
+            if ((closest < 0) || ( closest >= indexArray.Length ))
                 return RangeView<TElement>.Empty;
 
             return FindManyCore(indexArray, keySelector, comparer, keySelector(indexArray[closest]));

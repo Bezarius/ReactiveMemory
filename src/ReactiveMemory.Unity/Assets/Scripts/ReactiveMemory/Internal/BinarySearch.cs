@@ -12,7 +12,7 @@ namespace ReactiveMemory.Internal
 
             while (lo <= hi)
             {
-                var mid = (int)(((uint)hi + (uint)lo) >> 1);
+                var mid = (hi + lo) >> 1;
                 var found = comparer.Compare(selector(array[mid]), key);
 
                 if (found == 0) return mid;
@@ -26,35 +26,10 @@ namespace ReactiveMemory.Internal
                 }
             }
 
-            return -1;
+            // Key not found, return the expected insertion point as a negative value
+            return ~lo;
         }
 
-        public static int FindFirstOrExpectedIndex<T, TKey>(T[] array, TKey key, Func<T, TKey> selector, IComparer<TKey> comparer)
-        {
-            var lo = 0;
-            var hi = array.Length - 1;
-            int expectedIndex = -1;
-
-            while (lo <= hi)
-            {
-                var mid = (int)(((uint)hi + (uint)lo) >> 1);
-                var found = comparer.Compare(selector(array[mid]), key);
-
-                if (found == 0) return mid;
-                if (found < 0)
-                {
-                    lo = mid + 1;
-                    expectedIndex = lo; // Update the expected index
-                }
-                else
-                {
-                    hi = mid - 1;
-                    expectedIndex = hi + 1; // Update the expected index
-                }
-            }
-
-            return -expectedIndex - 1;
-        }
 
         public static int FindFirstIntKey<T>(T[] array, int key, Func<T, int> selector)
         {

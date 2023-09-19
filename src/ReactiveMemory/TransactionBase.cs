@@ -73,8 +73,8 @@ namespace ReactiveMemory
                 dest = array;
             }
 
-            var insertionIndex =
-                BinarySearch.FindFirstOrExpectedIndex(array, keySelector(addOrReplaceData), keySelector, comparer);
+            var insertionIndex = 
+                BinarySearch.FindFirst(array, keySelector(addOrReplaceData), keySelector, comparer);
 
             if (insertionIndex >= 0)
             {

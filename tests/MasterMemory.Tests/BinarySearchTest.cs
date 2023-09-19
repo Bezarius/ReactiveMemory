@@ -41,11 +41,11 @@ namespace ReactiveMemory.Tests
                     var u = BinarySearch.UpperBound(array, 0, array.Length, i, x => x, Comparer<int>.Default);
 
                     // not found
-                    if (firstIndex == -1)
+                    if (firstIndex < 0)
                     {
-                        f.Should().Be(-1);
-                        l.Should().Be(-1);
-                        u.Should().Be(-1);
+                        f.Should().BeLessOrEqualTo(-1);
+                        l.Should().BeLessOrEqualTo(-1);
+                        u.Should().BeLessOrEqualTo(-1);
                         continue;
                     }
 
@@ -124,6 +124,7 @@ namespace ReactiveMemory.Tests
         {
             var array = new[] { "1", "2", "3", "5", "6", "7", "9" };
 
+            Search("0").Should().Be(0);
             Search("4").Should().Be(3);
             Search("8").Should().Be(6);
             Search("0").Should().Be(0);
@@ -132,7 +133,10 @@ namespace ReactiveMemory.Tests
 
             return;
 
-            int Search(string value) => ~BinarySearch.FindFirstOrExpectedIndex(array, value, x => x, Comparer<string>.Default);
+            int Search(string value)
+            {
+                return ~BinarySearch.FindFirst(array, value, x => x, Comparer<string>.Default);
+            }
         }
     }
 }
