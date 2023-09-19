@@ -47,14 +47,17 @@ namespace ReactiveMemory
         protected static TElement[] RemoveCore<TElement, TKey>(TElement[] array, TKey[] keys,
             Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue)
         {
-            TElement[] dest = null;
-            for (var i = 0; i < keys.Length; i++)
+            if (keys == null || keys.Length == 0)
+                return array;
+            
+            var dest = RemoveCore(array, keys[0], keySelector, comparer, changesQueue);
+            for (var i = 1; i < keys.Length; i++)
             {
-                dest = RemoveCore(array, keys[i],keySelector, comparer, changesQueue);
+                dest = RemoveCore(dest, keys[i], keySelector, comparer, changesQueue);
             }
             return dest;
         }
-        
+
         protected static TElement[] DiffCore<TElement, TKey>(TElement[] array, TElement addOrReplaceData,
             Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue,
             bool createNewArray)
@@ -70,7 +73,8 @@ namespace ReactiveMemory
                 dest = array;
             }
 
-            var insertionIndex = BinarySearch.FindFirstOrExpectedIndex(array, keySelector(addOrReplaceData), keySelector, comparer);
+            var insertionIndex =
+                BinarySearch.FindFirstOrExpectedIndex(array, keySelector(addOrReplaceData), keySelector, comparer);
 
             if (insertionIndex >= 0)
             {
@@ -103,6 +107,7 @@ namespace ReactiveMemory
                     newArray[insertionIndex] = addOrReplaceData;
                     Array.Copy(dest, insertionIndex, newArray, insertionIndex + 1, dest.Length - insertionIndex);
                 }
+
                 dest = newArray;
                 changesQueue?.EnqueueAdd(addOrReplaceData);
             }
@@ -115,12 +120,15 @@ namespace ReactiveMemory
             Func<TElement, TKey> keySelector, IComparer<TKey> comparer, IChangesQueue<TElement> changesQueue,
             bool createNewArray = true)
         {
-            TElement[] dest = null;
-            for (var i = 0; i < addOrReplaceData.Length; i++)
+            if (addOrReplaceData == null || addOrReplaceData.Length == 0)
             {
-                dest = DiffCore(array, addOrReplaceData[i], keySelector, comparer, changesQueue, createNewArray);
-                // after first iteration we don't need create array anymore
-                createNewArray = false;
+                return array;
+            }
+
+            var dest = DiffCore(array, addOrReplaceData[0], keySelector, comparer, changesQueue, createNewArray);
+            for (var i = 1; i < addOrReplaceData.Length; i++)
+            {
+                dest = DiffCore(dest, addOrReplaceData[i], keySelector, comparer, changesQueue, false);
             }
 
             return dest;

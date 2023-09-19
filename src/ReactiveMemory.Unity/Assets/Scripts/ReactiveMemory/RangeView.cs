@@ -8,42 +8,40 @@ namespace ReactiveMemory
     {
         public struct Enumerator : IEnumerator<T>
         {
-            readonly RangeView<T> rangeView;
-            int index;
-            readonly int count;
-            T current;
+            private readonly RangeView<T> _rangeView;
+            private int _index;
+            private readonly int _count;
+            private T _current;
 
             public Enumerator(RangeView<T> rangeView)
             {
-                this.rangeView = rangeView;
-                index = 0;
-                count = rangeView.Count;
-                current = default;
+                this._rangeView = rangeView;
+                _index = 0;
+                _count = rangeView.Count;
+                _current = default;
             }
 
             public bool MoveNext()
             {
-                if (index < count)
+                if (_index < _count)
                 {
-                    current = rangeView[index];
-                    index++;
+                    _current = _rangeView[_index];
+                    _index++;
                     return true;
                 }
-                else
-                {
-                    current = default;
-                    index = count + 1;
-                    return false;
-                }
+
+                _current = default;
+                _index = _count + 1;
+                return false;
             }
 
             public void Reset()
             {
-                index = 0;
-                current = default;
+                _index = 0;
+                _current = default;
             }
 
-            public T Current => current;
+            public T Current => _current;
 
             object IEnumerator.Current => Current;
 
@@ -52,20 +50,20 @@ namespace ReactiveMemory
 
         public static RangeView<T> Empty => new RangeView<T>(null, -1, -1, false);
 
-        readonly T[] orderedData;
-        readonly int left;
-        readonly int right;
-        readonly bool ascendant;
-        readonly bool hasValue;
+        private readonly T[] _orderedData;
+        private readonly int _left;
+        private readonly int _right;
+        private readonly bool _ascendant;
+        private readonly bool _hasValue;
 
-        public int Count => (!hasValue) ? 0 : (right - left) + 1;
+        public int Count => !_hasValue ? 0 : _right - _left + 1;
         public T First => this[0];
         public T Last => this[Count - 1];
 
-        public RangeView<T> Reverse => new RangeView<T>(orderedData, left, right, !ascendant);
+        public RangeView<T> Reverse => new RangeView<T>(_orderedData, _left, _right, !_ascendant);
 
-        internal int FirstIndex => ascendant ? left : right;
-        internal int LastIndex => ascendant ? right : left;
+        internal int FirstIndex => _ascendant ? _left : _right;
+        internal int LastIndex => _ascendant ? _right : _left;
 
         bool ICollection<T>.IsReadOnly => true;
 
@@ -73,28 +71,21 @@ namespace ReactiveMemory
         {
             get
             {
-                if (!hasValue) throw new ArgumentOutOfRangeException("view is empty");
+                if (!_hasValue) throw new ArgumentOutOfRangeException("view is empty");
                 if (index < 0) throw new ArgumentOutOfRangeException("index < 0");
                 if (Count <= index) throw new ArgumentOutOfRangeException("count <= index");
 
-                if (ascendant)
-                {
-                    return orderedData[left + index];
-                }
-                else
-                {
-                    return orderedData[right - index];
-                }
+                return _ascendant ? _orderedData[_left + index] : _orderedData[_right - index];
             }
         }
 
         public RangeView(T[] orderedData, int left, int right, bool ascendant)
         {
-            this.hasValue = (orderedData != null) && (orderedData.Length != 0) && (left <= right); // same index is length = 1            this.orderedData = orderedData;
-            this.orderedData = orderedData;
-            this.left = left;
-            this.right = right;
-            this.ascendant = ascendant;
+            _hasValue = orderedData != null && orderedData.Length != 0 && left <= right; // same index is length = 1            this.orderedData = orderedData;
+            _orderedData = orderedData;
+            _left = left;
+            _right = right;
+            _ascendant = ascendant;
         }
 
         public Enumerator GetEnumerator()
@@ -148,8 +139,8 @@ namespace ReactiveMemory
         public void CopyTo(T[] array, int arrayIndex)
         {
             var count = Count;
-            Array.Copy(orderedData, left, array, arrayIndex, count);
-            if (!ascendant)
+            Array.Copy(_orderedData, _left, array, arrayIndex, count);
+            if (!_ascendant)
             {
                 Array.Reverse(array, arrayIndex, count);
             }
@@ -157,14 +148,8 @@ namespace ReactiveMemory
 
         T IList<T>.this[int index]
         {
-            get
-            {
-                return this[index];
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get => this[index];
+            set => throw new NotImplementedException();
         }
 
         void IList<T>.Insert(int index, T item)
