@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Debug = UnityEngine.Debug;
 
 namespace ReactiveMemory.Editor
 {
@@ -38,6 +40,7 @@ namespace ReactiveMemory.Editor
             {
                 Debug.LogError("ReactiveMemorySettings not found, create it.");
             }
+
             _serializedObject = new SerializedObject(settings);
             _reactiveMemoryDirs = _serializedObject.FindProperty(nameof(ReactiveMemorySettings.reactiveMemoryDirs));
             _rmGeneratorIsInstalled = NPMHelper.CheckPackageExists(PkgRmGenName);
@@ -65,7 +68,6 @@ namespace ReactiveMemory.Editor
                     NPMHelper.InstallPackage(PkgRmGenName);
                     _rmGeneratorIsInstalled = NPMHelper.CheckPackageExists(PkgRmGenName);
                 }
-                    
             }
             else
             {
@@ -78,7 +80,7 @@ namespace ReactiveMemory.Editor
 
             if (!_mpcGeneratorIsInstalled)
             {
-                if(GUILayout.Button("Install MessagePack"))
+                if (GUILayout.Button("Install MessagePack"))
                 {
                     NPMHelper.InstallPackage(PkgMpcName);
                     _mpcGeneratorIsInstalled = NPMHelper.CheckPackageExists(PkgMpcName);
@@ -86,39 +88,78 @@ namespace ReactiveMemory.Editor
             }
             else
             {
-                if(GUILayout.Button("Remove MessagePack"))
+                if (GUILayout.Button("Remove MessagePack"))
                 {
                     NPMHelper.DeletePackage(PkgMpcName);
                     _mpcGeneratorIsInstalled = NPMHelper.CheckPackageExists(PkgMpcName);
                 }
             }
-            
+
             if (_rmGeneratorIsInstalled && _mpcGeneratorIsInstalled && GUILayout.Button("Generate"))
             {
-                ReactiveMemoryGenerator.Run();
+                Generate();
+            }
+
+            if (_rmGeneratorIsInstalled && _mpcGeneratorIsInstalled && GUILayout.Button("Regenerate"))
+            {
+                Generate(true);
+            }
+
+            return;
+
+            void Generate(bool force = false)
+            {
+                EditorUtility.DisplayProgressBar("Generating", $"Try update {PkgRmGenName}", 0);
+                NPMHelper.TryUpdate(PkgRmGenName);
+                EditorUtility.DisplayProgressBar("Generating", $"Try update {PkgMpcName}", 15);
+                NPMHelper.TryUpdate(PkgMpcName);
+                ReactiveMemoryGenerator.Execute(force);
             }
         }
     }
 
     public static class ReactiveMemoryGenerator
     {
-        public static void Run()
+        public static void Execute(bool force = false)
         {
             var settings = ReactiveMemorySettings.Instance;
+            var waitTime = (int)TimeSpan.FromSeconds(10).TotalMilliseconds;
+
+            var currentProgress = 15;
+            var progressPerStep = (100 - currentProgress) / (settings.reactiveMemoryDirs.Length  * 2);
+            
             for (var i = 0; i < settings.reactiveMemoryDirs.Length; i++)
             {
                 var dir = settings.reactiveMemoryDirs[i].Folder;
                 var @namespace = settings.reactiveMemoryDirs[i].Namespace;
-                var inputRelativePath = AssetDatabase.GetAssetPath(dir).Replace("Assets/", "./");
-                var outputRelativePath = inputRelativePath + "/Generated";
-                var result = CmdCommandExecutor.Execute("dotnet", $"rmgen -i {inputRelativePath} -o {outputRelativePath} -n {@namespace}");
-                Debug.Log("Generating MemoryDatabase.cs result: " + result);
-                Debug.Log("Generating MessagePack generated file...");
-                var formatterPath = Path.Combine(outputRelativePath, "Formatters");
-                var msgPackResult = CmdCommandExecutor.Execute("mpc", $"-i {inputRelativePath} -o {formatterPath} -n {@namespace}");
-                Debug.Log("Generating MessagePack generated file: " + msgPackResult);
+                var workingDirectory = Application.dataPath;
+                var input = (workingDirectory + AssetDatabase.GetAssetPath(dir).Replace("Assets/", "/"));
+                var output = input + "/Generated";
+                var formatterPath = output + "/Formatters";
+                EditorUtility.DisplayProgressBar("Generating", "dotnet-rmgen", currentProgress += progressPerStep);
+                ExecuteProcess("dotnet-rmgen", input, output, @namespace, force);
+                EditorUtility.DisplayProgressBar("Generating", "mpc", currentProgress += progressPerStep);
+                ExecuteProcess("mpc", input, formatterPath, @namespace, force);
             }
+            EditorUtility.ClearProgressBar();
+            
             AssetDatabase.Refresh();
+
+            return;
+
+
+            void ExecuteProcess(string app, string input, string output, string ns, bool force = false)
+            {
+                if (force && Directory.Exists(output))
+                {
+                    Directory.Delete(output, true);
+                }
+
+                var cmd = $"-i  {input} -o {output} -n {ns}";
+                Process
+                    .Start(app, cmd)
+                    ?.WaitForExit(waitTime);
+            }
         }
     }
 
@@ -139,6 +180,11 @@ namespace ReactiveMemory.Editor
             }
 
             return CmdCommandExecutor.Execute("dotnet", args);
+        }
+
+        public static void TryUpdate(string packageName)
+        {
+            Process.Start("dotnet", $"tool update --global {packageName}");
         }
 
         public static string DeletePackage(string packageName)

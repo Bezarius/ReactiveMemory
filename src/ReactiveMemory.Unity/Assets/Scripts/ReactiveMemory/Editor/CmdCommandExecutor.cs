@@ -20,8 +20,7 @@ namespace ReactiveMemory.Editor
                 RedirectStandardError = true,
                 UseShellExecute = false,
                 FileName = fileName,
-                Arguments = arguments,
-                WorkingDirectory = Application.dataPath
+                Arguments = arguments
             };
 
             Process p;
@@ -36,13 +35,10 @@ namespace ReactiveMemory.Editor
 
             p.WaitForExit();
 
-            var data = p.StandardOutput.ReadToEnd();
-            var error = p.StandardError.ReadToEnd();
-
-            if (p.ExitCode != 0)
-                Debug.LogError("CmdCommandExecutor error: " + error);
-
-            return data;
+            if (p.ExitCode == 0) return p.StandardOutput.ReadToEnd();
+            
+            Debug.LogError("CmdCommandExecutor error: " + p.StandardError.ReadToEnd());
+            return string.Empty;
         }
     }
 }
