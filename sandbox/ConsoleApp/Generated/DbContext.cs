@@ -23,6 +23,8 @@ namespace ConsoleApp
 {
    public sealed class DbContext  : IDisposable
    {
+        public event Action OnStateReloaded; 
+
         public bool IsTransactionStarted { get; private set; }
         public event Action OnUnauthorizedMemoryModification;
 
@@ -155,6 +157,7 @@ namespace ConsoleApp
             _changesConveyor.Clear();
             _hash = null;
             _database = null;
+            OnStateReloaded?.Invoke();
         }
         
         public byte[] ToBytes()

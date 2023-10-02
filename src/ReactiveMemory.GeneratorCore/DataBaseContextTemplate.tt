@@ -11,6 +11,8 @@ namespace <#= Namespace #>
 {
    public sealed class <#= ClassName #>  : IDisposable
    {
+        public event Action OnStateReloaded; 
+
         public bool IsTransactionStarted { get; private set; }
         public event Action OnUnauthorizedMemoryModification;
 
@@ -143,6 +145,7 @@ namespace <#= Namespace #>
             _changesConveyor.Clear();
             _hash = null;
             _database = null;
+            OnStateReloaded?.Invoke();
         }
         
         public byte[] ToBytes()

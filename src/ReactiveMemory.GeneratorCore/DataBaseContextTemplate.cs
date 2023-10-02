@@ -31,9 +31,9 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(Namespace));
             this.Write("\r\n{\r\n   public sealed class ");
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
-            this.Write("  : IDisposable\r\n   {\r\n        public bool IsTransactionStarted { get; private se" +
-                    "t; }\r\n        public event Action OnUnauthorizedMemoryModification;\r\n\r\n        p" +
-                    "ublic I");
+            this.Write("  : IDisposable\r\n   {\r\n        public event Action OnStateReloaded; \r\n\r\n        p" +
+                    "ublic bool IsTransactionStarted { get; private set; }\r\n        public event Acti" +
+                    "on OnUnauthorizedMemoryModification;\r\n\r\n        public I");
             this.Write(this.ToStringHelper.ToStringWithCulture(MemoryDatabaseClassName));
             this.Write("  Database\r\n        {\r\n            get\r\n            {\r\n                if (IsTran" +
                     "sactionStarted)\r\n                    return _transaction.Database;\r\n            " +
@@ -132,11 +132,11 @@ namespace ReactiveMemory.GeneratorCore
                     "ansactionIsStarted || IsTransactionStarted)\r\n            {\r\n                thro" +
                     "w new InvalidOperationException(\"Transaction is already started\");\r\n            " +
                     "}\r\n            _data = data;\r\n            _changesConveyor.Clear();\r\n           " +
-                    " _hash = null;\r\n            _database = null;\r\n        }\r\n        \r\n        publ" +
-                    "ic byte[] ToBytes()\r\n        {\r\n            return _database.ToDatabaseBuilder()" +
-                    ".Build();\r\n        }\r\n\r\n        public void Dispose()\r\n        {\r\n            _c" +
-                    "hangesConveyor?.Dispose();\r\n            _hashAlg?.Dispose();\r\n        }\r\n   }\r\n}" +
-                    "");
+                    " _hash = null;\r\n            _database = null;\r\n            OnStateReloaded?.Invo" +
+                    "ke();\r\n        }\r\n        \r\n        public byte[] ToBytes()\r\n        {\r\n        " +
+                    "    return _database.ToDatabaseBuilder().Build();\r\n        }\r\n\r\n        public v" +
+                    "oid Dispose()\r\n        {\r\n            _changesConveyor?.Dispose();\r\n            " +
+                    "_hashAlg?.Dispose();\r\n        }\r\n   }\r\n}");
             return this.GenerationEnvironment.ToString();
         }
     }
