@@ -30,6 +30,7 @@ namespace ReactiveMemory.Editor
             }
             catch (Exception ex)
             {
+                Debug.LogError("CmdCommandExecutor error: " + ex.ToString());
                 return ex.ToString();
             }
 
