@@ -15,6 +15,10 @@ namespace <#= Namespace #>
 <# foreach(var item in GenerationContexts) { #>
         public <#= item.ClassName #>Table <#= item.ClassName #>Table { get; }
 <# } #>
+
+#if !DISABLE_MASTERMEMORY_VALIDATOR
+        public ValidateResult Validate();
+#endif
    }
 
    public sealed class <#= ClassName #> : MemoryDatabaseBase, I<#= ClassName #>

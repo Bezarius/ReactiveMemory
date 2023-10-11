@@ -39,7 +39,8 @@ namespace ReactiveMemory.GeneratorCore
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
             this.Write("Table { get; }\r\n");
  } 
-            this.Write("   }\r\n\r\n   public sealed class ");
+            this.Write("\r\n#if !DISABLE_MASTERMEMORY_VALIDATOR\r\n        public ValidateResult Validate();\r" +
+                    "\n#endif\r\n   }\r\n\r\n   public sealed class ");
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
             this.Write(" : MemoryDatabaseBase, I");
             this.Write(this.ToStringHelper.ToStringWithCulture(ClassName));
