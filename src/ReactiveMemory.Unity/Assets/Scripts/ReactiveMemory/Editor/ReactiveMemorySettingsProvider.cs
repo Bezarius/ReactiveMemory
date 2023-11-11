@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -123,11 +125,7 @@ namespace ReactiveMemory.Editor
         public static void Execute(bool force = false)
         {
             var settings = ReactiveMemorySettings.Instance;
-            var waitTime = (int)TimeSpan.FromSeconds(10).TotalMilliseconds;
 
-            var currentProgress = 15;
-            var progressPerStep = (100 - currentProgress) / (settings.reactiveMemoryDirs.Length  * 2);
-            
             for (var i = 0; i < settings.reactiveMemoryDirs.Length; i++)
             {
                 var dir = settings.reactiveMemoryDirs[i].Folder;
@@ -136,17 +134,28 @@ namespace ReactiveMemory.Editor
                 var input = (workingDirectory + AssetDatabase.GetAssetPath(dir).Replace("Assets/", "/"));
                 var output = input + "/Generated";
                 var formatterPath = output + "/Formatters";
-                EditorUtility.DisplayProgressBar("Generating", "dotnet-rmgen", currentProgress += progressPerStep);
-                ExecuteProcess("dotnet-rmgen", input, output, @namespace, force);
-                EditorUtility.DisplayProgressBar("Generating", "mpc", currentProgress += progressPerStep);
-                ExecuteProcess("mpc", input, formatterPath, @namespace, force);
+                
+                try
+                {
+                    ExecuteProcess("dotnet-rmgen", input, output, @namespace, force);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("dotnet-rmgen error: " + e.Message);
+                }
+
+                
+                try
+                {
+                    ExecuteProcess("mpc", input, formatterPath, @namespace, force);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("mpc error: " + e.Message);
+                }
             }
-            EditorUtility.ClearProgressBar();
             
-            AssetDatabase.Refresh();
-
             return;
-
 
             void ExecuteProcess(string app, string input, string output, string ns, bool force = false)
             {
@@ -154,12 +163,49 @@ namespace ReactiveMemory.Editor
                 {
                     Directory.Delete(output, true);
                 }
-
-                var cmd = $"-i  {input} -o {output} -n {ns}";
-                Process
-                    .Start(app, cmd)
-                    ?.WaitForExit(waitTime);
+                var cmd = $"-i  \"{input}\" -o \"{output}\" -n \"{ns}\"";
+                
+                ExecuteProcessAsync(app, cmd);
             }
+        }
+        
+        public static Task<string> ExecuteProcessAsync(string app, string arguments)
+        {
+            Debug.Log("Execute: " + app + " " + arguments);
+            var psi = new ProcessStartInfo
+            {
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                FileName = app,
+                Arguments = arguments,
+                WorkingDirectory = Application.dataPath
+            };
+
+            Process p;
+            try
+            {
+                p = Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                return Task.FromException<string>(ex);
+            }
+
+            var tcs = new TaskCompletionSource<string>();
+            p.EnableRaisingEvents = true;
+            p.Exited += (object sender, System.EventArgs e) =>
+            {
+                var data = p.StandardOutput.ReadToEnd();
+                p.Dispose();
+                p = null;
+                tcs.TrySetResult(data);
+            };
+            return tcs.Task;
         }
     }
 
@@ -167,13 +213,13 @@ namespace ReactiveMemory.Editor
     {
         public static bool CheckPackageExists(string packageName)
         {
-            string output = CmdCommandExecutor.Execute("dotnet", $"tool list --global");
+            var output = CmdCommandExecutor.Execute("dotnet", $"tool list --global");
             return output.Contains(packageName.ToLower());
         }
 
         public static string InstallPackage(string packageName, string version = null)
         {
-            string args = $"tool install --global {packageName}";
+            var args = $"tool install --global {packageName}";
             if (!string.IsNullOrEmpty(version))
             {
                 args += $" --version {version}";
@@ -189,7 +235,7 @@ namespace ReactiveMemory.Editor
 
         public static string DeletePackage(string packageName)
         {
-            string args = $"tool uninstall --global {packageName}";
+            var args = $"tool uninstall --global {packageName}";
             return CmdCommandExecutor.Execute("dotnet", args);
         }
     }
