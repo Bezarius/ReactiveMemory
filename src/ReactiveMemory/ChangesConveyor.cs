@@ -7,7 +7,11 @@ namespace ReactiveMemory
     {
         private readonly SparseSet<IDbChangesPublisher> _dbChangesPublishers = new SparseSet<IDbChangesPublisher>();
         private readonly Queue<IDbChangesPublisher> _publishersQueue = new Queue<IDbChangesPublisher>();
+        private readonly Queue<Queue<Action>> _publishActionQueue = new Queue<Queue<Action>>();
+
         private readonly IChangesMediatorFactory _changesMediatorFactory;
+        
+        private bool _isPublishing;
 
         public ChangesConveyor(IChangesMediatorFactory changesMediatorFactory)
         {
@@ -33,9 +37,7 @@ namespace ReactiveMemory
             _publishersQueue.Enqueue(publisher);
         }
 
-        private bool _isPublishing;
-
-        private readonly Queue<Queue<Action>> _publishActionQueue = new Queue<Queue<Action>>();
+        
 
         private Queue<Action> PrepareToPublish()
         {
@@ -89,6 +91,7 @@ namespace ReactiveMemory
             {
                 publisher.Clear();
             }
+            _publishersQueue.Clear();
             _publishActionQueue.Clear();
         }
 
