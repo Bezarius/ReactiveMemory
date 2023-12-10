@@ -89,6 +89,7 @@ namespace ReactiveMemory
             {
                 publisher.Clear();
             }
+            _publishActionQueue.Clear();
         }
 
         public void Dispose()
