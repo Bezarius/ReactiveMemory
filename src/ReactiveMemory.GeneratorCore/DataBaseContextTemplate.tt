@@ -122,8 +122,10 @@ namespace <#= Namespace #>
 				_data = ToBytes();
 				_hash = _hashAlg.ComputeHash(_data);
 			}
-            _database.ChangesConveyor.Publish();
-            OnTransactionFinished?.Invoke();
+            if(_database.ChangesConveyor.Publish())
+            {
+                OnTransactionFinished?.Invoke();
+            }
         }
 
         public void Rollback()

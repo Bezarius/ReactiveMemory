@@ -122,21 +122,21 @@ namespace ReactiveMemory.GeneratorCore
                     "     }\r\n\r\n            if(_compositeTransactionIsStarted)\r\n                return" +
                     ";\r\n\r\n            _database = _transaction.Commit();\r\n            IsTransactionSt" +
                     "arted = false;\r\n            if(_hashAlg != null)\r\n\t\t\t{\r\n\t\t\t\t_data = ToBytes();\r\n" +
-                    "\t\t\t\t_hash = _hashAlg.ComputeHash(_data);\r\n\t\t\t}\r\n            _database.ChangesCon" +
-                    "veyor.Publish();\r\n            OnTransactionFinished?.Invoke();\r\n        }\r\n\r\n   " +
-                    "     public void Rollback()\r\n        {\r\n            // all changes in Transactio" +
-                    "n, so we just set it to null to discard changes\r\n            _database.ChangesCo" +
-                    "nveyor.Clear();\r\n            _transaction = null;\r\n            IsTransactionStar" +
-                    "ted = false;\r\n            _compositeTransactionIsStarted = false;\r\n        }\r\n\r\n" +
-                    "        public void Reload(byte[] data)\r\n        {\r\n            if (_compositeTr" +
-                    "ansactionIsStarted || IsTransactionStarted)\r\n            {\r\n                thro" +
-                    "w new InvalidOperationException(\"Transaction is already started\");\r\n            " +
-                    "}\r\n            _data = data;\r\n            _changesConveyor.Clear();\r\n           " +
-                    " _hash = null;\r\n            _database = null;\r\n            OnStateReloaded?.Invo" +
-                    "ke();\r\n        }\r\n        \r\n        public byte[] ToBytes()\r\n        {\r\n        " +
-                    "    return _database.ToDatabaseBuilder().Build();\r\n        }\r\n\r\n        public v" +
-                    "oid Dispose()\r\n        {\r\n            _changesConveyor?.Dispose();\r\n            " +
-                    "_hashAlg?.Dispose();\r\n        }\r\n   }\r\n}");
+                    "\t\t\t\t_hash = _hashAlg.ComputeHash(_data);\r\n\t\t\t}\r\n            if(_database.Changes" +
+                    "Conveyor.Publish())\r\n            {\r\n                OnTransactionFinished?.Invok" +
+                    "e();\r\n            }\r\n        }\r\n\r\n        public void Rollback()\r\n        {\r\n   " +
+                    "         // all changes in Transaction, so we just set it to null to discard cha" +
+                    "nges\r\n            _database.ChangesConveyor.Clear();\r\n            _transaction =" +
+                    " null;\r\n            IsTransactionStarted = false;\r\n            _compositeTransac" +
+                    "tionIsStarted = false;\r\n        }\r\n\r\n        public void Reload(byte[] data)\r\n  " +
+                    "      {\r\n            if (_compositeTransactionIsStarted || IsTransactionStarted)" +
+                    "\r\n            {\r\n                throw new InvalidOperationException(\"Transactio" +
+                    "n is already started\");\r\n            }\r\n            _data = data;\r\n            _" +
+                    "changesConveyor.Clear();\r\n            _hash = null;\r\n            _database = nul" +
+                    "l;\r\n            OnStateReloaded?.Invoke();\r\n        }\r\n        \r\n        public " +
+                    "byte[] ToBytes()\r\n        {\r\n            return _database.ToDatabaseBuilder().Bu" +
+                    "ild();\r\n        }\r\n\r\n        public void Dispose()\r\n        {\r\n            _chan" +
+                    "gesConveyor?.Dispose();\r\n            _hashAlg?.Dispose();\r\n        }\r\n   }\r\n}");
             return this.GenerationEnvironment.ToString();
         }
     }

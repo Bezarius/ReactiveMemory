@@ -53,7 +53,7 @@ namespace ReactiveMemory
 
         // todo: right now ChangesConveyor know nothing about transaction and that problem for design of the ReactiveMemory
         // i should rework it to make Publish() method transactional with simple logic 
-        public void Publish()
+        public bool Publish()
         {
             // IDbChangesPublisher shared for all transactions
             // so we should enqueue all publishers before publishing to preserve them
@@ -68,7 +68,11 @@ namespace ReactiveMemory
             // because PublishNext() can lead to changes in db
             // and this will lead to recursive call of Publish()
             // recursive call of Publish() could lead to order disorder
-            if (_isPublishing) return;
+            if (_isPublishing)
+            {
+                // we return false if we are already publishing to prevent publishing OnTransactionFinished event
+                return !_isPublishing;
+            }
 
             _isPublishing = true;
 
@@ -83,6 +87,9 @@ namespace ReactiveMemory
             }
 
             _isPublishing = false;
+
+            // we finished publishing and we can publish OnTransactionFinished event
+            return !_isPublishing;
         }
 
         public void Clear()
