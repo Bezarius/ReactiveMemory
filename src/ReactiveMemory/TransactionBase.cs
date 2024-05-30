@@ -49,7 +49,7 @@ namespace ReactiveMemory
         {
             if (keys == null || keys.Length == 0)
                 return array;
-            
+
             var dest = RemoveCore(array, keys[0], keySelector, comparer, changesQueue);
             for (var i = 1; i < keys.Length; i++)
             {
@@ -73,7 +73,7 @@ namespace ReactiveMemory
                 dest = array;
             }
 
-            var insertionIndex = 
+            var insertionIndex =
                 BinarySearch.FindFirst(array, keySelector(addOrReplaceData), keySelector, comparer);
 
             if (insertionIndex >= 0)
@@ -82,7 +82,11 @@ namespace ReactiveMemory
                 var old = dest[insertionIndex];
                 dest[insertionIndex] = addOrReplaceData;
 
-                changesQueue?.EnqueueUpdate(addOrReplaceData, old);
+                if (!old.Equals(addOrReplaceData))
+                {
+                    // we only enqueue the update if the old and new values are different
+                    changesQueue?.EnqueueUpdate(addOrReplaceData, old);
+                }
             }
             else
             {

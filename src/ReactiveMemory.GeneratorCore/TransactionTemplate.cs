@@ -179,13 +179,22 @@ namespace ReactiveMemory.GeneratorCore
 
             this.Write("        public void ReplaceAll(System.Collections.Generic.IList<");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
-            this.Write("> data)\r\n        {\r\n            _");
+            this.Write("> data)\r\n        {\r\n            foreach(var toRemove in memory.");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write("Table.GetRawDataUnsafe())\r\n\t\t\t{\r\n\t\t\t\t_");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write("ChangeTracker.EnqueueRemove(toRemove);\r\n\t\t\t}\r\n            _");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
             this.Write("Changes = CloneAndSortBy(data, x => ");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildKeyAccessor("x")));
             this.Write(", ");
             this.Write(this.ToStringHelper.ToStringWithCulture(item.PrimaryKey.BuildComparer()));
-            this.Write(");\r\n            _rebuildIsNeeded = true;\r\n        }\r\n\r\n");
+            this.Write(");\r\n            foreach(var toAdd in _");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write("Changes)\r\n            {\r\n                _");
+            this.Write(this.ToStringHelper.ToStringWithCulture(item.ClassName));
+            this.Write("ChangeTracker.EnqueueAdd(toAdd);\r\n            }\r\n            _rebuildIsNeeded = t" +
+                    "rue;\r\n        }\r\n\r\n");
 
         if (!item.PrimaryKey.IsNonUnique)
         {

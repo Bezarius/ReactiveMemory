@@ -133,7 +133,15 @@ namespace <#= Namespace #>
 #>
         public void ReplaceAll(System.Collections.Generic.IList<<#= item.ClassName #>> data)
         {
+            foreach(var toRemove in memory.<#= item.ClassName #>Table.GetRawDataUnsafe())
+			{
+				_<#= item.ClassName #>ChangeTracker.EnqueueRemove(toRemove);
+			}
             _<#= item.ClassName #>Changes = CloneAndSortBy(data, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>);
+            foreach(var toAdd in _<#= item.ClassName #>Changes)
+            {
+                _<#= item.ClassName #>ChangeTracker.EnqueueAdd(toAdd);
+            }
             _rebuildIsNeeded = true;
         }
 
