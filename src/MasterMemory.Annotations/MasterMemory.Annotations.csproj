@@ -22,5 +22,11 @@
         <RootNamespace>MasterMemory</RootNamespace>
         <IsPackable>true</IsPackable>
     </PropertyGroup>
+    <PropertyGroup>
+        <PackageRoot>E:\Projects\My\Unity\Packages\com.dythervin.database</PackageRoot>
+    </PropertyGroup>
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(PackageRoot)\Runtime\$(TargetFileName)" SkipUnchangedFiles="true"/>
+    </Target>
 
 </Project>

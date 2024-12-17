@@ -156,7 +156,6 @@ namespace MasterMemory.Tests
             var queue = new SpscQueue<int>(4);
 
             Action action = () => queue.Dequeue();
-
             action.Should().Throw<InvalidOperationException>().WithMessage("Cannot dequeue from an empty queue.");
         }
     }

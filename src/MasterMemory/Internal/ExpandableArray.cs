@@ -1,53 +1,69 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace MasterMemory
 {
     public struct ExpandableArray<TElement>
     {
-        public TElement[] items;
-        public int count { get; private set; }
+        public TElement[] Items;
+        private int _capacity;
+
+        private int _count;
+
+        public int Count => Volatile.Read(ref _count);
+
+        public TElement this[int index] => Items[index];
 
         public ExpandableArray(object dummy)
         {
-            items = Array.Empty<TElement>();
-            count = 0;
+            Items = Array.Empty<TElement>();
+            _count = 0;
+            _capacity = Items.Length;
         }
 
-        internal void Add(TElement item)
+        public void Add(TElement item)
         {
-            if (items.Length == 0)
+            int nextCount = Volatile.Read(ref _count) + 1;
+            if (_capacity < nextCount)
             {
-                items = new TElement[4];
+                Array.Resize(ref Items, checked(_count * 2));
             }
-            else if (items.Length == (count + 1))
-            {
-                Array.Resize(ref items, checked(count * 2));
-            }
-            items[count++] = item;
+
+            Items[_count] = item;
+            Volatile.Write(ref _count, nextCount);
         }
-        
-        internal void AddRange(IEnumerable<TElement> source)
+
+        public void EnsureCapacity(int capacity)
         {
+            if (_capacity < capacity)
+            {
+                Array.Resize(ref Items, capacity);
+                _capacity = capacity;
+            }
+        }
+
+        public void AddRange(IEnumerable<TElement> source)
+        {
+            int count = Volatile.Read(ref _count);
             if (source is ICollection<TElement> collection)
             {
-                if (items.Length == 0)
-                {
-                    items = new TElement[collection.Count];
-                }
-                else if (items.Length < (count + collection.Count))
-                {
-                    Array.Resize(ref items, checked(count + collection.Count));
-                }
-                collection.CopyTo(items, count);
-                count += collection.Count;
+                EnsureCapacity(count + collection.Count);
+
+                collection.CopyTo(Items, count);
+                Volatile.Write(ref _count, count + collection.Count);
                 return;
             }
-            
+
             foreach (var item in source)
             {
                 Add(item);
             }
+        }
+
+        public void Clear()
+        {
+            Volatile.Write(ref _count, 0);
         }
     }
 }

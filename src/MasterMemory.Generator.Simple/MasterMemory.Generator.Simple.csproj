@@ -31,4 +31,11 @@
 <!--        <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(DestinationRoot)\$(TargetFileName)" SkipUnchangedFiles="true"/>-->
     </Target>
 
+<!--    <PropertyGroup>-->
+<!--        <PackageRoot>E:\Projects\My\Unity\Packages\com.dythervin.database</PackageRoot>-->
+<!--    </PropertyGroup>-->
+<!--    <Target Name="PostBuild" AfterTargets="PostBuildEvent">-->
+<!--        <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(PackageRoot)\SourceGenerator\$(TargetFileName)" SkipUnchangedFiles="true"/>-->
+<!--    </Target>-->
+
 </Project>

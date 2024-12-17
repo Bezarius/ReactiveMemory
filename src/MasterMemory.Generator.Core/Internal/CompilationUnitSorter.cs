@@ -39,17 +39,6 @@ public static class CompilationUnitSorter
             };
         }).ThenBy(delegate(MemberDeclarationSyntax m)
         {
-            SyntaxToken val2 = m.Modifiers.FirstOrDefault();
-            return val2.ValueText switch
-            {
-                "public" => 0,
-                "internal" => 1,
-                "protected" => 2,
-                "private" => 4,
-                _ => 3,
-            };
-        }).ThenBy(delegate(MemberDeclarationSyntax m)
-        {
             int num = 5;
             int num2 = 1;
             while (true)
@@ -82,6 +71,17 @@ public static class CompilationUnitSorter
             }
 
             return num;
+        }).ThenBy(delegate(MemberDeclarationSyntax m)
+        {
+            SyntaxToken val2 = m.Modifiers.FirstOrDefault();
+            return val2.ValueText switch
+            {
+                "public" => 0,
+                "internal" => 1,
+                "protected" => 2,
+                "private" => 4,
+                _ => 3,
+            };
         });
     }
 }
