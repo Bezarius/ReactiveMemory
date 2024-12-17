@@ -1,19 +1,22 @@
-﻿using MasterMemory.Annotations;
-using MemoryPack;
+﻿using MessagePack;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests.TestStructures
 {
-    [Table("people"), MemoryPackable]
-    public readonly partial struct PersonModel
+
+    [MemoryTable("people"), MessagePackObject(true)]
+    public class PersonModel
     {
-        [SecondaryKey()]
-        [SecondaryKey(1)]
-        public string FirstName { get; init; }
+        [SecondaryKey(0), NonUnique]
+        [SecondaryKey(1, keyOrder: 1), NonUnique]
+        public string LastName { get; set; }
 
-        [SecondaryKey()]
-        [SecondaryKey(1)]
-        public string LastName { get; init; }
+        [SecondaryKey(2), NonUnique]
+        [SecondaryKey(1, keyOrder: 0), NonUnique]
+        public string FirstName { get; set; }
 
-        [PrimaryKey] public string RandomId { get; init; }
+        [PrimaryKey] public string RandomId { get; set; }
     }
 }

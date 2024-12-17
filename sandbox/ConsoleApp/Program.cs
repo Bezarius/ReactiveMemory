@@ -1,4 +1,4 @@
-using MasterMemory;
+using ReactiveMemory;
 using System.Linq;
 using MessagePack;
 using System;
@@ -10,59 +10,72 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Text;
 using System.Globalization;
-using MasterMemory.Annotations;
-using MasterMemory.Validation;
 
 // IValidatable����������ƌ��ؑΏۂɂȂ�
-[Table("quest_master"), MessagePackObject(true)]
-public class Quest
+[MemoryTable("quest_master"), MessagePackObject(true)]
+public class Quest : IValidatable<Quest>
 {
     // UniqueKey�̏ꍇ��Validate���Ƀf�t�H���g�ŏd�����̌��؂������
     [PrimaryKey]
     public int Id { get; set; }
     public string Name { get; set; }
-    
-    [SecondaryKey]
     public int RewardId { get; set; }
     public int Cost { get; set; }
     public MyEnum MyProperty { get; set; }
+
+    void IValidatable<Quest>.Validate(IValidator<Quest> validator)
+    {
+        // �O���L�[�I�ɎQ�Ƃ������R���N�V���������o����
+        var items = validator.GetReferenceSet<Item>();
+
+        // RewardId��0�ȏ�̂Ƃ�(0�͕�V�i�V�̂��߂̓��ʂȃt���O�Ƃ��邽�ߓ��͂����e����)
+        if (this.RewardId > 0)
+        {
+            // Items�̃}�X�^�ɕK���܂܂�ĂȂ���Ό��؃G���[�i�G���[���o�Ă����s�͂��Ă��ׂĂ̌��،��ʂ��o��)
+            items.Exists(x => x.RewardId, x => x.ItemId);
+        }
+
+        // �R�X�g��10..20�łȂ���Ό��؃G���[
+        validator.Validate(x => x.Cost >= 10);
+        validator.Validate(x => x.Cost <= 20);
+
+        // �ȉ��ň͂��������͈�x�����Ă΂�Ȃ����߁A�f�[�^�Z�b�g�S�̂̌��؂����������Ɏg����
+        if (validator.CallOnce())
+        {
+            var quests = validator.GetTableSet();
+            // �C���f�b�N�X�����������̈ȊO�̃��j�[�N�ǂ����̌���(0�͏d�����邽�ߏ����Ă���)
+            quests.Where(x => x.RewardId != 0).Unique(x => x.RewardId);
+        }
+    }
 
     public enum MyEnum
     {
         A, B, C
     }
-}
 
-[Validator]
-internal partial class QuestValidator
-{
-    public void Validate(IDatabase db, IValidator validator)
+    public Quest(int Id, string Name, int RewardId, int Cost, MyEnum MyProperty)
     {
-        // �O���L�[�I�ɎQ�Ƃ������R���N�V���������o����
-        var items = db.ItemTable;
-        var quests = db.QuestmasterTable;
-
-        // RewardId��0�ȏ�̂Ƃ�(0�͕�V�i�V�̂��߂̓��ʂȃt���O�Ƃ��邽�ߓ��͂����e����)
-        validator.Exists(quests.GetAllSortedByRewardId(), items.GetAllSorted(), x => x > 0);
-
-        // �R�X�g��10..20�łȂ���Ό��؃G���[
-        validator.Validate(quests, x => x.Cost >= 10);
-        validator.Validate(quests, x => x.Cost <= 20);
-
-        // �ȉ��ň͂��������͈�x�����Ă΂�Ȃ����߁A�f�[�^�Z�b�g�S�̂̌��؂����������Ɏg����
-        // �C���f�b�N�X�����������̈ȊO�̃��j�[�N�ǂ����̌���(0�͏d�����邽�ߏ����Ă���)
-        validator.Unique(quests, x => x.RewardId, x => x != 0);
+        this.Id = Id;
+        this.Name = Name;
+        this.RewardId = RewardId;
+        this.Cost = Cost;
+        this.MyProperty = MyProperty;
     }
 }
 
-[Table("item"), MessagePackObject(true)]
+[MemoryTable("item"), MessagePackObject(true)]
 public class Item
 {
     [PrimaryKey]
     public int ItemId { get; set; }
+
+    public Item(int ItemId)
+    {
+        this.ItemId = ItemId;
+    }
 }
 
-namespace ConsoleApp
+namespace ConsoleApp.Tables
 {
     public sealed partial class MonsterTable
     {
@@ -71,20 +84,20 @@ namespace ConsoleApp
 
         partial void OnAfterConstruct()
         {
-            maxHp = GetAll().Max(x => x.MaxHp);
+            maxHp = All.Select(x => x.MaxHp).Max();
         }
     }
 }
 
 namespace ConsoleApp
 {
-    [Table("monster"), MessagePackObject(true)]
-    public class Monster
+    [MemoryTable("monster"), MessagePackObject(true)]
+    public record Monster
     {
         [PrimaryKey]
-        public int MonsterId { get; private set; }
-        public string Name { get; private set; }
-        public int MaxHp { get; private set; }
+        public int MonsterId { get; set; }
+        public string Name { get; set; }
+        public int MaxHp { get; set; }
 
         public Monster(int MonsterId, string Name, int MaxHp)
         {
@@ -94,11 +107,16 @@ namespace ConsoleApp
         }
     }
 
-    [Table("enumkeytable"), MessagePackObject(true)]
+    [MemoryTable("enumkeytable"), MessagePackObject(true)]
     public class EnumKeyTable
     {
         [PrimaryKey]
         public Gender Gender { get; set; }
+
+        public EnumKeyTable(Gender Gender)
+        {
+            this.Gender = Gender;
+        }
     }
 
     public enum Gender
@@ -106,21 +124,23 @@ namespace ConsoleApp
         Male, Female
     }
 
-    [Table("person"), MessagePackObject(true)]
+    [MemoryTable("person"), MessagePackObject(true)]
     public class Person
     {
         [PrimaryKey(keyOrder: 1)]
         public int PersonId { get; set; }
-        [SecondaryKey(0)]
-        [SecondaryKey(2, keyOrder: 1)]
+        [SecondaryKey(0), NonUnique]
+        [SecondaryKey(2, keyOrder: 1), NonUnique]
         public int Age { get; set; }
-        [SecondaryKey(1)]
-        [SecondaryKey(2, keyOrder: 0)]
+        [SecondaryKey(1), NonUnique]
+        [SecondaryKey(2, keyOrder: 0), NonUnique]
         public Gender Gender { get; set; }
         public string Name { get; set; }
 
-        public Person()
+
+        public override string ToString()
         {
+            return $"{PersonId} {Age} {Gender} {Name}";
         }
 
         public Person(int PersonId, int Age, Gender Gender, string Name)
@@ -129,11 +149,6 @@ namespace ConsoleApp
             this.Age = Age;
             this.Gender = Gender;
             this.Name = Name;
-        }
-
-        public override string ToString()
-        {
-            return $"{PersonId} {Age} {Gender} {Name}";
         }
     }
 
@@ -192,19 +207,37 @@ namespace ConsoleApp
         }
     }
 
-    [Table(nameof(Test1))]
+    [MemoryTable(nameof(Test1))]
     public class Test1
     {
         [PrimaryKey]
         public int Id { get; set; }
+
+        public Test1(int Id)
+        {
+            this.Id = Id;
+        }
     }
 
     [MessagePackObject(false)]
-    [Table(nameof(Test2))]
+    [MemoryTable(nameof(Test2))]
     public class Test2
     {
         [PrimaryKey]
         public int Id { get; set; }
+
+        public Test2(int Id)
+        {
+            this.Id = Id;
+        }
+    }
+
+    public class ChangesMediatorFactory : IChangesMediatorFactory
+    {
+        public IChangesMediator<TElement> Create<TElement>()
+        {
+            throw new NotImplementedException();
+        }
     }
 
 
@@ -220,7 +253,7 @@ namespace ConsoleApp
 
             var builder = new DatabaseBuilder();
 
-            var meta = Database.GetMetaDatabase();
+            var meta = MemoryDatabase.GetMetaDatabase();
             var table = meta.GetTableInfo(fileName);
 
             var tableData = new List<object>();
@@ -233,7 +266,7 @@ namespace ConsoleApp
                 {
                     // create data without call constructor
                     var data = System.Runtime.Serialization.FormatterServices.GetUninitializedObject(table.DataType);
-    
+
                     foreach (var prop in table.Properties)
                     {
                         if (values.TryGetValue(prop.NameSnakeCase, out var rawValue))
@@ -250,16 +283,22 @@ namespace ConsoleApp
                             throw new KeyNotFoundException($"Not found \"{prop.NameSnakeCase}\" in \"{fileName}.csv\" header.");
                         }
                     }
-    
+
                     tableData.Add(data);
                 }
             }
-    
+
             // add dynamic collection.
             builder.AppendDynamic(table.DataType, tableData);
-    
-            var database = builder.Build();
-            database.Transaction.MaxDegreeOfParallelism = Environment.ProcessorCount;
+
+
+            var ctx = new DbContext(builder.Build(), new ChangesMediatorFactory());
+
+            var monster = ctx.Database.MonsterTable.FindByMonsterId(1);
+            var monster2 = monster with { Name = "123" };
+            var monster3 = ctx.Database.MonsterTable.FindByMonsterId(1);
+            Console.WriteLine(monster);
+            // monster2 namme isn't '123'
         }
 
         static object ParseValue(Type type, string rawValue)

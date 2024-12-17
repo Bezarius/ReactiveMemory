@@ -23,7 +23,6 @@ using Enyim.Caching.Memcached.Transcoders;
 using RocksDbSharp;
 using MessagePack;
 using System.Text;
-using MasterMemory;
 
 namespace Benchmark
 {
@@ -43,20 +42,17 @@ namespace Benchmark
             // run quickly:)
             var baseConfig = Job.ShortRun.WithIterationCount(1).WithWarmupCount(1);
 
-            // Add(baseConfig.With(Runtime.Clr).With(Jit.RyuJit).With(Platform.X64));
-            Add(baseConfig.With(Runtime.Core).With(Jit.RyuJit).With(Platform.X64));
-            // Add(baseConfig.With(InProcessEmitToolchain.Instance));
-
-            Add(MarkdownExporter.GitHub);
-            Add(CsvExporter.Default);
-            Add(MemoryDiagnoser.Default);
+            AddJob(baseConfig.WithJit(Jit.Default).WithPlatform(Platform.X64));
+            AddExporter(MarkdownExporter.GitHub);
+            AddExporter(CsvExporter.Default);
+            AddDiagnoser(MemoryDiagnoser.Default);
         }
     }
 
     [Config(typeof(BenchmarkConfig))]
     public class SimpleRun
     {
-        Database db;
+        MemoryDatabase db;
         SQLite_Test sqliteMemory;
         SQLite_Test sqliteFile;
 
@@ -74,7 +70,8 @@ namespace Benchmark
 
         public SimpleRun()
         {
-            db = new Database(MakeDoc(5000).ToArray());
+            var bin = new DatabaseBuilder().Append(MakeDoc(5000)).Build();
+            db = new MemoryDatabase(bin);
 
             sqliteMemory = new SQLite_Test(5000, null, false, true);
             sqliteMemory.Prepare(); sqliteMemory.Insert(); sqliteMemory.CreateIndex();
@@ -133,9 +130,9 @@ namespace Benchmark
         }
 
         [Benchmark(Baseline = true)]
-        public TestDoc MasterMemoryQuery()
+        public TestDoc ReactiveMemoryQuery()
         {
-            return db.TestDocTable.GetById(QueryId);
+            return db.TestDocTable.FindByid(QueryId);
         }
 
         [Benchmark]

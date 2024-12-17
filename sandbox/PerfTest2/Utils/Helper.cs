@@ -6,15 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LiteDB;
-using MasterMemory;
-using MasterMemory.Annotations;
-using MemoryPack;
+using ReactiveMemory;
 using MessagePack;
 
 namespace TestPerfLiteDB
 {
-    [Table("TestDoc"), MessagePackObject(true), MemoryPackable]
-    public partial class TestDoc
+    [MemoryTable("TestDoc"), MessagePackObject(true)]
+    public class TestDoc
     {
         [PrimaryKey]
         public int id { get; set; }

@@ -1,14 +1,25 @@
-using MasterMemory.Annotations;
-using MemoryPack;
+using MessagePack;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
-    [Table("UserLevel"), MemoryPackable]
-    public partial class UserLevel
+    [MemoryTable("UserLevel"), MessagePackObject(true)]
+    public class UserLevel
     {
         [PrimaryKey]
-        public int Level { get; init; }
+        public int Level { get; set; }
         [SecondaryKey(0)]
-        public int Exp { get; init; }
+        public int Exp { get; set; }
+
+        public UserLevel()
+        {
+
+        }
+
+        public UserLevel(int Level, int Exp)
+        {
+            this.Level = Level;
+            this.Exp = Exp;
+        }
+
     }
 }

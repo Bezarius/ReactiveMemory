@@ -1,13 +1,19 @@
 ﻿using Xunit;
 using System.Linq;
-
+using ReactiveMemory.Tests.Tables;
 using FluentAssertions;
+using MessagePack;
 using System.Collections.Generic;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
     public class MemoryKeyMemoryTest
     {
+        public MemoryKeyMemoryTest()
+        {
+            MessagePackSerializer.DefaultOptions = MessagePackSerializer.DefaultOptions.WithResolver(MessagePackResolver.Instance);
+        }
+
         Sample[] CreateData()
         {
             // Id = Unique, PK
@@ -28,9 +34,9 @@ namespace MasterMemory.Tests
             return data;
         }
 
-        ISampleTable CreateTable()
+        SampleTable CreateTable()
         {
-            return new Database(sampleTable: CreateData()).SampleTable;
+            return new MemoryDatabase(new DatabaseBuilder().Append(CreateData()).Build()).SampleTable;
         }
 
         [Fact]
@@ -38,8 +44,8 @@ namespace MasterMemory.Tests
         {
             var table = CreateTable();
 
-            table.GetById(8).Id.Should().Be(8);
-            Assert.Throws<KeyNotFoundException>(() => table.GetById(100));
+            table.FindById(8).Id.Should().Be(8);
+            Assert.Throws<KeyNotFoundException>(() => table.FindById(100));
 
             table.FindByIdAndAge((4, 89)).Id.Should().Be(4);
 

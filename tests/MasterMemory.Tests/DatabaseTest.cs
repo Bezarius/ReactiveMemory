@@ -1,14 +1,20 @@
 ﻿using FluentAssertions;
+using MessagePack;
+using MessagePack.Resolvers;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
     public class DatabaseTest
     {
         public DatabaseTest()
         {
-            //MessagePackSerializer.DefaultOptions = MessagePackSerializer.DefaultOptions.WithResolver(MessagePackResolver.Instance);
+            MessagePackSerializer.DefaultOptions = MessagePackSerializer.DefaultOptions.WithResolver(MessagePackResolver.Instance);
         }
 
         Sample[] CreateData()
@@ -34,11 +40,15 @@ namespace MasterMemory.Tests
         [Fact]
         public void SingleDb()
         {
-            using var db = new Database(sampleTable: CreateData());
-            db.SampleTable.GetById(8).Age.Should().Be(49);
+            var builder = new DatabaseBuilder();
+            builder.Append(CreateData());
 
-            // var tableInfo = Database.GetTableInfo(bin);
-            // tableInfo[0].TableName.Should().Be("s_a_m_p_l_e");
+            var bin = builder.Build();
+            var db = new MemoryDatabase(bin);
+            db.SampleTable.FindById(8).Age.Should().Be(49);
+
+            var tableInfo = MemoryDatabase.GetTableInfo(bin);
+            tableInfo[0].TableName.Should().Be("s_a_m_p_l_e");
         }
 
         [Fact]
@@ -47,17 +57,22 @@ namespace MasterMemory.Tests
             var builder = new DatabaseBuilder();
             builder.Append(CreateData());
 
-            var db = builder.Build();
+            var bin = builder.Build();
+            var db = new MemoryDatabase(bin);
 
-            db.SampleTable.GetAllSortedById().Select(x => x.Id).ToArray().Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-            db.SampleTable.GetAllSortedById().Reverse.Select(x => x.Id).ToArray().Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.Reverse());
-            db.SampleTable.GetAllSortedByAge().Select(x => x.Id).OrderBy(x => x).ToArray().Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+            db.SampleTable.All.Select(x => x.Id).ToArray().Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+            db.SampleTable.AllReverse.Select(x => x.Id).ToArray().Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.Reverse());
+            db.SampleTable.SortByAge.Select(x => x.Id).OrderBy(x => x).ToArray().Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
         }
 
-        [Fact]
+         [Fact]
         public void Ranges()
         {
-            using var db = new Database(sampleTable: CreateData());
+            var builder = new DatabaseBuilder();
+            builder.Append(CreateData());
+
+            var bin = builder.Build();
+            var db = new MemoryDatabase(bin);
 
             db.SampleTable.FindRangeByAge(2,2).Select(x=>x.Id).ToArray().Should().BeEquivalentTo( new int[] {} );     
             db.SampleTable.FindRangeByAge(30,50).Select(x=>x.Id).ToArray().Should().BeEquivalentTo( new int[] { 7, 8 } );     
@@ -72,19 +87,19 @@ namespace MasterMemory.Tests
                 var builder = new DatabaseBuilder();
                 builder.Append(new Sample[] { });
 
-                var db = builder.Build();
-                
+                var bin = builder.Build();
+                var db = new MemoryDatabase(bin);
 
-                db.SampleTable.GetAllSorted().Any().Should().BeFalse();
+                db.SampleTable.All.Any().Should().BeFalse();
             }
             {
                 var builder = new DatabaseBuilder();
                 builder.Append(new Sample[] { }.Select(x => x));
 
-                var db = builder.Build();
-                
+                var bin = builder.Build();
+                var db = new MemoryDatabase(bin);
 
-                db.SampleTable.GetAllSorted().Any().Should().BeFalse();
+                db.SampleTable.All.Any().Should().BeFalse();
             }
         }
 
@@ -100,9 +115,10 @@ namespace MasterMemory.Tests
                 LastName = "abcde"
             } });
 
-            var db = builder.Build();
+            var bin = builder.Build();
+            var db = new MemoryDatabase(bin);
 
-            var sample = db.SampleTable.GetById(999);
+            var sample = db.SampleTable.FindById(999);
             sample.Age.Should().Be(10);
             sample.FirstName.Should().BeNull();
             sample.LastName.Should().Be("abcde");

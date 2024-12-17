@@ -1,18 +1,22 @@
-using MasterMemory.Annotations;
-using MemoryPack;
+using MessagePack;
 
-namespace MasterMemory.Tests
+namespace ReactiveMemory.Tests
 {
-    [Table("skillmaster"), MemoryPackable]
-    public partial class SkillMaster
+    [MemoryTable("skillmaster"), MessagePackObject(true)]
+    public class SkillMaster
     {
         [PrimaryKey]
-        public int SkillId { get; init; }
+        public int SkillId { get; set; }
         [PrimaryKey]
-        public int SkillLevel { get; init; }
-        public int AttackPower { get; init; }
-        public string SkillName { get; init; }
-        public string Description { get; init; }
+        public int SkillLevel { get; set; }
+        public int AttackPower { get; set; }
+        public string SkillName { get; set; }
+        public string Description { get; set; }
+
+        public SkillMaster()
+        {
+
+        }
 
         public SkillMaster(int SkillId, int SkillLevel, int AttackPower, string SkillName, string Description)
         {

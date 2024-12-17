@@ -1,13 +1,34 @@
 [![GitHub Actions](https://github.com/Cysharp/MasterMemory/workflows/Build-Debug/badge.svg)](https://github.com/Cysharp/MasterMemory/actions) [![Releases](https://img.shields.io/github/release/Cysharp/MasterMemory.svg)](https://github.com/Cysharp/MasterMemory/releases)
 
-MasterMemory
+ReactiveMemory
 ===
 
-Embedded Typed Readonly In-Memory Document Database for .NET Core and Unity. 
+Embedded Typed In-Memory Document Database for .NET Core and Unity. 
 
-![image](https://user-images.githubusercontent.com/46207/61031896-61890800-a3fb-11e9-86b7-84c821d347a4.png)
+```
 
-**4700** times faster than SQLite and achieves zero allocation per query. Also the DB size is small. When SQLite is 3560kb then MasterMemory is only 222kb.
+BenchmarkDotNet v0.13.7, Windows 11 (10.0.22621.2134/22H2/2022Update/SunValley2)
+AMD Ryzen 9 7950X, 1 CPU, 32 logical and 16 physical cores
+.NET SDK 7.0.306
+  [Host]   : .NET 6.0.20 (6.0.2023.32017), X64 RyuJIT AVX2
+  ShortRun : .NET 6.0.20 (6.0.2023.32017), X64 RyuJIT AVX2
+
+Job=ShortRun  Jit=Default  Platform=X64  
+IterationCount=1  LaunchCount=1  WarmupCount=1  
+
+```
+|              Method |          Mean | Error |    Ratio |   Gen0 | Allocated | Alloc Ratio |
+|-------------------- |--------------:|------:|---------:|-------:|----------:|------------:|
+| ReactiveMemoryQuery |      5.891 ns |    NA |     1.00 |      - |         - |          NA |
+| SQLiteInMemoryQuery |  2,913.909 ns |    NA |   494.68 | 0.2289 |    3848 B |          NA |
+|     SQLiteFileQuery | 14,494.704 ns |    NA | 2,460.68 | 0.2136 |    3720 B |          NA |
+|  LiteDbDefaultQuery |  4,144.678 ns |    NA |   703.62 | 0.5188 |    8800 B |          NA |
+| LiteDbInMemoryQuery |  1,491.114 ns |    NA |   253.14 | 0.2174 |    3656 B |          NA |
+| LocalMemcachedQuery |     52.503 ns |    NA |     8.91 | 0.0091 |     152 B |          NA |
+|        RocksDbQuery |    580.918 ns |    NA |    98.62 | 0.0792 |    1328 B |          NA |
+
+
+Many times faster than SQLite and achieves zero allocation per query. Also the DB size is small. When SQLite is 3560kb then MasterMemory is only 222kb.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
