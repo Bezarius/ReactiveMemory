@@ -203,7 +203,32 @@ namespace ConsoleApp
 
         public void ReplaceAll(System.Collections.Generic.IList<EnumKeyTable> data)
         {
+            var previousValues = memory.EnumKeyTableTable.GetRawDataUnsafe();
             _EnumKeyTableChanges = CloneAndSortBy(data, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
+            foreach(var toRemove in previousValues)
+			{
+                int index = FindFirst(_EnumKeyTableChanges, toRemove.Gender, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default);
+                if (index != -1)
+                {
+                    var newValue = _EnumKeyTableChanges[index];
+                    if (!EqualityComparer<EnumKeyTable>.Default.Equals(toRemove, newValue))
+                    {
+                        _EnumKeyTableChangeTracker.EnqueueUpdate(newValue, toRemove);
+                    }
+                }
+                else
+                {
+				    _EnumKeyTableChangeTracker.EnqueueRemove(toRemove);
+                }
+			}
+
+            foreach(var toAdd in _EnumKeyTableChanges)
+            {
+                if (FindFirst(previousValues, toAdd.Gender, x => x.Gender, System.Collections.Generic.Comparer<Gender>.Default) == -1)
+                {
+                    _EnumKeyTableChangeTracker.EnqueueAdd(toAdd);
+                }
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -263,7 +288,32 @@ namespace ConsoleApp
 
         public void ReplaceAll(System.Collections.Generic.IList<Item> data)
         {
+            var previousValues = memory.ItemTable.GetRawDataUnsafe();
             _ItemChanges = CloneAndSortBy(data, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
+            foreach(var toRemove in previousValues)
+			{
+                int index = FindFirst(_ItemChanges, toRemove.ItemId, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default);
+                if (index != -1)
+                {
+                    var newValue = _ItemChanges[index];
+                    if (!EqualityComparer<Item>.Default.Equals(toRemove, newValue))
+                    {
+                        _ItemChangeTracker.EnqueueUpdate(newValue, toRemove);
+                    }
+                }
+                else
+                {
+				    _ItemChangeTracker.EnqueueRemove(toRemove);
+                }
+			}
+
+            foreach(var toAdd in _ItemChanges)
+            {
+                if (FindFirst(previousValues, toAdd.ItemId, x => x.ItemId, System.Collections.Generic.Comparer<int>.Default) == -1)
+                {
+                    _ItemChangeTracker.EnqueueAdd(toAdd);
+                }
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -323,7 +373,32 @@ namespace ConsoleApp
 
         public void ReplaceAll(System.Collections.Generic.IList<Monster> data)
         {
+            var previousValues = memory.MonsterTable.GetRawDataUnsafe();
             _MonsterChanges = CloneAndSortBy(data, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
+            foreach(var toRemove in previousValues)
+			{
+                int index = FindFirst(_MonsterChanges, toRemove.MonsterId, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default);
+                if (index != -1)
+                {
+                    var newValue = _MonsterChanges[index];
+                    if (!EqualityComparer<Monster>.Default.Equals(toRemove, newValue))
+                    {
+                        _MonsterChangeTracker.EnqueueUpdate(newValue, toRemove);
+                    }
+                }
+                else
+                {
+				    _MonsterChangeTracker.EnqueueRemove(toRemove);
+                }
+			}
+
+            foreach(var toAdd in _MonsterChanges)
+            {
+                if (FindFirst(previousValues, toAdd.MonsterId, x => x.MonsterId, System.Collections.Generic.Comparer<int>.Default) == -1)
+                {
+                    _MonsterChangeTracker.EnqueueAdd(toAdd);
+                }
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -383,7 +458,32 @@ namespace ConsoleApp
 
         public void ReplaceAll(System.Collections.Generic.IList<Person> data)
         {
+            var previousValues = memory.PersonTable.GetRawDataUnsafe();
             _PersonChanges = CloneAndSortBy(data, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
+            foreach(var toRemove in previousValues)
+			{
+                int index = FindFirst(_PersonChanges, toRemove.PersonId, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default);
+                if (index != -1)
+                {
+                    var newValue = _PersonChanges[index];
+                    if (!EqualityComparer<Person>.Default.Equals(toRemove, newValue))
+                    {
+                        _PersonChangeTracker.EnqueueUpdate(newValue, toRemove);
+                    }
+                }
+                else
+                {
+				    _PersonChangeTracker.EnqueueRemove(toRemove);
+                }
+			}
+
+            foreach(var toAdd in _PersonChanges)
+            {
+                if (FindFirst(previousValues, toAdd.PersonId, x => x.PersonId, System.Collections.Generic.Comparer<int>.Default) == -1)
+                {
+                    _PersonChangeTracker.EnqueueAdd(toAdd);
+                }
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -443,7 +543,32 @@ namespace ConsoleApp
 
         public void ReplaceAll(System.Collections.Generic.IList<Quest> data)
         {
+            var previousValues = memory.QuestTable.GetRawDataUnsafe();
             _QuestChanges = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            foreach(var toRemove in previousValues)
+			{
+                int index = FindFirst(_QuestChanges, toRemove.Id, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+                if (index != -1)
+                {
+                    var newValue = _QuestChanges[index];
+                    if (!EqualityComparer<Quest>.Default.Equals(toRemove, newValue))
+                    {
+                        _QuestChangeTracker.EnqueueUpdate(newValue, toRemove);
+                    }
+                }
+                else
+                {
+				    _QuestChangeTracker.EnqueueRemove(toRemove);
+                }
+			}
+
+            foreach(var toAdd in _QuestChanges)
+            {
+                if (FindFirst(previousValues, toAdd.Id, x => x.Id, System.Collections.Generic.Comparer<int>.Default) == -1)
+                {
+                    _QuestChangeTracker.EnqueueAdd(toAdd);
+                }
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -503,7 +628,32 @@ namespace ConsoleApp
 
         public void ReplaceAll(System.Collections.Generic.IList<Test1> data)
         {
+            var previousValues = memory.Test1Table.GetRawDataUnsafe();
             _Test1Changes = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            foreach(var toRemove in previousValues)
+			{
+                int index = FindFirst(_Test1Changes, toRemove.Id, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+                if (index != -1)
+                {
+                    var newValue = _Test1Changes[index];
+                    if (!EqualityComparer<Test1>.Default.Equals(toRemove, newValue))
+                    {
+                        _Test1ChangeTracker.EnqueueUpdate(newValue, toRemove);
+                    }
+                }
+                else
+                {
+				    _Test1ChangeTracker.EnqueueRemove(toRemove);
+                }
+			}
+
+            foreach(var toAdd in _Test1Changes)
+            {
+                if (FindFirst(previousValues, toAdd.Id, x => x.Id, System.Collections.Generic.Comparer<int>.Default) == -1)
+                {
+                    _Test1ChangeTracker.EnqueueAdd(toAdd);
+                }
+            }
             _rebuildIsNeeded = true;
         }
 
@@ -563,7 +713,32 @@ namespace ConsoleApp
 
         public void ReplaceAll(System.Collections.Generic.IList<Test2> data)
         {
+            var previousValues = memory.Test2Table.GetRawDataUnsafe();
             _Test2Changes = CloneAndSortBy(data, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+            foreach(var toRemove in previousValues)
+			{
+                int index = FindFirst(_Test2Changes, toRemove.Id, x => x.Id, System.Collections.Generic.Comparer<int>.Default);
+                if (index != -1)
+                {
+                    var newValue = _Test2Changes[index];
+                    if (!EqualityComparer<Test2>.Default.Equals(toRemove, newValue))
+                    {
+                        _Test2ChangeTracker.EnqueueUpdate(newValue, toRemove);
+                    }
+                }
+                else
+                {
+				    _Test2ChangeTracker.EnqueueRemove(toRemove);
+                }
+			}
+
+            foreach(var toAdd in _Test2Changes)
+            {
+                if (FindFirst(previousValues, toAdd.Id, x => x.Id, System.Collections.Generic.Comparer<int>.Default) == -1)
+                {
+                    _Test2ChangeTracker.EnqueueAdd(toAdd);
+                }
+            }
             _rebuildIsNeeded = true;
         }
 
