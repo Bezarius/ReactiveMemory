@@ -133,14 +133,31 @@ namespace <#= Namespace #>
 #>
         public void ReplaceAll(System.Collections.Generic.IList<<#= item.ClassName #>> data)
         {
-            foreach(var toRemove in memory.<#= item.ClassName #>Table.GetRawDataUnsafe())
-			{
-				_<#= item.ClassName #>ChangeTracker.EnqueueRemove(toRemove);
-			}
+            var previousValues = memory.<#= item.ClassName #>Table.GetRawDataUnsafe();
             _<#= item.ClassName #>Changes = CloneAndSortBy(data, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>);
+            foreach(var toRemove in previousValues)
+			{
+                int index = FindFirst(_<#= item.ClassName #>Changes, <#= item.PrimaryKey.BuildKeyAccessor("toRemove") #>, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>);
+                if (index != -1)
+                {
+                    var newValue = _<#= item.ClassName #>Changes[index];
+                    if (!EqualityComparer<<#= item.ClassName #>>.Default.Equals(toRemove, newValue))
+                    {
+                        _<#= item.ClassName #>ChangeTracker.EnqueueUpdate(newValue, toRemove);
+                    }
+                }
+                else
+                {
+				    _<#= item.ClassName #>ChangeTracker.EnqueueRemove(toRemove);
+                }
+			}
+
             foreach(var toAdd in _<#= item.ClassName #>Changes)
             {
-                _<#= item.ClassName #>ChangeTracker.EnqueueAdd(toAdd);
+                if (FindFirst(previousValues, <#= item.PrimaryKey.BuildKeyAccessor("toAdd") #>, x => <#= item.PrimaryKey.BuildKeyAccessor("x") #>, <#= item.PrimaryKey.BuildComparer() #>) == -1)
+                {
+                    _<#= item.ClassName #>ChangeTracker.EnqueueAdd(toAdd);
+                }
             }
             _rebuildIsNeeded = true;
         }

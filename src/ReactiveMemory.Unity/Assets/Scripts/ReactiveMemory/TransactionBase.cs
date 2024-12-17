@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -13,6 +14,13 @@ namespace ReactiveMemory
 {
     public abstract class TransactionBase
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static int FindFirst<TElement, TKey>(TElement[] array, TKey key, Func<TElement, TKey> keySelector,
+            IComparer<TKey> comparer)
+        {
+            return BinarySearch.FindFirst(array, key, keySelector, comparer);
+        }
+
         protected static TElement[] CloneAndSortBy<TElement, TKey>(IList<TElement> elementData,
             Func<TElement, TKey> indexSelector, IComparer<TKey> comparer)
         {
